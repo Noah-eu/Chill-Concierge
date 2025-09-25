@@ -41,7 +41,7 @@ const KEYBOX = {
   "301": "3312","302": "3313","303": "3314","304": "3315","305": "3316",
 };
 
-/** ====== PROMPT / ROUTER ====== */
+/** ====== PROMPT ====== */
 const SYSTEM_PROMPT = `You are a helpful hotel concierge for CHILL Apartments.
 - Always reply in the user's language (mirror the last user message).
 - Location: ${HOTEL.address}. Keep suggestions within about ${HOTEL.maxRadiusMeters} meters (~10 min walk). Prefer areas: ${HOTEL.areaHints.join(", ")}.
@@ -50,7 +50,7 @@ const SYSTEM_PROMPT = `You are a helpful hotel concierge for CHILL Apartments.
 "Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. Rád pomohu s ostatním (restaurace, doprava, doporučení v okolí, technické potíže mimo kódy, faktury, potvrzení o pobytu, ztráty a nálezy, hluční sousedé)."
 - Otherwise be concise (~4 sentences), friendly, and practical.`;
 
-// zúžené: nechytnou běžné věty o světlech/proudu
+// neházej běžné věty o světlech/proudu do handoffu
 const FORBIDDEN_PATTERNS = [
   /parkován(í|i)|parking/i,
   /check[-\s]?in|self\s?check[-\s]?in|check[-\s]?out|late check[-\s]?out/i,
@@ -60,6 +60,8 @@ const FORBIDDEN_PATTERNS = [
 
 /** ====== UTIL ====== */
 const lastUser = (messages=[]) => [...messages].reverse().find(m=>m.role==="user")?.content || "";
+const lastAssistant = (messages=[]) => [...messages].reverse().find(m=>m.role==="assistant")?.content || "";
+
 const extractRoom = (text) => (text||"").match(/\b(00[1]|10[1-5]|20[1-5]|30[1-5])\b/)?.[1] || null;
 const extractSSID = (text) => (text||"").match(/\b([A-Z0-9]{4})\b/)?.[1] || null;
 
@@ -67,54 +69,83 @@ function historyContainsWifi(messages = []) {
   const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
   return /(wi[-\s]?fi|wifi|ssid|router|heslo|password)/i.test(look);
 }
-
+function recentlySentWifiTroubleshoot(messages = []) {
+  return /Pokud Wi-?Fi nefunguje:/i.test(lastAssistant(messages) || "");
+}
 function recentlySentGenericLocal(messages = []) {
-  const lastAssistant = [...messages].reverse().find(m => m.role === "assistant")?.content || "";
-  return /Jsme na \*\*Sokolská 1614\/64, Praha 2, 120 00\*\*/.test(lastAssistant)
-      && /Doporučení držím do ~10 min chůze/.test(lastAssistant);
+  const a = lastAssistant(messages) || "";
+  return /Jsme na \*\*Sokolská 1614\/64, Praha 2, 120 00\*\*/.test(a) && /Doporučení držím do ~10 min chůze/.test(a);
 }
 
-/** ⭐ univerzální překlad do jazyka uživatele */
+/** — Jazyk — */
+function guessLang(userText = "") {
+  const t = userText.trim();
+  const hasCz = /[ěščřžýáíéúůňťď]/i.test(t);
+  // jednoduchý odhad EN: žádná diakritika + běžná EN slova
+  const isLikelyEn = !/[^\x00-\x7F]/.test(t) && /\b(i|you|we|the|and|or|have|need|wifi|problem|please|where|not|no)\b/i.test(t);
+  if (hasCz) return "cs";
+  if (isLikelyEn) return "en";
+  return null; // nevíme → necháme model zjistit
+}
+
+/** ⭐ univerzální překlad do jazyka uživatele (s hintem + fallback do EN) */
 async function translateToUserLang(text, userText) {
-  const completion = await client.chat.completions.create({
-    model: MODEL,
-    temperature: 0.0,
-    messages: [
-      {
-        role: "system",
-        content:
-          "Rewrite ASSISTANT_MESSAGE in the language used in USER_MESSAGE. Keep meaning, tone, formatting and emojis. Be concise."
-      },
-      { role: "user", content: "USER_MESSAGE:\n" + (userText || "") + "\n\nASSISTANT_MESSAGE:\n" + (text || "") }
-    ]
-  });
-  return completion.choices?.[0]?.message?.content?.trim() || text;
+  const hint = guessLang(userText);
+  const baseMsgs = [
+    {
+      role: "system",
+      content: `Rewrite ASSISTANT_MESSAGE in the language used in USER_MESSAGE. Keep meaning, tone, formatting and emojis. Be concise.${
+        hint ? ` TARGET_LANG=${hint}.` : ""
+      }`
+    },
+    { role: "user", content: "USER_MESSAGE:\n" + (userText || "") + "\n\nASSISTANT_MESSAGE:\n" + (text || "") }
+  ];
+  let completion = await client.chat.completions.create({ model: MODEL, temperature: 0.0, messages: baseMsgs });
+  let out = completion.choices?.[0]?.message?.content?.trim() || text;
+
+  // Fallback: uživatel psal anglicky, ale výstup má české znaky → přelož znovu napevno do EN
+  if (hint === "en" && /[ěščřžýáíéúůňťď]/i.test(out)) {
+    completion = await client.chat.completions.create({
+      model: MODEL,
+      temperature: 0.0,
+      messages: [
+        { role: "system", content: "Translate ASSISTANT_MESSAGE to English. Keep formatting; be concise." },
+        { role: "user", content: text || "" }
+      ]
+    });
+    out = completion.choices?.[0]?.message?.content?.trim() || out;
+  }
+  return out;
 }
 
-/** ====== IMG PATHS (tvé soubory) ====== */
+/** ====== IMG PATHS ====== */
 const IMG = (src, alt) => `![${alt}](${src})`;
 const P = {
   AC: "/help/AC.jpg",
   BALCONY: "/help/balcony.jpg",
-  FUSE_APT: "/help/fuse-box-apartment.jpg",             // hlavní jistič u balkonu (větší troj-jističe)
-  FUSE_IN_APT: "/help/fuse-box-in-the-apartment.jpg",   // malé bílé dvířka v bytě
+  FUSE_APT: "/help/fuse-box-apartment.jpg",             // hlavní jistič u balkonu
+  FUSE_IN_APT: "/help/fuse-box-in-the-apartment.jpg",   // dvířka v bytě
   LAUNDRY: "/help/laundry-room.jpg",
   LUGGAGE: "/help/13.%20Luggage%20room.jpg"
 };
 
-/** ====== INTENT HELPERS ====== */
+/** ====== HELPERS ====== */
 function wifiByRoom(room){ return WIFI.find(w=>w.room===room)||null; }
 function wifiBySsid(ssid){ return WIFI.find(w=>w.ssid===ssid)||null; }
 
-function buildWifiHelp(entry) {
-  const creds = entry ? `\n\n**Wi-Fi:** SSID **${entry.ssid}**, heslo **${entry.pass}**.` : "";
+function buildWifiTroubleshoot() {
   return [
     "Pokud Wi-Fi nefunguje:",
     "1) Zkontrolujte kabely u routeru.",
     "2) Restartujte: vytáhněte napájecí kabel na 10 sekund, poté zapojte a vyčkejte 1–2 minuty.",
     "3) Pokud to nepomůže, napište, jakou **jinou Wi-Fi** vidíte – pošlu k ní heslo.",
-    creds
-  ].filter(Boolean).join("\n");
+    "👉 Pokud znáte **číslo apartmánu** nebo **SSID** (4 znaky), napište mi ho a pošlu heslo."
+  ].join("\n");
+}
+
+function buildWifiCreds(entry) {
+  if (!entry) return null;
+  return `**Wi-Fi:** SSID **${entry.ssid}**, heslo **${entry.pass}**.`;
 }
 
 function buildACHelp() {
@@ -167,7 +198,7 @@ function buildKeyHelp(room) {
       `Zapomenutý klíč:`,
       `1) Do **bagážovny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
       `2) Napište mi prosím **číslo apartmánu** – pošlu kód k příslušnému boxu.`,
-      `3) Po použití klíč **vrátte** a **zamíchejte číselník**.`
+      `3) Po použití klíč **vrátit** a **zamíchat číselník**.`
     ].join("\n");
   }
   const code = KEYBOX[room];
@@ -175,9 +206,9 @@ function buildKeyHelp(room) {
   return [
     IMG(P.LUGGAGE, "Vstup do bagážovny"),
     `Náhradní klíč k **${room}**:`,
-    `1) Do **bagážovny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
-    `2) Otevřete box **${room}** – kód **${code}**.`,
-    `3) Po otevření apartmánu prosíme klíč **vrátit** a číselník **zamíchat**.`
+    `1) Vstup: **${LUGGAGE_ROOM_CODE}**.`,
+    `2) Box **${room}** – kód **${code}**.`,
+    `3) Po použití klíč **vrátit** a číselník **zamíchat**.`
   ].join("\n");
 }
 
@@ -192,6 +223,9 @@ function detectLocalSubtype(t) {
   if (/(vegetari|vegan)/i.test(t)) return "veggie";
   return null;
 }
+function wantsSitHotBreakfast(t) {
+  return /(posadit|sednout|sit\s?down)/i.test(t) && /(tepl|hot)/i.test(t);
+}
 
 function buildLocalGeneric() {
   return [
@@ -201,33 +235,41 @@ function buildLocalGeneric() {
   ].join("\n");
 }
 const Local = {
-  breakfast: () => [
-    `Na **snídani** do ${Math.round(HOTEL.maxRadiusMeters/80)} min chůze doporučím okolí **I. P. Pavlova** a směr **Náměstí Míru** (kavárny, pekárny, bistra).`,
-    `Dejte vědět, zda chcete **rychle něco s sebou**, nebo **posadit se** – pošlu konkrétní tip v okolí.`
-  ].join("\n"),
+  breakfast: (t) => {
+    if (wantsSitHotBreakfast(t)) {
+      return [
+        `OK, **posadit se a teplou snídani** – držím se okruhu **I. P. Pavlova → Náměstí Míru** (do 10 min chůze).`,
+        `Pošlu konkrétní tip podle **času** (kdy chcete jít?) a **rozpočtu** (cca Kč/osoba).`
+      ].join("\n");
+    }
+    return [
+      `Na **snídani** do ${Math.round(HOTEL.maxRadiusMeters/80)} min chůze doporučím okolí **I. P. Pavlova** a směr **Náměstí Míru** (kavárny, pekárny, bistra).`,
+      `Chcete raději **rychle něco s sebou**, nebo **posadit se**? Napište i **čas** a **rozpočet** – zúžím výběr.`
+    ].join("\n");
+  },
   pharmacy: () => [
-    `**Lékárnu** nejlépe hledejte u **I. P. Pavlova** (cca 3–5 min pěšky).`,
-    `Potřebujete-li **noční službu**, napište mi prosím **čas** – zkontroluji nejbližší otevřenou možnost.`
+    `**Lékárna**: nejblíž u **I. P. Pavlova** (3–5 min).`,
+    `Potřebujete-li **noční službu**, napište **čas** – doporučím otevřenou.`
   ].join("\n"),
   grocery: () => [
-    `**Supermarket/potraviny** najdete v okolí **I. P. Pavlova** a směrem k **Náměstí Míru** (do 5–10 min chůze).`,
-    `Přesněji poradím podle času (večer/noc se otevírací doby liší).`
+    `**Supermarket/potraviny**: I. P. Pavlova a směr **Náměstí Míru** (5–10 min).`,
+    `Upřesním podle **času** (večer/noc se liší).`
   ].join("\n"),
   cafe: () => [
-    `Na **kávu/kavárny** je dobrý okruh **I. P. Pavlova → Náměstí Míru** (5–10 min).`,
-    `Řekněte, zda chcete **espresso bar** nebo **posezení**, a jaký čas – upřesním.`
+    `**Káva/kavárny**: okruh **I. P. Pavlova → Náměstí Míru** (5–10 min).`,
+    `Preferujete **espresso bar** nebo **posezení**? A v kolik?`
   ].join("\n"),
   bar: () => [
-    `Na **drink/bar** zkuste spodní **Vinohrady** a okolí **Národní/Václavské** (do 10–12 min).`,
-    `Hledáte spíš **tiché** místo, nebo **živější** bar? Podle toho doporučím.`
+    `**Drink/bar**: spodní **Vinohrady** a okolí **Národní/Václavské** (do 10–12 min).`,
+    `Spíš **tiché** místo, nebo **živější** bar?`
   ].join("\n"),
   czech: () => [
-    `Na **českou kuchyni** doporučím podniky v okruhu do 10 min chůze od **I. P. Pavlova** směrem k **Muzeu** a **Náměstí Míru**.`,
-    `Dejte prosím vědět cenovou představu a čas – dám cílenější tip.`
+    `**Česká kuchyně** v okruhu do 10 min mezi **I. P. Pavlova**, **Muzeem** a **Náměstím Míru**.`,
+    `Napište **rozpočet** a **čas**, dám konkrétní tip.`
   ].join("\n"),
   veggie: () => [
-    `**Vegetarián/vegan**: v okruhu do 10 min je několik bister a kaváren mezi **I. P. Pavlova** a **Náměstí Míru**.`,
-    `Napíšete, zda chcete teplé jídlo, nebo spíš salát/sandwich? Doporučím konkrétně.`
+    `**Vegetarián/vegan**: několik bister a kaváren mezi **I. P. Pavlova** a **Náměstí Míru** (do 10 min).`,
+    `Chcete teplé jídlo, nebo salát/sandwich? A v kolik?`
   ].join("\n")
 };
 
@@ -275,8 +317,16 @@ export default async (req) => {
       const room = extractRoom(userText);
       const ssid = extractSSID(userText);
       const entry = room ? wifiByRoom(room) : (ssid ? wifiBySsid(ssid) : null);
-      let reply = buildWifiHelp(entry);
-      if (!entry) reply += "\n\n👉 Pokud znáte **číslo apartmánu** nebo **SSID** (4 znaky), napište mi ho a pošlu heslo.";
+
+      // pokud máme konkrétní přihlašky → pošli JEN přihlašky
+      if (entry) {
+        const creds = buildWifiCreds(entry);
+        return ok(await translateToUserLang(creds, userText));
+      }
+      // jinak troubleshooting (pokud už nebyl poslán, tak s instrukcemi; když už byl, tak zkráceně)
+      const reply = recentlySentWifiTroubleshoot(messages)
+        ? "Napište prosím **číslo apartmánu** nebo **SSID** (4 znaky) – pošlu heslo."
+        : buildWifiTroubleshoot();
       return ok(await translateToUserLang(reply, userText));
     }
 
@@ -293,9 +343,9 @@ export default async (req) => {
     if (intent === "local") {
       const sub = detectLocalSubtype(userText);
       const msg = sub
-        ? Local[sub]()
+        ? Local[sub](userText)
         : recentlySentGenericLocal(messages)
-          ? "Abych doporučil konkrétně: hledáte **snídani**, **lékárnu**, **supermarket**, **kavárnu**, **bar**, **českou kuchyni** nebo **vegetarián/vegan**? Napište i čas a rozpočet."
+          ? "Abych doporučil konkrétně v okolí: hledáte **snídani**, **lékárnu**, **supermarket**, **kavárnu**, **bar**, **českou kuchyni** nebo **vegetarián/vegan**? Napište i **čas** a **rozpočet**."
           : buildLocalGeneric();
       return ok(await translateToUserLang(msg, userText));
     }
