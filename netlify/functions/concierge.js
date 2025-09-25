@@ -50,11 +50,12 @@ const SYSTEM_PROMPT = `You are a helpful hotel concierge for CHILL Apartments.
 "Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. Rád pomohu s ostatním (restaurace, doprava, doporučení v okolí, technické potíže mimo kódy, faktury, potvrzení o pobytu, ztráty a nálezy, hluční sousedé)."
 - Otherwise be concise (~4 sentences), friendly, and practical.`;
 
+// zúžené: už NEMATCHUJÍ běžné věty o apartmánu/světlech
 const FORBIDDEN_PATTERNS = [
   /parkován(í|i)|parking/i,
   /check[-\s]?in|self\s?check[-\s]?in|check[-\s]?out|late check[-\s]?out/i,
-  /ubytován(í|i)|rezervac(e|i|í)|pokoj|apartm(á|a)n (rezervace|změna|cena)/i,
-  /platba za (ubytování|pokoj)|cena (pokoje|ubytování)/i
+  /ubytován(í|i)|rezervac(e|i|í)/i,
+  /(cena|price).*(pokoj|room)|platba za (ubytování|pokoj)/i
 ];
 
 /** ====== UTIL ====== */
@@ -70,6 +71,11 @@ const lastUser = (messages=[]) => [...messages].reverse().find(m=>m.role==="user
 const extractRoom = (text) => (text||"").match(/\b(00[1]|10[1-5]|20[1-5]|30[1-5])\b/)?.[1] || null;
 const extractSSID = (text) => (text||"").match(/\b([A-Z0-9]{4})\b/)?.[1] || null;
 
+function historyContainsWifi(messages = []) {
+  const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
+  return /(wi[-\s]?fi|wifi|ssid|router|heslo|password)/i.test(look);
+}
+
 async function translateToUserLang(text, userText) {
   const lang = detectLang(userText);
   if (lang === "cs") return text;
@@ -83,14 +89,15 @@ async function translateToUserLang(text, userText) {
   return completion.choices?.[0]?.message?.content?.trim() || text;
 }
 
-/** ====== IMG HELPERS – tvoje soubory ====== */
-const IMG = (name, alt) => `![${alt}](${name})`;
+/** ====== IMG PATHS (tvé soubory) ====== */
+const IMG = (src, alt) => `![${alt}](${src})`;
 const P = {
   AC: "/help/AC.jpg",
   BALCONY: "/help/balcony.jpg",
-  FUSE: "/help/fuse-box-apartment.jpg",
+  FUSE_APT: "/help/fuse-box-apartment.jpg",
+  FUSE_IN_APT: "/help/fuse-box-in-the-apartment.jpg",
   LAUNDRY: "/help/laundry-room.jpg",
-  LUGGAGE: "/help/13.%20Luggage%20room.jpg" // mezery musí být %20
+  LUGGAGE: "/help/13.%20Luggage%20room.jpg"
 };
 
 /** ====== INTENT HELPERS ====== */
@@ -100,7 +107,6 @@ function wifiBySsid(ssid){ return WIFI.find(w=>w.ssid===ssid)||null; }
 function buildWifiHelp(entry) {
   const creds = entry ? `\n\n**Wi-Fi:** SSID **${entry.ssid}**, heslo **${entry.pass}**.` : "";
   return [
-    // nemáme zatím router foto → vynecháno
     "Pokud Wi-Fi nefunguje:",
     "1) Zkontrolujte kabely u routeru.",
     "2) Restartujte: vytáhněte napájecí kabel na 10 sekund, poté zapojte a vyčkejte 1–2 minuty.",
@@ -120,42 +126,39 @@ function buildACHelp() {
 }
 
 function buildPowerHelp() {
+  // přesně podle tvého znění + obě fotky
   return [
-    IMG(P.FUSE, "Jističe v apartmánu"),
-    "1) Zkontrolujte jističe **v apartmánu** (malá bílá dvířka ve zdi).",
-    IMG(P.BALCONY, "Hlavní jistič u balkonu"),
-    "2) Pokud jsou v pořádku, zkontrolujte **hlavní jistič** u balkonu (větší troj-jističe).",
-    "3) Pokud je problém tam, bude **jeden dole**, ostatní nahoře – zvedněte páčku nahoru."
+    "Pokud vypadne elektřina v apartmánu:",
+    IMG(P.FUSE_IN_APT, "Jističe v apartmánu – malá bílá dvířka"),
+    "Nejdříve **kontrola jističů v apartmánu**. Jsou to **malé bílé plastové dvířka ve zdi**.",
+    IMG(P.FUSE_APT, "Hlavní jistič u balkonu – větší troj-jističe"),
+    "Pak by to mohl být **hlavní jistič apartmánu**, který je **ve zdi za kovovými dveřmi hned vedle balkonu**. Jsou to **větší troj jističe**.",
+    "Pokud bude problém tam, bude **jako jediný dole**, ostatní nahoře – zvedněte ho nahoru."
   ].join("\n");
 }
 
 function buildAccessibility() {
   return [
-    // nemáme fotku výtahu → textově
     "Do budovy vedou **dva schody**. Do apartmánu **001** je **jeden schod**.",
     "Jinak bez schodů a s **velkým výtahem**.",
     "Ve sprchách je cca **30 cm** vysoký okraj vaničky."
   ].join("\n");
 }
-
 function buildSmoking() {
   return [
     IMG(P.BALCONY, "Společný balkon"),
     "Pro kouření využijte prosím **společné balkony** na každém patře naproti výtahu."
   ].join("\n");
 }
-
 function buildPets() {
   return "Psi jsou vítáni a **neplatí se** za ně poplatek. Prosíme, aby **nelezli na postele a gauče**.";
 }
-
 function buildLaundry() {
   return [
     IMG(P.LAUNDRY, "Prádelna v suterénu"),
     "Prádelna je v **suterénu**, otevřena **non-stop** a **zdarma**. K dispozici jsou prostředky i **žehlička** (lze vzít na pokoj)."
   ].join("\n");
 }
-
 function buildKeyHelp(room) {
   if (!room) {
     return [
@@ -182,7 +185,7 @@ function detectIntent(text) {
   const t = (text || "").toLowerCase();
   if (/(wi[-\s]?fi|wifi|internet|heslo|password|ssid)/i.test(t)) return "wifi";
   if (/(ac|klimatizace|klima|air ?conditioning)/i.test(t)) return "ac";
-  if (/(elektrin|elektrik|jistič|jistice|power|fuse|breaker)/i.test(t)) return "power";
+  if (/(elektrin|elektrik|jistič|jistice|proud|svetl|nesviti|nesvítí|no lights|power|fuse|breaker)/i.test(t)) return "power";
   if (/(invalid|wheelchair|bezbarier|schod)/i.test(t)) return "access";
   if (/(kouř|kouřit|smok)/i.test(t)) return "smoking";
   if (/(pes|psi|dog)/i.test(t)) return "pets";
@@ -192,6 +195,7 @@ function detectIntent(text) {
   return "general";
 }
 
+/** Lokální doporučení – generika */
 function buildLocalGeneric() {
   return [
     `Jsme na **${HOTEL.address}** (u ${HOTEL.areaHints.join(", ")}).`,
@@ -223,8 +227,9 @@ export default async (req) => {
 
     // Deterministické intent odpovědi
     const intent = detectIntent(userText);
+    const wifiContext = historyContainsWifi(messages);
 
-    if (intent === "wifi") {
+    if (intent === "wifi" || (wifiContext && (extractRoom(userText) || extractSSID(userText)))) {
       const room = extractRoom(userText);
       const ssid = extractSSID(userText);
       const entry = room ? wifiByRoom(room) : (ssid ? wifiBySsid(ssid) : null);
@@ -232,6 +237,7 @@ export default async (req) => {
       if (!entry) reply += "\n\n👉 Pokud znáte **číslo apartmánu** nebo **SSID** (4 znaky), napište mi ho a pošlu heslo.";
       return ok(await translateToUserLang(reply, userText));
     }
+
     if (intent === "ac")      return ok(await translateToUserLang(buildACHelp(), userText));
     if (intent === "power")   return ok(await translateToUserLang(buildPowerHelp(), userText));
     if (intent === "access")  return ok(await translateToUserLang(buildAccessibility(), userText));
