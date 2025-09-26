@@ -4,30 +4,20 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { LANGS, FLOWS } from "./flows";
 
-export default function App() {
+export default function App({ initialMessages = [] }) {
   const [lang, setLang] = useState(null);
   const [stack, setStack] = useState([]);
-  const [chat, setChat] = useState([]);
+  const [chat, setChat] = useState(initialMessages.length ? initialMessages : []);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollerRef = useRef(null);
 
   useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat]);
 
-  // úvodní vícejazyčný pozdrav
+  // po volbě jazyka schovej multi-greeting (statický v index.html)
   useEffect(() => {
-    if (chat.length) return;
-    setChat([{
-      role: "assistant",
-      content: [
-        "**Ahoj! Jak vám mohu pomoci dnes?** 🇨🇿",
-        "**Hello! How can I help you today?** 🇬🇧",
-        "**¡Hola! ¿Cómo puedo ayudarte hoy?** 🇪🇸",
-        "**Hallo! Wie kann ich Ihnen heute helfen?** 🇩🇪",
-        "**Bonjour ! Comment puis-je vous aider aujourd'hui ?** 🇫🇷"
-      ].join("\n")
-    }]);
-  }, [chat.length]);
+    document.body.classList.toggle("lang-selected", !!lang);
+  }, [lang]);
 
   function renderAssistant(md = "") {
     const rawHtml = marked.parse(md, { breaks: true });
@@ -36,6 +26,7 @@ export default function App() {
   }
 
   async function sendPrompt(prompt) {
+    if (!prompt) return;
     const next = [...chat, { role: "user", content: prompt }];
     setChat(next);
     setLoading(true);
@@ -87,11 +78,11 @@ export default function App() {
           <div className="bubble bot" style={{ display: "inline-block", maxWidth: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
               <strong style={{ marginBottom: 6 }}>
-                {stack.length === 0 ? "Vyberte téma / Pick a topic" : "Podtéma / Subtopic"}
+                {stack.length === 0 ? (lang === "en" ? "Pick a topic / Vyberte téma" : "Vyberte téma / Pick a topic") : "Podtéma / Subtopic"}
               </strong>
               {stack.length > 0 && (
-                <button onClick={goBack} style={{ ...btnStyle, background: "#fff", color: "#111", borderColor: "#ddd" }}>
-                  ← Zpět
+                <button onClick={goBack} style={{ ...btnStyle, background: "#fff", color: "#111", borderColor: "#ddd", minWidth: 90 }}>
+                  {lang === "en" ? "← Back" : "← Zpět"}
                 </button>
               )}
             </div>
@@ -104,7 +95,7 @@ export default function App() {
                     key={idx}
                     style={chipPrimary}
                     onClick={() => sendPrompt(n.prompt)}
-                    disabled={loading}
+                    disabled={loading || !n.prompt}
                     title={n.prompt}
                   >
                     {n.label}
@@ -112,8 +103,15 @@ export default function App() {
                 )
               )}
             </div>
+            <div style={{ fontSize: 12, color: "#6b7280", marginTop: 10 }}>
+              {lang === "en"
+                ? "You can always type your own question below."
+                : "Stále můžete napsat vlastní dotaz do pole níže."}
+            </div>
             <div style={{ fontSize: 12, color: "#6b7280", marginTop: 8 }}>
-              Stále můžete napsat vlastní dotaz do pole níže.
+              {lang === "en"
+                ? "If you can’t find what you need, message David – WhatsApp +420 733 439 733."
+                : "Pokud jste nenašli informace, které potřebujete, obraťte se na Davida – WhatsApp +420 733 439 733."}
             </div>
           </div>
         )}
