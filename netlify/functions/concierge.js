@@ -74,7 +74,7 @@ function recentlySentWifiTroubleshoot(messages = []) {
   return /Pokud Wi-?Fi nefunguje:/i.test(lastAssistant(messages) || "");
 }
 
-/** jazyková detekce: cs/en/es/de/fr */
+/** jazyková detekce + překlad (preferuj uiLang z frontendu) */
 function guessLang(userText = "") {
   const t = (userText || "").trim().toLowerCase();
   if (/[ěščřžýáíéúůňťď]/i.test(t)) return "cs";
@@ -84,15 +84,15 @@ function guessLang(userText = "") {
   if (/\b(hello|please|thanks|where|wifi|password|help)\b/.test(t)) return "en";
   return null;
 }
-async function translateToUserLang(text, userText) {
-  const hint = guessLang(userText);
+async function translateToUserLang(text, userText, uiLang) {
+  const hint = uiLang || guessLang(userText);
   if (hint === "cs" && /[ěščřžýáíéúůňťď]/i.test(text)) return text; // už česky
 
   const completion = await client.chat.completions.create({
     model: MODEL, temperature: 0.0,
     messages: [
-      { role: "system", content: `Rewrite ASSISTANT_MESSAGE in the language used in USER_MESSAGE. Keep meaning, tone, formatting and emojis. Preserve markdown links. Be concise.${hint ? ` TARGET_LANG=${hint}.` : ""}` },
-      { role: "user", content: "USER_MESSAGE:\n" + (userText || "") + "\n\nASSISTANT_MESSAGE:\n" + (text || "") }
+      { role: "system", content: `Rewrite ASSISTANT_MESSAGE in TARGET_LANG. Keep meaning, tone, formatting and emojis. Preserve markdown links. Be concise. TARGET_LANG=${hint || "cs"}` },
+      { role: "user", content: "ASSISTANT_MESSAGE:\n" + (text || "") }
     ]
   });
   return completion.choices?.[0]?.message?.content?.trim() || text;
@@ -110,7 +110,7 @@ const P = {
   CHECKOUT_BOX: "/help/check-out-box.jpg",
   SPARE_KEY: "/help/spare-key.jpg",
   GARBAGE: "/help/garbage.jpg",
-  GATE_SWITCH: "/help/inside-gate-switch.jpg", // správné hláskování
+  GATE_SWITCH: "/help/inside-gate-switch.jpg", // POZOR: „switch“, ne „sitch“
   DOOR_BELLS: "/help/door-bells.jpg",
 };
 
@@ -191,7 +191,7 @@ function buildKeyHelp(room) {
     `Náhradní klíč k **${room}**:`,
     `1) Do **úschovny batožiny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
     `2) Otevřete box **${room}** – kód **${code}**.`,
-    `3) Po otevření apartmánu prosíme klíč **vrátit** a číselník **zamíchat**.`
+    `3) Po otevření apartmánu prosíme klíč **vrátit** a **zamíchat**.`
   ].join("\n");
 }
 
@@ -275,7 +275,7 @@ function detectIntent(text) {
   if (/(kouř|kour|kouřit|smok)/i.test(t)) return "smoking";
   if (/\b(pes|psi|dog|mazl(í|i)č|pets?)\b/i.test(t)) return "pets";
   if (/(prádeln|pradel|laund)/i.test(t)) return "laundry";
-  if (/(úschovn|uschovn|batožin|batozin|luggage|zavazadel)/i.test(t)) return "luggage";
+  if (/(úschovn|uschovn|batožin|batozin|zavazadel|luggage)/i.test(t)) return "luggage";
   if (/(klíč|klic|spare key|key).*(apartm|room)|\bnáhradn/i.test(t)) return "keys";
 
   // utility
@@ -310,39 +310,69 @@ export default async (req) => {
   }
 
   try {
-    // Frontend může posílat buď messages (chat), nebo control (tlačítka „local“)
+    // Frontend může poslat: { messages, uiLang, control }
     const body = await req.json();
-    const { messages = [], control = null } = body || {};
+    const { messages = [], uiLang = null, control = null } = body || {};
     const userText = lastUser(messages);
 
-    // 1) CONTROL VĚTEV – lokální kategorie pouze z places.js (bez modelu, bez halucinací)
-    if (control && control.intent === "local") {
-      const sub = String(control.sub || "").toLowerCase();
-      const lang = guessLang(userText || sub) || "cs";
-      const labelMap = { cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir" };
-
-      const valid = new Set(["breakfast","cafe","bakery","veggie","czech","bar","vietnam","grocery","pharmacy","exchange","atm"]);
-      const cat = valid.has(sub) ? sub : null;
-
-      if (!cat) {
-        const msg = "Napište prosím typ: snídaně / kavárna / pekárna / vegan / česká / market / lékárna / směnárna / ATM – pošlu odkazy.";
-        return ok(await translateToUserLang(msg, userText || sub));
+    // 1) CONTROL – pevná tlačítka (bez modelu, bez halucinací)
+    if (control) {
+      // a) Lokální curated seznamy
+      if (control.intent === "local") {
+        const sub = String(control.sub || "").toLowerCase();
+        const labelMap = { cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir" };
+        const valid = new Set(["breakfast","cafe","bakery","veggie","czech","bar","vietnam","grocery","pharmacy","exchange","atm"]);
+        if (!valid.has(sub)) {
+          const ask = "Napište prosím typ: snídaně / kavárna / pekárna / vegan / česká / market / lékárna / směnárna / ATM – pošlu odkazy.";
+          return ok(await translateToUserLang(ask, userText || sub, uiLang));
+        }
+        const curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
+        const reply = curated || "Pro tuto kategorii teď nemám připravený seznam.";
+        return ok(await translateToUserLang(reply, userText || sub, uiLang));
       }
 
-      const curated = buildCuratedList(cat, { max: 12, labelOpen: labelMap[lang] || "Open" });
-      const reply = curated || "Pro tuto kategorii teď nemám připravený seznam.";
-      return ok(await translateToUserLang(reply, userText || sub));
+      // b) Technické / interní – vracíme přímo naše markdowny + fotky
+      if (control.intent === "tech") {
+        const sub = String(control.sub || "").toLowerCase();
+        const map = {
+          wifi: buildWifiTroubleshoot,
+          power: buildPowerHelp,
+          ac: buildACHelp,
+          hot_water: buildHotWater,
+          induction: buildInduction,
+          hood: buildHood,
+          coffee: buildCoffee,
+          fire_alarm: buildFireAlarm,
+          elevator_phone: buildElevatorPhone,
+          luggage: buildLuggageInfo,
+          keys: () => buildKeyHelp(control.room || null),
+          gate: buildGate,
+          doorbells: buildDoorbells,
+          trash: buildTrash,
+          laundry: buildLaundry,
+          access: buildAccessibility,
+          smoking: buildSmoking,
+          pets: buildPets,
+          linen_towels: buildLinenTowels,
+          doctor: buildDoctor,
+          safe: buildSafe,
+        };
+        const fn = map[sub];
+        const text = fn ? fn() : "Toto tlačítko zatím nemám napojené.";
+        return ok(await translateToUserLang(text, userText || sub, uiLang));
+      }
     }
 
     // 2) Handoff (parkování apod.)
     if (FORBIDDEN_PATTERNS.some(r => r.test(userText))) {
       return ok(await translateToUserLang(
         "Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. Rád pomohu se vším ostatním (doporučení v okolí, doprava, technické potíže, potvrzení o pobytu, faktury, ztráty/nálezy, stížnosti).",
-        userText
+        userText,
+        uiLang
       ));
     }
 
-    // 3) Intent z volného dotazu / předvyplněného tlačítka
+    // 3) Intent z volného textu
     const intent = detectIntent(userText);
     const wifiContext = historyContainsWifi(messages);
 
@@ -352,40 +382,40 @@ export default async (req) => {
       const ssid = extractSSID(userText);
       const entry = room ? wifiByRoom(room) : (ssid ? wifiBySsid(ssid) : null);
 
-      if (entry) return ok(await translateToUserLang(buildWifiCreds(entry), userText));
+      if (entry) return ok(await translateToUserLang(buildWifiCreds(entry), userText, uiLang));
       const reply = recentlySentWifiTroubleshoot(messages)
         ? "Napište prosím **číslo apartmánu** nebo **SSID** (4 znaky) – pošlu heslo."
         : buildWifiTroubleshoot();
-      return ok(await translateToUserLang(reply, userText));
+      return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
-    // Quick-help & utility (vracíme rovnou markdown + fotky)
-    if (intent === "ac")               return ok(await translateToUserLang(buildACHelp(), userText));
-    if (intent === "power")            return ok(await translateToUserLang(buildPowerHelp(), userText));
-    if (intent === "access")           return ok(await translateToUserLang(buildAccessibility(), userText));
-    if (intent === "smoking")          return ok(await translateToUserLang(buildSmoking(), userText));
-    if (intent === "pets")             return ok(await translateToUserLang(buildPets(), userText));
-    if (intent === "laundry")          return ok(await translateToUserLang(buildLaundry(), userText));
-    if (intent === "luggage")          return ok(await translateToUserLang(buildLuggageInfo(), userText));
+    // Quick-help (textové dotazy)
+    if (intent === "ac")               return ok(await translateToUserLang(buildACHelp(), userText, uiLang));
+    if (intent === "power")            return ok(await translateToUserLang(buildPowerHelp(), userText, uiLang));
+    if (intent === "access")           return ok(await translateToUserLang(buildAccessibility(), userText, uiLang));
+    if (intent === "smoking")          return ok(await translateToUserLang(buildSmoking(), userText, uiLang));
+    if (intent === "pets")             return ok(await translateToUserLang(buildPets(), userText, uiLang));
+    if (intent === "laundry")          return ok(await translateToUserLang(buildLaundry(), userText, uiLang));
+    if (intent === "luggage")          return ok(await translateToUserLang(buildLuggageInfo(), userText, uiLang));
     if (intent === "keys") {
       const room = extractRoom(userText);
-      return ok(await translateToUserLang(buildKeyHelp(room), userText));
+      return ok(await translateToUserLang(buildKeyHelp(room), userText, uiLang));
     }
 
-    if (intent === "trash")            return ok(await translateToUserLang(buildTrash(), userText));
-    if (intent === "gate")             return ok(await translateToUserLang(buildGate(), userText));
-    if (intent === "doorbells")        return ok(await translateToUserLang(buildDoorbells(), userText));
-    if (intent === "elevator_phone")   return ok(await translateToUserLang(buildElevatorPhone(), userText));
-    if (intent === "fire_alarm")       return ok(await translateToUserLang(buildFireAlarm(), userText));
-    if (intent === "linen_towels")     return ok(await translateToUserLang(buildLinenTowels(), userText));
-    if (intent === "doctor")           return ok(await translateToUserLang(buildDoctor(), userText));
-    if (intent === "coffee")           return ok(await translateToUserLang(buildCoffee(), userText));
-    if (intent === "hot_water")        return ok(await translateToUserLang(buildHotWater(), userText));
-    if (intent === "induction")        return ok(await translateToUserLang(buildInduction(), userText));
-    if (intent === "hood")             return ok(await translateToUserLang(buildHood(), userText));
-    if (intent === "safe")             return ok(await translateToUserLang(buildSafe(), userText));
+    if (intent === "trash")            return ok(await translateToUserLang(buildTrash(), userText, uiLang));
+    if (intent === "gate")             return ok(await translateToUserLang(buildGate(), userText, uiLang));
+    if (intent === "doorbells")        return ok(await translateToUserLang(buildDoorbells(), userText, uiLang));
+    if (intent === "elevator_phone")   return ok(await translateToUserLang(buildElevatorPhone(), userText, uiLang));
+    if (intent === "fire_alarm")       return ok(await translateToUserLang(buildFireAlarm(), userText, uiLang));
+    if (intent === "linen_towels")     return ok(await translateToUserLang(buildLinenTowels(), userText, uiLang));
+    if (intent === "doctor")           return ok(await translateToUserLang(buildDoctor(), userText, uiLang));
+    if (intent === "coffee")           return ok(await translateToUserLang(buildCoffee(), userText, uiLang));
+    if (intent === "hot_water")        return ok(await translateToUserLang(buildHotWater(), userText, uiLang));
+    if (intent === "induction")        return ok(await translateToUserLang(buildInduction(), userText, uiLang));
+    if (intent === "hood")             return ok(await translateToUserLang(buildHood(), userText, uiLang));
+    if (intent === "safe")             return ok(await translateToUserLang(buildSafe(), userText, uiLang));
 
-    // Lokální doporučení – KDYŽ přijde textem, i tak jdeme jen přes curated (bez modelu)
+    // Lokální doporučení (textem) → curated only
     if (intent === "local") {
       let sub = detectLocalSubtype(userText);
       if (!sub) {
@@ -393,16 +423,15 @@ export default async (req) => {
           `Jsme na **${HOTEL.address}**.`,
           `Napište prosím typ: snídaně / kavárna / pekárna / vegan / česká / market / lékárna / směnárna / ATM – pošlu odkazy.`,
         ].join("\n");
-        return ok(await translateToUserLang(msg, userText));
+        return ok(await translateToUserLang(msg, userText, uiLang));
       }
-      const lang = guessLang(userText) || "cs";
       const labelMap = { cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir" };
-      const curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[lang] || "Open" });
+      const curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
       const reply = curated || "Pro tuto kategorii teď nemám připravený seznam.";
-      return ok(await translateToUserLang(reply, userText));
+      return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
-    // Obecné → model (vše ostatní)
+    // Obecné → model
     const completion = await client.chat.completions.create({
       model: MODEL, temperature: 0.2,
       messages: [
