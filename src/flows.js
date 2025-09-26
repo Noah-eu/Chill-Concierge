@@ -1,6 +1,5 @@
 // src/flows.js
-// Strom jednoduchých voleb. Každý uzel má label a buď children,
-// nebo prompt (text, který odešleme jako user message na server).
+// Strom klikacích voleb: jazyk → témata → podtémata → odešle prompt na server.
 
 export const LANGS = {
   cs: "Čeština",
@@ -16,15 +15,15 @@ export const FLOWS = {
       label: "Technické potíže",
       children: [
         { label: "Wi-Fi", prompt: "mám problém s wifi" },
-        { label: "Elektrina nesvítí", prompt: "nejde mi proud v apartmánu" },
+        { label: "Elektřina / nesvítí", prompt: "nejde mi proud v apartmánu" },
         { label: "Klimatizace (AC)", prompt: "nejde mi klimatizace" },
       ],
     },
     {
       label: "Užitečné informace",
       children: [
-        { label: "Bagážovna & check-out", prompt: "kde je bagážovna po 11:00 a jak na check-out" },
-        { label: "Náhradní klíč", prompt: "zapomněl jsem klíč v apartmánu" },
+        { label: "Úschovna batožiny & check-out", prompt: "kde je úschovna batožiny po 11:00 a jak na check-out" },
+        { label: "Náhradní klíč", prompt: "zapomněl jsem klíč v apartmánu, potřebuji náhradní klíč" },
         { label: "Prádelna", prompt: "kde je prádelna" },
         { label: "Kouření / balkony", prompt: "kde mohu kouřit" },
         { label: "Bezbariérovost", prompt: "má budova schody a výtah" },
@@ -32,14 +31,18 @@ export const FLOWS = {
       ],
     },
     {
-      label: "Jídlo & okolí (do 200 m)",
+      label: "Jídlo & okolí (≤200 m)",
       children: [
         { label: "Snídaně", prompt: "doporuč snídani v blízkém okolí" },
-        { label: "Kavárna", prompt: "doporuč kavárnu do 200 m" },
+        { label: "Kavárna / pekárna", prompt: "doporuč kavárnu nebo pekárnu do 200 m" },
+        { label: "Vegan/vegetarian", prompt: "doporuč vegan/vegetarian podniky" },
+        { label: "Česká kuchyně", prompt: "doporuč českou restauraci v blízkém okolí" },
+        { label: "Viet bistro", prompt: "doporuč vietnamské bistro" },
+        { label: "Bar / pub", prompt: "doporuč bar nebo pub" },
         { label: "Supermarket", prompt: "kde je nejbližší supermarket" },
         { label: "Lékárna", prompt: "kde je nejbližší lékárna" },
-        { label: "Česká kuchyně", prompt: "doporuč českou restauraci v blízkém okolí" },
-        { label: "Veggie/Vegan", prompt: "doporuč vegetariánské nebo veganské podniky" },
+        { label: "Směnárna", prompt: "kde je směnárna" },
+        { label: "Bankomat (ATM)", prompt: "kde je nejbližší bankomat" },
       ],
     },
   ],
@@ -56,8 +59,8 @@ export const FLOWS = {
     {
       label: "Useful info",
       children: [
-        { label: "Luggage room & check-out", prompt: "where is the luggage room after 11:00 and how to check out" },
-        { label: "Spare key", prompt: "I forgot the key in the apartment" },
+        { label: "Luggage storage & check-out", prompt: "where is the luggage storage after 11:00 and how to check out" },
+        { label: "Spare key", prompt: "I forgot the key in the apartment, I need a spare key" },
         { label: "Laundry", prompt: "where is the laundry room" },
         { label: "Smoking / balconies", prompt: "where can I smoke" },
         { label: "Accessibility", prompt: "stairs and elevator information" },
@@ -68,17 +71,19 @@ export const FLOWS = {
       label: "Food & nearby (≤200 m)",
       children: [
         { label: "Breakfast", prompt: "recommend breakfast nearby" },
-        { label: "Cafe", prompt: "recommend a cafe within 200 m" },
+        { label: "Cafe / bakery", prompt: "recommend a cafe or bakery within 200 m" },
+        { label: "Vegan/vegetarian", prompt: "recommend vegan/vegetarian places" },
+        { label: "Czech food", prompt: "recommend Czech cuisine nearby" },
+        { label: "Vietnamese bistro", prompt: "recommend a Vietnamese bistro" },
+        { label: "Bar / pub", prompt: "recommend a bar or pub" },
         { label: "Supermarket", prompt: "where is the nearest supermarket" },
         { label: "Pharmacy", prompt: "where is the nearest pharmacy" },
-        { label: "Czech food", prompt: "recommend Czech cuisine nearby" },
-        { label: "Veggie/Vegan", prompt: "recommend vegetarian or vegan places" },
+        { label: "Exchange", prompt: "where can I exchange money" },
+        { label: "ATM", prompt: "where is the nearest ATM" },
       ],
     },
   ],
 
-  // pro jednoduchost zrcadlí EN; můžeš později lokalizovat
   es: null, de: null, fr: null,
 };
-
 for (const k of ["es","de","fr"]) FLOWS[k] = FLOWS.en;

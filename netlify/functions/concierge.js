@@ -1,5 +1,6 @@
 // netlify/functions/concierge.js
 import OpenAI from "openai";
+import { PLACES, buildCuratedList } from "./data/places.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const MODEL  = process.env.OPENAI_MODEL || "gpt-4o-mini";
@@ -14,7 +15,7 @@ const HOTEL = {
   ],
   maxRadiusMeters: 800
 };
-const NEARBY_RADIUS = 200; // max 200 m – požadavek
+const NEARBY_RADIUS = 200;
 
 const WIFI = [
   { room: "001", ssid: "D384", pass: "07045318" },
@@ -71,15 +72,10 @@ function historyContainsWifi(messages = []) {
 function recentlySentWifiTroubleshoot(messages = []) {
   return /Pokud Wi-?Fi nefunguje:/i.test(lastAssistant(messages) || "");
 }
-function recentlySentGenericLocal(messages = []) {
-  const a = lastAssistant(messages) || "";
-  return /Sokolská 1614\/64/.test(a) && /do 200 m/.test(a);
-}
-
 function guessLang(userText = "") {
   const t = userText.trim();
   const hasCz = /[ěščřžýáíéúůňťď]/i.test(t);
-  const isLikelyEn = !/[^\x00-\x7F]/.test(t) && /\b(i|you|we|the|and|or|have|need|wifi|problem|please|where|not|no)\b/i.test(t);
+  const isLikelyEn = !/[^\x00-\x7F]/.test(t) && /\b(i|you|we|the|and|or|have|need|wifi|please|where|not|no)\b/i.test(t);
   if (hasCz) return "cs";
   if (isLikelyEn) return "en";
   return null;
@@ -115,8 +111,9 @@ const P = {
   FUSE_APT: "/help/fuse-box-apartment.jpg",
   FUSE_IN_APT: "/help/fuse-box-in-the-apartment.jpg",
   LAUNDRY: "/help/laundry-room.jpg",
-  LUGGAGE: "/help/luggage-room.jpg",          // <— doplň tenhle soubor do /public/help/
-  CHECKOUT_BOX: "/help/check-out-box.jpg"      // <— doplň tenhle soubor do /public/help/
+  LUGGAGE: "/help/luggage-room.jpg",
+  CHECKOUT_BOX: "/help/check-out-box.jpg",
+  SPARE_KEY: "/help/spare-key.jpg" // ← doplň fotku
 };
 
 /** ====== WIFI ====== */
@@ -167,19 +164,39 @@ const buildLaundry = () => [
   "Prádelna je v **suterénu**, otevřena **non-stop** a **zdarma**. K dispozici jsou prostředky i **žehlička** (lze vzít na pokoj)."
 ].join("\n");
 
-/** ====== BAGÁŽOVNA + CHECK-OUT ====== */
+/** ====== ÚSCHOVNA + KLÍČ ====== */
 function buildLuggageInfo() {
   return [
     "**Check-out je do 11:00** (přijíždějí noví hosté).",
     IMG(P.CHECKOUT_BOX, "Check-out box na klíče"),
     "Nejprve prosím **vhoďte klíče do check-out boxu**.",
-    IMG(P.LUGGAGE, "Vstup do bagážovny"),
-    `Potom můžete **po 11:00** uložit zavazadla v **bagážovně** – je v průjezdu **vedle schránky na klíče**.`,
+    IMG(P.LUGGAGE, "Vstup do úschovny batožiny"),
+    `Potom můžete **po 11:00** uložit zavazadla v **úschovně batožiny** – je v průjezdu **vedle schránky na klíče**.`,
     `**Kód je stejný jako pro bránu: ${LUGGAGE_ROOM_CODE}**. Po uložení prosím **zkontrolujte, že jsou dveře zavřené**.`
   ].join("\n");
 }
+function buildKeyHelp(room) {
+  if (!room) {
+    return [
+      IMG(P.LUGGAGE, "Vstup do úschovny batožiny / bagážovna"),
+      `Zapomenutý klíč:`,
+      `1) Do **úschovny batožiny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
+      `2) Napište mi prosím **číslo apartmánu** – pošlu kód k příslušnému boxu.`,
+      `3) Po použití klíč **vraťte** a **zamíchejte číselník**.`
+    ].join("\n");
+  }
+  const code = KEYBOX[room];
+  if (!code) return "Napište prosím platné číslo apartmánu (např. 001, 101, … 305).";
+  return [
+    IMG(P.SPARE_KEY, "Náhradní klíč – box s klíčem"),
+    `Náhradní klíč k **${room}**:`,
+    `1) Do **úschovny batožiny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
+    `2) Otevřete box **${room}** – kód **${code}**.`,
+    `3) Po otevření apartmánu prosíme klíč **vrátit** a číselník **zamíchat**.`
+  ].join("\n");
+}
 
-/** ====== LOKÁLNÍ DOPORUČENÍ (real-time do 200 m) ====== */
+/** ====== LOKÁLNÍ VYHLEDÁNÍ (Overpass fallback pro snídaně) ====== */
 async function geocodeHotel() {
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(HOTEL.address)}`;
   const r = await fetch(url, { headers: { "User-Agent": "ChillConcierge/1.0" }});
@@ -232,53 +249,37 @@ async function findNearbyBreakfastList() {
   return placesToMarkdown(places);
 }
 
-/** ====== LOKÁLNÍ LOGIKA ====== */
+/** ====== INTENTY ====== */
 function detectLocalSubtype(t) {
   if (/(snídan|breakfast)/i.test(t)) return "breakfast";
   if (/(lékárn|lekarn|pharm)/i.test(t)) return "pharmacy";
   if (/(supermarket|potravin|grocery|market)/i.test(t)) return "grocery";
   if (/(kavárn|kavarn|cafe|coffee)/i.test(t)) return "cafe";
+  if (/(bakery|pekárn|pekarn)/i.test(t)) return "bakery";
   if (/(bar|drink|pub)/i.test(t)) return "bar";
   if (/(česk|czech cuisine|local food)/i.test(t)) return "czech";
   if (/(vegetari|vegan)/i.test(t)) return "veggie";
+  if (/viet/i.test(t)) return "vietnam";
+  if (/exchange|směn|smen/i.test(t)) return "exchange";
+  if (/atm|bankomat/i.test(t)) return "atm";
   return null;
 }
-function wantsSitHotBreakfast(t) {
-  return /(posadit|sednout|sit\s?down)/i.test(t) && /(tepl|hot|ham|hamenex|eggs|omelet(te)?)/i.test(t);
-}
-function buildLocalGeneric() {
-  return [
-    `Jsme na **${HOTEL.address}**.`,
-    `Držím se **do ${NEARBY_RADIUS} m** (cca 3–5 min). Napište prosím přesně, co hledáte (snídaně, česká kuchyně, vegetarián, supermarket, lékárna, bar) + čas a rozpočet – upřesním.`
-  ].join("\n");
-}
-const Local = {
-  breakfast: () => "Pošlu **nejbližší místa na snídani do 200 m** s odkazy:",
-  pharmacy:  () => "Najdu **lékárny do 200 m** a pošlu odkazy.",
-  grocery:   () => "Pošlu **potraviny/supermarkety do 200 m** s odkazy.",
-  cafe:      () => "Pošlu **kavárny do 200 m** s odkazy.",
-  bar:       () => "Pošlu **bary do 200 m** s odkazy.",
-  czech:     () => "Pošlu **české podniky do 200 m** s odkazy.",
-  veggie:    () => "Pošlu **veg/vegan místa do 200 m** s odkazy."
-};
-
-/** Intent routing */
 function detectIntent(text) {
   const t = (text || "").toLowerCase();
   if (/(wi[-\s]?fi|wifi|internet|heslo|password|ssid)/i.test(t)) return "wifi";
   if (/(ac|klimatizace|klima|air ?conditioning)/i.test(t)) return "ac";
-  if (/(elektrin|elektrik|electric|electricity|jistič|jistice|proud|svetl|nesviti|nesvítí|no lights|power|fuse|breaker)/i.test(t)) return "power";
+  if (/(elektrin|elektrik|electric|electricity|jistič|jistice|proud|svetl|nesviti|no lights|power|fuse|breaker)/i.test(t)) return "power";
   if (/(invalid|wheelchair|bezbarier|schod)/i.test(t)) return "access";
   if (/(kouř|kouřit|smok)/i.test(t)) return "smoking";
   if (/(pes|psi|dog)/i.test(t)) return "pets";
   if (/(prádeln|laund)/i.test(t)) return "laundry";
-  if (/(bagážovn|bagazovn|luggage|úschov)/i.test(t)) return "luggage";
-  if (/(klíč|klic|key|zapomněl|ztratil|lost|forgot).*apartm|key ?box/i.test(t)) return "keys";
-  if (/(restaurac|snídan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|bar|kavárn|kavarn|vegan|vegetari|czech)/i.test(t)) return "local";
+  if (/(úschovn|uschovn|batožin|batozin|luggage)/i.test(t)) return "luggage";
+  if (/(klíč|klic|spare key|key).*apartm|náhradn/i.test(t)) return "keys";
+  if (/(restaurac|snídan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|bar|kavárn|kavarn|vegan|vegetari|czech|bistro|exchange|směn|smen|atm)/i.test(t)) return "local";
   return "general";
 }
 
-/** ====== MAIN HANDLER ====== */
+/** ====== MAIN ====== */
 export default async (req) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
   if (!process.env.OPENAI_API_KEY) {
@@ -309,10 +310,7 @@ export default async (req) => {
       const ssid = extractSSID(userText);
       const entry = room ? wifiByRoom(room) : (ssid ? wifiBySsid(ssid) : null);
 
-      if (entry) {
-        const creds = buildWifiCreds(entry);
-        return ok(await translateToUserLang(creds, userText));
-      }
+      if (entry) return ok(await translateToUserLang(buildWifiCreds(entry), userText));
       const reply = recentlySentWifiTroubleshoot(messages)
         ? "Napište prosím **číslo apartmánu** nebo **SSID** (4 znaky) – pošlu heslo."
         : buildWifiTroubleshoot();
@@ -332,25 +330,48 @@ export default async (req) => {
       return ok(await translateToUserLang(buildKeyHelp(room), userText));
     }
 
-    // Lokální → snídaně: vždy reálný list (do 200 m) + odkazy
+    // Lokální doporučení – nejdřív kurátorovaná data
     if (intent === "local") {
-      const sub = detectLocalSubtype(userText);
+      let sub = detectLocalSubtype(userText);
+      const mapCat = {
+        breakfast: "breakfast",
+        cafe: "cafe",
+        bakery: "bakery",
+        veggie: "veggie",
+        czech: "czech",
+        bar: "bar",
+        vietnam: "vietnam",
+        grocery: "grocery",
+        pharmacy: "pharmacy",
+        exchange: "exchange",
+        atm: "atm",
+      };
+
+      if (!mapCat[sub]) {
+        const t = userText.toLowerCase();
+        if (/pekárn|pekarn|bakery/.test(t)) sub = "bakery";
+        else if (/viet/.test(t)) sub = "vietnam";
+        else if (/exchange|směn|smen/.test(t)) sub = "exchange";
+        else if (/atm|bankomat/.test(t)) sub = "atm";
+      }
+
+      const cat = mapCat[sub];
+      if (cat) {
+        const curated = buildCuratedList(cat, { max: 12 });
+        if (curated) return ok(await translateToUserLang(curated, userText));
+      }
+
       if (sub === "breakfast") {
         try {
           const list = await findNearbyBreakfastList();
           return ok(await translateToUserLang(list, userText));
-        } catch {
-          // nouzový fallback
-          const msg = "Pošlu **nejbližší místa na snídani do 200 m**, ale teď se mi nedaří načíst mapová data. Zkuste to prosím znovu za chvíli nebo napište typ (kavárna/pekárna) a čas.";
-          return ok(await translateToUserLang(msg, userText));
-        }
+        } catch {}
       }
-      // ostatní lokální typy – krátké intro; na požádání lze snadno doplnit i realtime listy stejně jako snídani
-      const msg = sub
-        ? Local[sub]()
-        : recentlySentGenericLocal(messages)
-          ? `Abych doporučil konkrétně **do ${NEARBY_RADIUS} m**: hledáte **snídani**, **lékárnu**, **supermarket**, **kavárnu**, **bar**, **českou kuchyni** nebo **vegetarián/vegan**? Napište i **čas** a **rozpočet**.`
-          : buildLocalGeneric();
+
+      const msg = [
+        `Jsme na **${HOTEL.address}**.`,
+        `Držím se **do ${NEARBY_RADIUS} m** (cca 3–5 min). Napište typ (snídaně/kavárna/pekárna/vegan/česká/market/lékárna/bar/směnárna/ATM) a pošlu odkazy.`
+      ].join("\n");
       return ok(await translateToUserLang(msg, userText));
     }
 

@@ -5,16 +5,16 @@ import DOMPurify from "dompurify";
 import { LANGS, FLOWS } from "./flows";
 
 export default function App() {
-  const [lang, setLang] = useState(null);        // vybraný jazyk
-  const [stack, setStack] = useState([]);        // breadcrumb vybraných úrovní (pro návrat)
-  const [chat, setChat] = useState([]);          // zprávy v chatu
-  const [input, setInput] = useState("");        // volitelný textový vstup
+  const [lang, setLang] = useState(null);
+  const [stack, setStack] = useState([]);
+  const [chat, setChat] = useState([]);
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollerRef = useRef(null);
 
   useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat]);
 
-  // vícejazyčný pozdrav v bublině na začátku
+  // úvodní vícejazyčný pozdrav
   useEffect(() => {
     if (chat.length) return;
     setChat([{
@@ -47,23 +47,16 @@ export default function App() {
       });
       const data = await r.json();
       setChat([...next, { role: "assistant", content: data.reply }]);
-    } catch (e) {
+    } catch {
       setChat([...next, { role: "assistant", content: "⚠️ Nelze se připojit k serveru. Zkuste to prosím znovu." }]);
     } finally {
       setLoading(false);
     }
   }
 
-  function openNode(node) {
-    // list dětí = další úroveň menu
-    setStack(s => [...s, node]);
-  }
+  function openNode(node) { setStack(s => [...s, node]); }
+  function goBack() { setStack(s => s.slice(0, -1)); }
 
-  function goBack() {
-    setStack(s => s.slice(0, -1));
-  }
-
-  // aktuální seznam voleb podle jazyka a úrovně
   const rootFlows = lang ? FLOWS[lang] : null;
   const currentChildren =
     !lang ? null :
@@ -79,23 +72,17 @@ export default function App() {
             : <div key={i} className="bubble me">{m.content}</div>
         )}
 
-        {/* Jazyková volba */}
         {!lang && (
           <div className="bubble bot" style={{ display: "inline-block" }}>
             <strong>Zvolte jazyk / Choose a language:</strong>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 10 }}>
               {Object.entries(LANGS).map(([code, label]) => (
-                <button
-                  key={code}
-                  onClick={() => setLang(code)}
-                  style={btnStyle}
-                >{label}</button>
+                <button key={code} onClick={() => setLang(code)} style={btnStyle}>{label}</button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Nabídka témat/podtémat */}
         {lang && currentChildren && (
           <div className="bubble bot" style={{ display: "inline-block", maxWidth: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -108,8 +95,8 @@ export default function App() {
                 </button>
               )}
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
-              {currentChildren.map((n, idx) => (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 8 }}>
+              {currentChildren.map((n, idx) =>
                 n.children ? (
                   <button key={idx} style={chipStyle} onClick={() => openNode(n)}>{n.label}</button>
                 ) : (
@@ -123,16 +110,15 @@ export default function App() {
                     {n.label}
                   </button>
                 )
-              ))}
+              )}
             </div>
             <div style={{ fontSize: 12, color: "#6b7280", marginTop: 8 }}>
-              Stále můžete psát vlastní dotaz: dole do pole zprávy.
+              Stále můžete napsat vlastní dotaz do pole níže.
             </div>
           </div>
         )}
       </div>
 
-      {/* Volitelný textový dotaz (fallback) */}
       <div className="input">
         <textarea
           placeholder={lang === "en" ? "Type your question…" : "Napište dotaz…"}
@@ -145,34 +131,47 @@ export default function App() {
             }
           }}
         />
-        <button
-          disabled={loading || !input.trim()}
-          onClick={() => { sendPrompt(input.trim()); setInput(""); }}
-        >
-          {loading ? "…" : lang === "en" ? "Send" : "Poslat"}
+        <button disabled={loading || !input.trim()} onClick={() => { sendPrompt(input.trim()); setInput(""); }}>
+          {loading ? "…" : (lang === "en" ? "Send" : "Poslat")}
         </button>
       </div>
     </div>
   );
 }
 
-/* drobný inline styl tlačítek, ať to hned vypadá pěkně */
+/* Paleta a větší tlačítka */
+const colors = {
+  primary: "#0f172a",
+  primaryText: "#ffffff",
+  outline: "#e5e7eb",
+  chip: "#111827",
+  chipText: "#ffffff",
+  light: "#ffffff",
+  lightText: "#111111",
+};
+
 const btnStyle = {
-  padding: "8px 12px",
-  borderRadius: 12,
-  border: "1px solid #e5e7eb",
-  background: "#111827",
-  color: "#fff",
+  padding: "12px 16px",
+  borderRadius: 16,
+  border: `1px solid ${colors.outline}`,
+  background: colors.primary,
+  color: colors.primaryText,
   cursor: "pointer",
-  fontWeight: 600
+  fontWeight: 700,
+  fontSize: 16,
+  boxShadow: "0 4px 14px rgba(0,0,0,.08)"
 };
+
 const chipStyle = {
-  padding: "8px 12px",
+  padding: "12px 16px",
   borderRadius: 999,
-  border: "1px solid #e5e7eb",
-  background: "#fff",
-  color: "#111",
+  border: `1px solid ${colors.outline}`,
+  background: colors.light,
+  color: colors.lightText,
   cursor: "pointer",
-  fontWeight: 600
+  fontWeight: 700,
+  fontSize: 16,
+  boxShadow: "0 4px 14px rgba(0,0,0,.06)"
 };
-const chipPrimary = { ...chipStyle, background: "#111827", color: "#fff" };
+
+const chipPrimary = { ...chipStyle, background: colors.chip, color: colors.chipText };
