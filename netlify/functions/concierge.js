@@ -110,7 +110,7 @@ const P = {
   CHECKOUT_BOX: "/help/check-out-box.jpg",
   SPARE_KEY: "/help/spare-key.jpg",
   GARBAGE: "/help/garbage.jpg",
-  GATE_SWITCH: "/help/inside-gate-switch.jpg",
+  GATE_SWITCH: "/help/inside-gate-switch.jpg", // POZOR na hláskování “switch”
   DOOR_BELLS: "/help/door-bells.jpg",
 };
 
@@ -157,7 +157,7 @@ const buildSmoking = () => [
   "⚠️ **Neodklepávejte a nevyhazujte** nedopalky z balkonu – používejte popelník."
 ].join("\n");
 const buildPets = () =>
-  "Psi jsou **vítáni a zdarma**. Prosíme, aby **nelezli na postele a gauče**.";
+  "Domácí mazlíčci / psi jsou **vítáni a zdarma**. Prosíme, aby **nelezli na postele a gauče**.";
 const buildLaundry = () => [
   IMG(P.LAUNDRY, "Prádelna v suterénu"),
   "Prádelna je v **suterénu**, otevřena **non-stop** a **zdarma**. K dispozici jsou prostředky i **žehlička** (lze vzít na pokoj)."
@@ -177,7 +177,7 @@ function buildLuggageInfo() {
 function buildKeyHelp(room) {
   if (!room) {
     return [
-      IMG(P.LUGGAGE, "Vstup do úschovny batožiny / bagážovna"),
+      IMG(P.LUGGAGE, "Vstup do úschovny batožiny"),
       `Zapomenutý klíč:`,
       `1) Do **úschovny batožiny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
       `2) Napište mi prosím **číslo apartmánu** – pošlu kód k příslušnému boxu.`,
@@ -246,53 +246,6 @@ const buildSafe = () => [
   "– Pro nastavení: uvnitř dveří stiskněte **červené tlačítko**, zadejte kód (≥3 číslice), stiskněte **tlačítko zámku**, zavřete dveře.",
 ].join("\n");
 
-/** ====== LOKÁLNÍ VYHLEDÁNÍ (jen když je potřeba) ====== */
-async function geocodeHotel() {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(HOTEL.address)}`;
-  const r = await fetch(url, { headers: { "User-Agent": "ChillConcierge/1.0" }});
-  const j = await r.json();
-  const p = j?.[0];
-  if (!p) throw new Error("Geocoding failed");
-  return { lat: parseFloat(p.lat), lon: parseFloat(p.lon) };
-}
-async function overpassPlaces(lat, lon, radius, kinds) {
-  const nodes = kinds.map(k => `node(around:${radius},${lat},${lon})[amenity=${k}];`).join("\n");
-  const query = `
-[out:json][timeout:25];
-(
-${nodes}
-);
-out center 20;`;
-  const r = await fetch("https://overpass-api.de/api/interpreter", {
-    method: "POST",
-    headers: { "Content-Type": "text/plain", "User-Agent": "ChillConcierge/1.0" },
-    body: query
-  });
-  const j = await r.json();
-  return (j.elements || [])
-    .filter(e => e.tags && e.tags.name)
-    .map(e => ({
-      name: e.tags.name,
-      lat: e.lat ?? e.center?.lat,
-      lon: e.lon ?? e.center?.lon,
-      street: e.tags["addr:street"],
-      housenumber: e.tags["addr:housenumber"],
-      cuisine: e.tags.cuisine,
-      amenity: e.tags.amenity
-    }))
-    .filter(p => p.lat && p.lon);
-}
-function placesToMarkdown(places, limit = 5) {
-  const items = places.slice(0, limit).map(p => {
-    const q = encodeURIComponent(`${p.name} ${p.street ?? ""} ${p.housenumber ?? ""} Prague`);
-    const gmaps = `https://www.google.com/maps/search/?api=1&query=${q}`;
-    const osm   = `https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lon}#map=19/${p.lat}/${p.lon}`;
-    const extra = p.cuisine ? ` — *${String(p.cuisine).replace(/_/g," ")}*` : "";
-    return `- **${p.name}**${extra}\n  - [Google Maps](${gmaps}) · [OpenStreetMap](${osm})`;
-  });
-  return items.length ? items.join("\n") : "Do **200 m** teď nic vhodného nevidím. Napište typ kuchyně/čas – zkusím širší okruh.";
-}
-
 /** ====== INTENTY ====== */
 function detectLocalSubtype(t) {
   const s = (t || "").toLowerCase();
@@ -312,20 +265,20 @@ function detectLocalSubtype(t) {
 function detectIntent(text) {
   const t = (text || "").toLowerCase();
 
-  // tech – AC jen celé slovo / s variantami; neodpálí se v „domácí“
+  // AC jen jako samostatné slovo / běžné výrazy (aby neodpálilo „domaci“)
   if (/\b(wi[-\s]?fi|wifi|internet|heslo|password|ssid)\b/i.test(t)) return "wifi";
-  if (/\b(ac|a\.?c\.?|klimatizace|klima|air ?conditioning)\b/i.test(t)) return "ac";
+  if (/\b(?:a\.?c\.?|ac)\b|klimatizace|klima|air ?conditioning/i.test(t)) return "ac";
   if (/(elektrin|elektrik|electric|electricity|jistič|jistice|proud|svetl|nesviti|no lights|power|fuse|breaker)/i.test(t)) return "power";
 
   // house rules / amenities
   if (/(invalid|wheelchair|bezbar(i|í|í)?er|bez\s?bari|schod|bezbariér|bezbariérov|bezbarierov)/i.test(t)) return "access";
   if (/(kouř|kour|kouřit|smok)/i.test(t)) return "smoking";
-  if (/\b(pes|psi|dog|mazl(í|i)č|pet)s?\b/i.test(t)) return "pets";
+  if (/\b(pes|psi|dog|mazl(í|i)č|pets?)\b/i.test(t)) return "pets";
   if (/(prádeln|pradel|laund)/i.test(t)) return "laundry";
   if (/(úschovn|uschovn|batožin|batozin|luggage)/i.test(t)) return "luggage";
   if (/(klíč|klic|spare key|key).*(apartm|room)|\bnáhradn/i.test(t)) return "keys";
 
-  // utility témata
+  // utility
   if (/popelnic|odpad|trash|bin/i.test(t)) return "trash";
   if (/(brán|branu|gate|vstup)/i.test(t)) return "gate";
   if (/(zvonk|bell|doorbell)/i.test(t)) return "doorbells";
@@ -339,7 +292,7 @@ function detectIntent(text) {
   if (/(digesto[rř]|odsava[cč]|hood)/i.test(t)) return "hood";
   if (/(trezor|safe)/i.test(t)) return "safe";
 
-  // local (jen rozhodnutí – obsah vrací curated seznam)
+  // local → vždy jen curated seznamy (bez modelu / bez webu)
   if (/(restaurac|snídan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|\bbar\b|kavárn|kavarn|vegan|vegetari|czech|bistro|exchange|směn|smen|\batm\b|bankomat)/i.test(t)) {
     return "local";
   }
@@ -411,7 +364,7 @@ export default async (req) => {
     if (intent === "hood")             return ok(await translateToUserLang(buildHood(), userText));
     if (intent === "safe")             return ok(await translateToUserLang(buildSafe(), userText));
 
-    // Lokální doporučení – pouze curated seznam z places.js
+    // Lokální doporučení → pouze curated seznamy z places.js (žádné volání modelu ani webu)
     if (intent === "local") {
       let sub = detectLocalSubtype(userText);
       const mapCat = {
@@ -441,6 +394,8 @@ export default async (req) => {
         const labelMap = { cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir" };
         const curated = buildCuratedList(mapCat[sub], { max: 12, labelOpen: labelMap[lang] || "Open" });
         if (curated) return ok(await translateToUserLang(curated, userText));
+        // kdyby bylo prázdné
+        return ok(await translateToUserLang("Pro tuto kategorii teď nemám připravený seznam. Napište prosím jiný typ.", userText));
       }
 
       // bez rozpoznané podkategorie si vyžádej typ
@@ -453,7 +408,7 @@ export default async (req) => {
 
     // Obecné → model
     const completion = await client.chat.completions.create({
-      model: MODEL, temperature: 0.3,
+      model: MODEL, temperature: 0.2, // klidnější
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "system", content: `Address: ${HOTEL.address}. Keep suggestions within ~${NEARBY_RADIUS}m.` },
