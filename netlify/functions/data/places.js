@@ -1,29 +1,29 @@
 // netlify/functions/data/places.js
-// Kurátorovaný seznam míst, které chceš doporučovat (s odkazy).
+// Kurátorovaný seznam míst s odkazy (blízko Sokolská 64).
 
 export const PLACES = {
   // SNÍDANĚ
   breakfast: [
     { name: "La Mouka", url: "https://lamouka.cz/", tags: ["breakfast","bakery","cafe"] },
     { name: "Cafe Purkyně", url: "https://cafepurkyne.cz", tags: ["breakfast","cafe"] },
-    { name: "Paul (Vinohradská / Muzeum)", url: "https://www.paul-cz.com", tags: ["bakery","breakfast"] },
+    { name: "Paul (Muzeum)", url: "https://www.paul-cz.com", tags: ["bakery","breakfast"] },
     { name: "Zrno Zrnko", url: "https://www.zrnozrnko.cz", tags: ["bakery","coffee","breakfast"] },
   ],
 
   // VEGAN
   veggie: [
-    { name: "Palo Verde Bistro", url: "http://www.paloverdebistro.cz/", tags: ["vegan","vegetarian","bistro"] },
+    { name: "Palo Verde Bistro", url: "https://www.paloverdebistro.cz/", tags: ["vegan","vegetarian","bistro"] },
   ],
 
   // KAVÁRNY / PEKÁRNY
   cafe: [
     { name: "Gregorian Bakery (Anglická)", url: "https://anglicka.matokapraha.cz/", tags: ["bakery","cafe","breakfast"] },
-    { name: "Paul", url: "https://www.paul-cz.com", tags: ["bakery","cafe"] },
+    { name: "Paul (Muzeum)", url: "https://www.paul-cz.com", tags: ["bakery","cafe"] },
     { name: "Zrno Zrnko", url: "https://www.zrnozrnko.cz", tags: ["roastery","coffee"] },
   ],
   bakery: [
     { name: "Gregorian Bakery (Anglická)", url: "https://anglicka.matokapraha.cz/", tags: ["bakery"] },
-    { name: "Paul", url: "https://www.paul-cz.com", tags: ["bakery"] },
+    { name: "Paul (Muzeum)", url: "https://www.paul-cz.com", tags: ["bakery"] },
     { name: "Zrno Zrnko", url: "https://www.zrnozrnko.cz", tags: ["bakery"] },
   ],
 
@@ -69,13 +69,13 @@ export const PLACES = {
   ],
 };
 
-// Markdown výpis (kompaktní)
+// Markdown výpis (kompaktní, s i18n štítkem)
 export function buildCuratedList(category, opts = {}) {
-  const { max = 12 } = opts;
+  const { max = 12, labelOpen = "Otevřít" } = opts;
   const list = (PLACES[category] || []).slice(0, max);
   if (!list.length) return null;
 
   return list.map(p =>
-    `- **${p.name}**${p.tags?.length ? ` — *${p.tags.join(", ")}*` : ""}\n  - [Otevřít](${p.url})`
+    `- **${p.name}**${p.tags?.length ? ` — *${p.tags.join(", ")}*` : ""}\n  - [${labelOpen}](${p.url})`
   ).join("\n\n");
 }

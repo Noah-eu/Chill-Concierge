@@ -72,34 +72,30 @@ function historyContainsWifi(messages = []) {
 function recentlySentWifiTroubleshoot(messages = []) {
   return /Pokud Wi-?Fi nefunguje:/i.test(lastAssistant(messages) || "");
 }
+
+/** jazyková detekce: cs/en/es/de/fr */
 function guessLang(userText = "") {
-  const t = userText.trim();
-  const hasCz = /[ěščřžýáíéúůňťď]/i.test(t);
-  const isLikelyEn = !/[^\x00-\x7F]/.test(t) && /\b(i|you|we|the|and|or|have|need|wifi|please|where|not|no)\b/i.test(t);
-  if (hasCz) return "cs";
-  if (isLikelyEn) return "en";
+  const t = (userText || "").trim().toLowerCase();
+  if (/[ěščřžýáíéúůňťď]/i.test(t)) return "cs";
+  if (/[äöüß]/.test(t) || /\b(wie|hallo|bitte|danke|wo|ich|nicht)\b/.test(t)) return "de";
+  if (/[áéíóúñ¿¡]/.test(t) || /\b(hola|gracias|dónde|por favor|no puedo)\b/.test(t)) return "es";
+  if (/[àâçéèêëîïôùûüÿœ]/.test(t) || /\b(bonjour|merci|où|s'il vous plaît)\b/.test(t)) return "fr";
+  if (/\b(hello|please|thanks|where|wifi|password|help)\b/.test(t)) return "en";
   return null;
 }
 async function translateToUserLang(text, userText) {
   const hint = guessLang(userText);
-  let completion = await client.chat.completions.create({
+  // pokud už je to česky a má CZ znaky, neřešíme
+  if (hint === "cs" && /[ěščřžýáíéúůňťď]/i.test(text)) return text;
+
+  const completion = await client.chat.completions.create({
     model: MODEL, temperature: 0.0,
     messages: [
-      { role: "system", content: `Rewrite ASSISTANT_MESSAGE in the language used in USER_MESSAGE. Keep meaning, tone, formatting and emojis. Be concise.${hint ? ` TARGET_LANG=${hint}.` : ""}` },
+      { role: "system", content: `Rewrite ASSISTANT_MESSAGE in the language used in USER_MESSAGE. Keep meaning, tone, formatting and emojis. Preserve markdown links. Be concise.${hint ? ` TARGET_LANG=${hint}.` : ""}` },
       { role: "user", content: "USER_MESSAGE:\n" + (userText || "") + "\n\nASSISTANT_MESSAGE:\n" + (text || "") }
     ]
   });
-  let out = completion.choices?.[0]?.message?.content?.trim() || text;
-  if (hint === "en" && /[ěščřžýáíéúůňťď]/i.test(out)) {
-    completion = await client.chat.completions.create({
-      model: MODEL, temperature: 0.0,
-      messages: [
-        { role: "system", content: "Translate ASSISTANT_MESSAGE to English. Keep formatting; be concise." },
-        { role: "user", content: text || "" }
-      ]
-    });
-    out = completion.choices?.[0]?.message?.content?.trim() || out;
-  }
+  const out = completion.choices?.[0]?.message?.content?.trim() || text;
   return out;
 }
 
@@ -113,7 +109,10 @@ const P = {
   LAUNDRY: "/help/laundry-room.jpg",
   LUGGAGE: "/help/luggage-room.jpg",
   CHECKOUT_BOX: "/help/check-out-box.jpg",
-  SPARE_KEY: "/help/spare-key.jpg" // ← doplň fotku
+  SPARE_KEY: "/help/spare-key.jpg",
+  GARBAGE: "/help/garbage.jpg",
+  GATE_SWITCH: "/help/inside-gate-switch.jpg",
+  DOOR_BELLS: "/help/door-bells.jpg",
 };
 
 /** ====== WIFI ====== */
@@ -129,7 +128,7 @@ const buildWifiTroubleshoot = () => [
 ].join("\n");
 const buildWifiCreds = (entry) => entry ? `**Wi-Fi:** SSID **${entry.ssid}**, heslo **${entry.pass}**.` : null;
 
-/** ====== QUICK-HELP ====== */
+/** ====== QUICK-HELP – zařízení a pravidla ====== */
 function buildACHelp() {
   return [
     IMG(P.AC, "Režimy AC"),
@@ -156,9 +155,11 @@ const buildAccessibility = () => [
 ].join("\n");
 const buildSmoking = () => [
   IMG(P.BALCONY, "Společný balkon pro kouření"),
-  "Pro kouření využijte prosím **společné balkony** na každém patře naproti výtahu."
+  "Pro kouření využijte prosím **společné balkony** na každém patře naproti výtahu.",
+  "⚠️ **Neodklepávejte a nevyhazujte** nedopalky z balkonu – používejte popelník."
 ].join("\n");
-const buildPets = () => "Psi jsou vítáni a **neplatí se** za ně poplatek. Prosíme, aby **nelezli na postele a gauče**.";
+const buildPets = () =>
+  "Psi jsou **vítáni a zdarma**. Prosíme, aby **nelezli na postele a gauče**.";
 const buildLaundry = () => [
   IMG(P.LAUNDRY, "Prádelna v suterénu"),
   "Prádelna je v **suterénu**, otevřena **non-stop** a **zdarma**. K dispozici jsou prostředky i **žehlička** (lze vzít na pokoj)."
@@ -182,7 +183,7 @@ function buildKeyHelp(room) {
       `Zapomenutý klíč:`,
       `1) Do **úschovny batožiny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
       `2) Napište mi prosím **číslo apartmánu** – pošlu kód k příslušnému boxu.`,
-      `3) Po použití klíč **vraťte** a **zamíchejte číselník**.`
+      `3) Po použití klíč **vrátit** a **zamíchat číselník**.`
     ].join("\n");
   }
   const code = KEYBOX[room];
@@ -195,6 +196,57 @@ function buildKeyHelp(room) {
     `3) Po otevření apartmánu prosíme klíč **vrátit** a číselník **zamíchat**.`
   ].join("\n");
 }
+
+/** ====== DALŠÍ INTERNÍ INFO (nová tlačítka) ====== */
+const buildTrash = () => [
+  IMG(P.GARBAGE, "Popelnice na dvoře"),
+  "🗑️ **Popelnice** jsou **venku na dvoře**.",
+  "Až vyndáte **plný pytel** z vašeho odpadkového koše, **nový pytel** najdete **pod ním**."
+].join("\n");
+const buildGate = () => [
+  IMG(P.GATE_SWITCH, "Tlačítko pro otevření brány zevnitř"),
+  "🚪 **Otevírání brány**:",
+  "– **Zevnitř**: tlačítkem v průchodu **hned vedle key-boxu**.",
+  `– **Z ulice**: kód **${LUGGAGE_ROOM_CODE}** (stejný jako k úschovně).`
+].join("\n");
+const buildDoorbells = () => [
+  IMG(P.DOOR_BELLS, "Domovní zvonky na začátku průchodu"),
+  "🔔 **Zvonky na apartmány**: můžete zazvonit vašim blízkým domovními zvonky.",
+  "Jsou **na začátku průchodu z ulice**."
+].join("\n");
+const buildElevatorPhone = () =>
+  "🛗 **Výtah – servis/porucha**: zavolejte **00420 775 784 446** (uveďte Sokolská 64, Praha 2).";
+const buildFireAlarm = () => [
+  "🔥 **Požární hlásič**:",
+  "Pokud **nehoří** (jen se připálilo jídlo), na **přízemí za výtahem** je **dlouhá tyč**.",
+  "Tou **zamáčkněte tlačítko uprostřed hlásiče** a vyvětrejte."
+].join("\n");
+const buildLinenTowels = () => [
+  "🧺 **Povlečení / ručníky**:",
+  "Potřebujete-li **čisté prostěradlo/povlečení/ručník/toaletní papír**, na **každém patře** je **skříň**.",
+  "Otevřete ji kódem **526** a vezměte jen potřebné množství."
+].join("\n");
+const buildDoctor = () =>
+  "👩‍⚕️ **Lékař 24/7**: **+420 603 433 833**, **+420 603 481 361**. Uveďte adresu a apartmán.";
+const buildCoffee = () => [
+  "☕ **Kávovar Tchibo**:",
+  "– Nejčastěji je **plná nádoba na sedliny** → vyprázdnit.",
+  "– Pokud nepomůže, **očistěte senzor nádoby** (uvnitř nad nádobou). Stačí prstem lehce očistit.",
+].join("\n");
+const buildHotWater = () =>
+  "💧 **Nejde teplá voda**: prosím **počkejte až 20 minut**, než se v bojleru ohřeje nová. Pokud ani potom neteče, napište mi čas a apartmán.";
+const buildInduction = () => [
+  "🍳 **Indukce**:",
+  "– „**L**“ = dětská pojistka → podržte **Child Lock** (vedle Zap/Vyp) pár sekund, až zmizí.",
+  "– „**F**“ = použijte **indukční nádobí** (magnetické dno, dostatečný průměr).",
+].join("\n");
+const buildHood = () =>
+  "🔆 **Digestoř**: vysuňte ji dopředu; **tlačítka jsou vpravo** po vysunutí.";
+const buildSafe = () => [
+  "🔐 **Trezor**:",
+  "– Je-li zamčený a nevíte kód, kontaktujte prosím recepci.",
+  "– Pro nastavení: uvnitř dveří stiskněte **červené tlačítko**, zadejte kód (≥3 číslice), stiskněte **tlačítko zámku**, zavřete dveře.",
+].join("\n");
 
 /** ====== LOKÁLNÍ VYHLEDÁNÍ (Overpass fallback pro snídaně) ====== */
 async function geocodeHotel() {
@@ -264,18 +316,41 @@ function detectLocalSubtype(t) {
   if (/atm|bankomat/i.test(t)) return "atm";
   return null;
 }
+
 function detectIntent(text) {
   const t = (text || "").toLowerCase();
+
+  // tech
   if (/(wi[-\s]?fi|wifi|internet|heslo|password|ssid)/i.test(t)) return "wifi";
   if (/(ac|klimatizace|klima|air ?conditioning)/i.test(t)) return "ac";
   if (/(elektrin|elektrik|electric|electricity|jistič|jistice|proud|svetl|nesviti|no lights|power|fuse|breaker)/i.test(t)) return "power";
+
+  // house rules / amenities
   if (/(invalid|wheelchair|bezbarier|schod)/i.test(t)) return "access";
   if (/(kouř|kouřit|smok)/i.test(t)) return "smoking";
   if (/(pes|psi|dog)/i.test(t)) return "pets";
   if (/(prádeln|laund)/i.test(t)) return "laundry";
   if (/(úschovn|uschovn|batožin|batozin|luggage)/i.test(t)) return "luggage";
   if (/(klíč|klic|spare key|key).*apartm|náhradn/i.test(t)) return "keys";
+
+  // new utility topics
+  if (/popelnic|odpad/i.test(t)) return "trash";
+  if (/(brán|branu|gate|vstup)/i.test(t)) return "gate";
+  if (/(zvonk|bell|doorbell)/i.test(t)) return "doorbells";
+  if (/(výtah|vytah|elevator).*telefon|porucha|servis/i.test(t)) return "elevator_phone";
+  if (/(požár|pozar|alarm|hlasič|hlasics)/i.test(t)) return "fire_alarm";
+  if (/(povlečen|povleceni|ručník|rucnik|hand ?towel)/i.test(t)) return "linen_towels";
+  if (/(doktor|lékař|lekar|doctor|medical|24)/i.test(t)) return "doctor";
+  if (/(kávovar|kavovar|tchibo|coffee machine)/i.test(t)) return "coffee";
+  if (/(tepl[áa] voda|hot water)/i.test(t)) return "hot_water";
+  if (/(indukc|varn[aá] deska|cooktop)/i.test(t)) return "induction";
+  if (/(digesto[rř]|odsava[cč])/i.test(t)) return "hood";
+  if (/(trezor|safe)/i.test(t)) return "safe";
+
+  // local
   if (/(restaurac|snídan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|bar|kavárn|kavarn|vegan|vegetari|czech|bistro|exchange|směn|smen|atm)/i.test(t)) return "local";
+
+  // forbidden last (fallback by regex earlier)
   return "general";
 }
 
@@ -292,7 +367,7 @@ export default async (req) => {
     const { messages = [] } = await req.json();
     const userText = lastUser(messages);
 
-    // Handoff
+    // Handoff (parkování atp.)
     if (FORBIDDEN_PATTERNS.some(r => r.test(userText))) {
       return ok(await translateToUserLang(
         "Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. Rád pomohu se vším ostatním (doporučení v okolí, doprava, technické potíže, potvrzení o pobytu, faktury, ztráty/nálezy, stížnosti).",
@@ -317,20 +392,33 @@ export default async (req) => {
       return ok(await translateToUserLang(reply, userText));
     }
 
-    // Quick-help
-    if (intent === "ac")      return ok(await translateToUserLang(buildACHelp(), userText));
-    if (intent === "power")   return ok(await translateToUserLang(buildPowerHelp(), userText));
-    if (intent === "access")  return ok(await translateToUserLang(buildAccessibility(), userText));
-    if (intent === "smoking") return ok(await translateToUserLang(buildSmoking(), userText));
-    if (intent === "pets")    return ok(await translateToUserLang(buildPets(), userText));
-    if (intent === "laundry") return ok(await translateToUserLang(buildLaundry(), userText));
-    if (intent === "luggage") return ok(await translateToUserLang(buildLuggageInfo(), userText));
+    // Quick-help a utility
+    if (intent === "ac")               return ok(await translateToUserLang(buildACHelp(), userText));
+    if (intent === "power")            return ok(await translateToUserLang(buildPowerHelp(), userText));
+    if (intent === "access")           return ok(await translateToUserLang(buildAccessibility(), userText));
+    if (intent === "smoking")          return ok(await translateToUserLang(buildSmoking(), userText));
+    if (intent === "pets")             return ok(await translateToUserLang(buildPets(), userText));
+    if (intent === "laundry")          return ok(await translateToUserLang(buildLaundry(), userText));
+    if (intent === "luggage")          return ok(await translateToUserLang(buildLuggageInfo(), userText));
     if (intent === "keys") {
       const room = extractRoom(userText);
       return ok(await translateToUserLang(buildKeyHelp(room), userText));
     }
 
-    // Lokální doporučení – nejdřív kurátorovaná data
+    if (intent === "trash")            return ok(await translateToUserLang(buildTrash(), userText));
+    if (intent === "gate")             return ok(await translateToUserLang(buildGate(), userText));
+    if (intent === "doorbells")        return ok(await translateToUserLang(buildDoorbells(), userText));
+    if (intent === "elevator_phone")   return ok(await translateToUserLang(buildElevatorPhone(), userText));
+    if (intent === "fire_alarm")       return ok(await translateToUserLang(buildFireAlarm(), userText));
+    if (intent === "linen_towels")     return ok(await translateToUserLang(buildLinenTowels(), userText));
+    if (intent === "doctor")           return ok(await translateToUserLang(buildDoctor(), userText));
+    if (intent === "coffee")           return ok(await translateToUserLang(buildCoffee(), userText));
+    if (intent === "hot_water")        return ok(await translateToUserLang(buildHotWater(), userText));
+    if (intent === "induction")        return ok(await translateToUserLang(buildInduction(), userText));
+    if (intent === "hood")             return ok(await translateToUserLang(buildHood(), userText));
+    if (intent === "safe")             return ok(await translateToUserLang(buildSafe(), userText));
+
+    // Lokální doporučení – nejdřív curated seznam (žádné halucinace)
     if (intent === "local") {
       let sub = detectLocalSubtype(userText);
       const mapCat = {
@@ -341,10 +429,10 @@ export default async (req) => {
         czech: "czech",
         bar: "bar",
         vietnam: "vietnam",
-        grocery: "grocery",
+        grocery: "grocery",       // Tesco atd.
         pharmacy: "pharmacy",
         exchange: "exchange",
-        atm: "atm",
+        atm: "atm",               // ATM Bělehradská 222/128
       };
 
       if (!mapCat[sub]) {
@@ -357,10 +445,14 @@ export default async (req) => {
 
       const cat = mapCat[sub];
       if (cat) {
-        const curated = buildCuratedList(cat, { max: 12 });
+        // i18n label pro tlačítko „Open“
+        const lang = guessLang(userText) || "cs";
+        const labelMap = { cs: "Otevřít", en: "Open", de: "Öffnen", fr: "Ouvrir", es: "Abrir" };
+        const curated = buildCuratedList(cat, { max: 12, labelOpen: labelMap[lang] || "Open" });
         if (curated) return ok(await translateToUserLang(curated, userText));
       }
 
+      // fallback jen pro snídaně (200 m kolem hotelu)
       if (sub === "breakfast") {
         try {
           const list = await findNearbyBreakfastList();
