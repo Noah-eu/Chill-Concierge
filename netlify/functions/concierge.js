@@ -81,12 +81,10 @@ function historyContainsWifi(messages = []) {
   const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
   return /(wi[-\s]?fi|wifi|ssid|router|heslo|password)/i.test(look);
 }
-// když se řeší klíče, navazuj na další zprávu s číslem pokoje
 function historyContainsKeys(messages = []) {
   const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
   return /(náhradn|spare\s+key|zapomenut[ýy]\s+kl[ií]č|key[-\s]?box|schránk)/i.test(look);
 }
-
 function recentlySentWifiTroubleshoot(messages = []) {
   return /Pokud Wi-?Fi nefunguje:/i.test(lastAssistant(messages) || "");
 }
@@ -275,6 +273,21 @@ const buildSafe = () => [
   "– Pro nastavení: uvnitř dveří stiskněte **červené tlačítko**, zadejte kód (≥3 číslice), stiskněte **tlačítko zámku**, zavřete dveře.",
 ].join("\n");
 
+/** ====== NOVÉ SEKCÍ – DOPRAVA & JÍDLO DOMŮ ====== */
+const buildTransport = () => [
+  "🗺️ **Doprava po Praze**",
+  "– Většinu míst zvládnete **pěšky**. Na **Staroměstské náměstí ~15 min**, na **Pražský hrad ~1 hod** pěšky.",
+  "– **Hlavní nádraží** je asi **10 min** chůzí.",
+  "– **Jízdenku** koupíte **bezkontaktní kartou** přímo **u prostředních dveří** tramvaje.",
+  "– Na **Pražský hrad** jede **tram 22** z **I. P. Pavlova** (cca **100 m** od nás)."
+].join("\n");
+
+const buildFoodDelivery = () => [
+  "🛵 **Jídlo domů**",
+  "Můžete si objednat přímo na apartmán přes **Foodora** nebo **Wolt**.",
+  "- [Foodora](https://www.foodora.cz/)\n- [Wolt](https://wolt.com/)"
+].join("\n");
+
 /** ====== INTENTY ====== */
 function detectLocalSubtype(t) {
   const s = (t || "").toLowerCase();
@@ -362,12 +375,11 @@ export default async (req) => {
   }
 
   try {
-    // Frontend může poslat: { messages, uiLang, control }
     const body = await req.json();
     const { messages = [], uiLang = null, control = null } = body || {};
     const userText = lastUser(messages);
 
-    // 0) Follow-up: číslo pokoje po „Náhradní klíč“ → rovnou pošli kód + fotku
+    // 0) Follow-up: číslo pokoje po „Náhradní klíč“
     const roomOnly = extractRoom(userText);
     if (roomOnly && historyContainsKeys(messages)) {
       return ok(await translateToUserLang(buildKeyHelp(roomOnly), userText, uiLang));
@@ -384,18 +396,17 @@ export default async (req) => {
         };
         const valid = new Set(["dining","breakfast","cafe","bakery","veggie","czech","bar","vietnam","grocery","pharmacy","exchange","atm"]);
         if (!valid.has(sub)) {
-          return ok(await translateToUserLang(HANDOFF_MSG, userText || sub, uiLang)); // sjednocená hláška
+          return ok(await translateToUserLang(HANDOFF_MSG, userText || sub, uiLang));
         }
 
         let curated;
         if (sub === "dining") {
-          // breakfast + czech (bez duplicit)
           curated = buildMergedCuratedList(["breakfast","czech"], { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
         } else {
           curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
         }
 
-        const reply = curated || HANDOFF_MSG; // sjednocená hláška při prázdných datech
+        const reply = curated || HANDOFF_MSG;
         return ok(await translateToUserLang(reply, userText || sub, uiLang));
       }
 
@@ -424,6 +435,8 @@ export default async (req) => {
           linen_towels: buildLinenTowels,
           doctor: buildDoctor,
           safe: buildSafe,
+          transport: buildTransport,        // NEW
+          food_delivery: buildFoodDelivery, // NEW
         };
         const fn = map[sub];
         const text = fn ? fn() : HANDOFF_MSG;
@@ -436,11 +449,10 @@ export default async (req) => {
       return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
     }
 
-    // 3) Intent z volného textu
+    // 3) Intent z volného textu (fallback – když by přeci jen přišel text)
     const intent = detectIntent(userText);
     const wifiContext = historyContainsWifi(messages);
 
-    // Wi-Fi
     if (intent === "wifi" || (wifiContext && (extractRoom(userText) || extractSSID(userText)))) {
       const room = extractRoom(userText);
       const ssid = extractSSID(userText);
@@ -453,7 +465,6 @@ export default async (req) => {
       return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
-    // Quick-help (textové dotazy)
     if (intent === "ac")               return ok(await translateToUserLang(buildACHelp(), userText, uiLang));
     if (intent === "power")            return ok(await translateToUserLang(buildPowerHelp(), userText, uiLang));
     if (intent === "access")           return ok(await translateToUserLang(buildAccessibility(), userText, uiLang));
@@ -478,12 +489,9 @@ export default async (req) => {
     if (intent === "hood")             return ok(await translateToUserLang(buildHood(), userText, uiLang));
     if (intent === "safe")             return ok(await translateToUserLang(buildSafe(), userText, uiLang));
 
-    // Lokální doporučení (textem) → curated only
     if (intent === "local") {
       let sub = detectLocalSubtype(userText);
-      if (!sub) {
-        return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
-      }
+      if (!sub) return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
       const labelMap = {
         cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir",
         ru:"Открыть", uk:"Відкрити", nl:"Openen", it:"Apri", da:"Åbn", pl:"Otwórz"
@@ -493,7 +501,7 @@ export default async (req) => {
       return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
-    // Obecné → model
+    // 4) Obecné → model (zůstává jako nouzový fallback)
     const completion = await client.chat.completions.create({
       model: MODEL, temperature: 0.2,
       messages: [
@@ -507,7 +515,6 @@ export default async (req) => {
 
   } catch (e) {
     console.error(e);
-    // obecná omluva – chybový stav serveru není „nemáme data“
     return ok("Omlouvám se, nastala chyba. Zkuste to prosím znovu.");
   }
 
