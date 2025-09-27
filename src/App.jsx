@@ -11,10 +11,10 @@ const GoogleStyle = () => (
       --blue:#4285F4; --red:#EA4335; --yellow:#FBBC05; --green:#34A853;
 
       /* Jemné odstíny odvozené z hlavních barev (pro plochy a bubliny) */
-      --t-blue:   color-mix(in oklab, var(--blue),   white 88%);
-      --t-red:    color-mix(in oklab, var(--red),    white 90%);
-      --t-yellow: color-mix(in oklab, var(--yellow), white 90%);
-      --t-green:  color-mix(in oklab, var(--green),  white 92%);
+      --t-blue:   color-mix(in oklab, var(--blue),   white 65%);
+      --t-red:    color-mix(in oklab, var(--red),    white 65%);
+      --t-yellow: color-mix(in oklab, var(--yellow), white 65%);
+      --t-green:  color-mix(in oklab, var(--green),  white 69%);
 
       /* Neutrály / orámování */
       --bg-1:#fffefb; --bg-2:#fbf7ef;
@@ -25,10 +25,10 @@ const GoogleStyle = () => (
     /* Jemné pozadí se světelnými „oblaky“ z brand barev */
     body{
       background:
-        radial-gradient(1200px 700px at 12% -6%, var(--t-yellow) 0%, transparent 55%),
-        radial-gradient(1100px 650px at 100% -10%, var(--t-blue) 0%, transparent 50%),
+        radial-gradient(1200px 700px at 12% -6%, var(--t-yellow) 0%, transparent 45%),
+        radial-gradient(1100px 650px at 100% -10%, var(--t-blue) 0%, transparent 45%),
         radial-gradient(900px 600px at 40% 120%, var(--t-green) 0%, transparent 35%),
-        linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%);
+        linear-gradient(180deg, var(--bg-1), var(--bg-2) 50%);
       background-attachment: fixed;
     }
 
