@@ -11,10 +11,10 @@ const GoogleStyle = () => (
       --blue:#4285F4; --red:#EA4335; --yellow:#FBBC05; --green:#34A853;
 
       /* Jemné odstíny odvozené z hlavních barev (pro plochy a bubliny) */
-      --t-blue:   color-mix(in oklab, var(--blue),   white 65%);
-      --t-red:    color-mix(in oklab, var(--red),    white 65%);
-      --t-yellow: color-mix(in oklab, var(--yellow), white 65%);
-      --t-green:  color-mix(in oklab, var(--green),  white 69%);
+      --t-blue:   color-mix(in oklab, var(--blue),   white 40%);
+      --t-red:    color-mix(in oklab, var(--red),    white 40%);
+      --t-yellow: color-mix(in oklab, var(--yellow), white 40%);
+      --t-green:  color-mix(in oklab, var(--green),  white 40%);
 
       /* Neutrály / orámování */
       --bg-1:#fffefb; --bg-2:#fbf7ef;
