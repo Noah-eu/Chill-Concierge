@@ -145,204 +145,8 @@ const LANGS = {
 
 /* UI texty + názvy sekcí/položek (přeloženo) */
 const tr = {
-  en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
-       catFood:"Food & Nearby", catTech:"Technical issues", catOther:"Other",
-       stillAsk:"You can still type a custom question below.",
-       contact:"If you can’t find what you need, message David (WhatsApp +420 733 439 733).",
-       send:"Send", type:"Type your question…", shortcuts:"Shortcuts", hide:"Hide", show:"⚡ Shortcuts",
-       greet:[
-        "Hello! How can I help you today? (English)"
-       ],
-       /* item labels */
-       dining:"🍽️ Breakfast / Restaurants", bakery:"🥖 Bakeries", grocery:"🛒 Groceries",
-       pharmacy:"💊 Pharmacies", exchAtm:"💱 Exchanges / ATM", exchange:"💱 Exchanges", atm:"🏧 ATM",
-       wifi:"📶 Wi-Fi", power:"⚡ Electricity", hot_water:"💧 Hot water", ac:"❄️ Air conditioning (AC)",
-       induction:"🍳 Induction hob", hood:"🌀 Cooker hood", coffee:"☕ Tchibo coffee machine",
-       fire_alarm:"🔥 Fire alarm", elevator_phone:"🛗 Lift – service", safe:"🔐 Safe", keys:"🔑 Spare key",
-       laundry:"🧺 Laundry", access:"♿️ Accessibility", smoking:"🚭 Smoking",
-       luggage:"🎒 Luggage room", doorbells:"🔔 Doorbells", gate:"🚪 Gate (inside)", trash:"🗑️ Trash / Bins",
-       doctor:"👩‍⚕️ Doctor 24/7", linen_towels:"🧻 Linen / Towels", general:"ℹ️ General question"
-  },
-
-  cs:{ chooseLang:"Zvolte jazyk", mainTitle:"Vyberte téma", subTitle:"Podtéma / Subtopic", back:"← Zpět",
-       catFood:"Jídlo a okolí", catTech:"Technické potíže", catOther:"Ostatní",
-       stillAsk:"Stále můžete napsat vlastní dotaz do pole níže.",
-       contact:"Pokud jste nenašli, co potřebujete, napište Davidovi (WhatsApp +420 733 439 733).",
-       send:"Poslat", type:"Napište dotaz…", shortcuts:"Zkratky", hide:"Skrýt", show:"⚡ Zkratky",
-       greet:[
-        "Ahoj! Jak vám mohu pomoci dnes? (čeština)"
-       ],
-       dining:"🍽️ Snídaně / Restaurace", bakery:"🥖 Pekárny", grocery:"🛒 Obchody",
-       pharmacy:"💊 Lékárny", exchAtm:"💱 Směnárny / ATM", exchange:"💱 Směnárny", atm:"🏧 ATM",
-       wifi:"📶 Wi-Fi", power:"⚡ Elektřina", hot_water:"💧 Teplá voda", ac:"❄️ Klimatizace (AC)",
-       induction:"🍳 Indukční deska", hood:"🌀 Digestoř", coffee:"☕ Kávovar Tchibo",
-       fire_alarm:"🔥 Požární hlásič", elevator_phone:"🛗 Výtah – servis", safe:"🔐 Trezor", keys:"🔑 Náhradní klíč",
-       laundry:"🧺 Prádelna", access:"♿️ Bezbariérovost", smoking:"🚭 Kouření",
-       luggage:"🎒 Úschovna zavazadel", doorbells:"🔔 Zvonky", gate:"🚪 Brána (zevnitř)", trash:"🗑️ Odpadky / Popelnice",
-       doctor:"👩‍⚕️ Lékař 24/7", linen_towels:"🧻 Povlečení / Ručníky", general:"ℹ️ Obecný dotaz"
-  },
-
-  es:{ chooseLang:"Elige idioma", mainTitle:"Elige un tema", subTitle:"Subtema", back:"← Atrás",
-       catFood:"Comida y alrededores", catTech:"Problemas técnicos", catOther:"Otros",
-       stillAsk:"Aún puedes escribir tu pregunta abajo.",
-       contact:"Si no encuentras lo que necesitas, escribe a David (WhatsApp +420 733 439 733).",
-       send:"Enviar", type:"Escribe tu pregunta…", shortcuts:"Atajos", hide:"Ocultar", show:"⚡ Atajos",
-       greet:[
-        "¡Hola! ¿Cómo puedo ayudarte hoy? (español)"
-       ],
-       dining:"🍽️ Desayuno / Restaurantes", bakery:"🥖 Panaderías", grocery:"🛒 Supermercados",
-       pharmacy:"💊 Farmacias", exchAtm:"💱 Casas de cambio / ATM", exchange:"💱 Casas de cambio", atm:"🏧 Cajeros",
-       wifi:"📶 Wi-Fi", power:"⚡ Electricidad", hot_water:"💧 Agua caliente", ac:"❄️ Aire acondicionado (AC)",
-       induction:"🍳 Placa de inducción", hood:"🌀 Campana extractora", coffee:"☕ Cafetera Tchibo",
-       fire_alarm:"🔥 Alarma contra incendios", elevator_phone:"🛗 Ascensor – servicio", safe:"🔐 Caja fuerte", keys:"🔑 Llave de repuesto",
-       laundry:"🧺 Lavandería", access:"♿️ Accesibilidad", smoking:"🚭 Fumar",
-       luggage:"🎒 Consigna", doorbells:"🔔 Timbres", gate:"🚪 Portón (interior)", trash:"🗑️ Basura",
-       doctor:"👩‍⚕️ Médico 24/7", linen_towels:"🧻 Ropa de cama / Toallas", general:"ℹ️ Pregunta general"
-  },
-
-  de:{ chooseLang:"Sprache wählen", mainTitle:"Thema wählen", subTitle:"Unterthema", back:"← Zurück",
-       catFood:"Essen & Umgebung", catTech:"Technische Probleme", catOther:"Sonstiges",
-       stillAsk:"Sie können unten weiterhin eine Frage eingeben.",
-       contact:"Wenn etwas fehlt, schreiben Sie David (WhatsApp +420 733 439 733).",
-       send:"Senden", type:"Frage eingeben…", shortcuts:"Kurzbefehle", hide:"Ausblenden", show:"⚡ Kurzbefehle",
-       greet:[
-        "Hallo! Wie kann ich Ihnen heute helfen? (Deutsch)"
-       ],
-       dining:"🍽️ Frühstück / Restaurants", bakery:"🥖 Bäckereien", grocery:"🛒 Supermärkte",
-       pharmacy:"💊 Apotheken", exchAtm:"💱 Wechselstuben / ATM", exchange:"💱 Wechselstuben", atm:"🏧 Geldautomaten",
-       wifi:"📶 WLAN", power:"⚡ Strom", hot_water:"💧 Warmwasser", ac:"❄️ Klimaanlage (AC)",
-       induction:"🍳 Induktionskochfeld", hood:"🌀 Dunstabzug", coffee:"☕ Tchibo Kaffeemaschine",
-       fire_alarm:"🔥 Feuermelder", elevator_phone:"🛗 Aufzug – Service", safe:"🔐 Safe", keys:"🔑 Ersatzschlüssel",
-       laundry:"🧺 Waschraum", access:"♿️ Barrierefreiheit", smoking:"🚭 Rauchen",
-       luggage:"🎒 Gepäckraum", doorbells:"🔔 Klingeln", gate:"🚪 Tor (innen)", trash:"🗑️ Müll",
-       doctor:"👩‍⚕️ Arzt 24/7", linen_towels:"🧻 Bettwäsche / Handtücher", general:"ℹ️ Allgemeine Frage"
-  },
-
-  fr:{ chooseLang:"Choisir la langue", mainTitle:"Choisir un sujet", subTitle:"Sous-thème", back:"← Retour",
-       catFood:"Restauration & alentours", catTech:"Problèmes techniques", catOther:"Autre",
-       stillAsk:"Vous pouvez toujours écrire votre question ci-dessous.",
-       contact:"Si besoin, contactez David (WhatsApp +420 733 439 733).",
-       send:"Envoyer", type:"Écrivez votre question…", shortcuts:"Raccourcis", hide:"Masquer", show:"⚡ Raccourcis",
-       greet:[
-        "Bonjour ! Comment puis-je vous aider aujourd’hui ? (français)"
-       ],
-       dining:"🍽️ Petit-déjeuner / Restaurants", bakery:"🥖 Boulangeries", grocery:"🛒 Épiceries",
-       pharmacy:"💊 Pharmacies", exchAtm:"💱 Bureaux de change / DAB", exchange:"💱 Bureaux de change", atm:"🏧 DAB",
-       wifi:"📶 Wi-Fi", power:"⚡ Électricité", hot_water:"💧 Eau chaude", ac:"❄️ Climatisation (AC)",
-       induction:"🍳 Plaque à induction", hood:"🌀 Hotte", coffee:"☕ Machine à café Tchibo",
-       fire_alarm:"🔥 Détecteur d’incendie", elevator_phone:"🛗 Ascenseur – service", safe:"🔐 Coffre-fort", keys:"🔑 Clé de rechange",
-       laundry:"🧺 Laverie", access:"♿️ Accessibilité", smoking:"🚭 Fumer",
-       luggage:"🎒 Consigne", doorbells:"🔔 Sonnette", gate:"🚪 Portail (int.)", trash:"🗑️ Poubelles",
-       doctor:"👩‍⚕️ Médecin 24/7", linen_towels:"🧻 Linge / Serviettes", general:"ℹ️ Question générale"
-  },
-
-  ru:{ chooseLang:"Выберите язык", mainTitle:"Выберите тему", subTitle:"Подтема", back:"← Назад",
-       catFood:"Еда и рядом", catTech:"Технические проблемы", catOther:"Другое",
-       stillAsk:"Можете также написать свой вопрос ниже.",
-       contact:"Если не нашли нужное, напишите Давиду (WhatsApp +420 733 439 733).",
-       send:"Отправить", type:"Введите вопрос…", shortcuts:"Ярлыки", hide:"Скрыть", show:"⚡ Ярлыки",
-       greet:[
-        "Привет! Чем могу помочь вам сегодня? (русский)"
-       ],
-       dining:"🍽️ Завтрак / Рестораны", bakery:"🥖 Пекарни", grocery:"🛒 Магазины",
-       pharmacy:"💊 Аптеки", exchAtm:"💱 Обмен / Банкоматы", exchange:"💱 Обмен валюты", atm:"🏧 Банкоматы",
-       wifi:"📶 Wi-Fi", power:"⚡ Электричество", hot_water:"💧 Горячая вода", ac:"❄️ Кондиционер (AC)",
-       induction:"🍳 Индукционная плита", hood:"🌀 Вытяжка", coffee:"☕ Кофемашина Tchibo",
-       fire_alarm:"🔥 Пожарная сигнализация", elevator_phone:"🛗 Лифт – сервис", safe:"🔐 Сейф", keys:"🔑 Запасной ключ",
-       laundry:"🧺 Прачечная", access:"♿️ Доступность", smoking:"🚭 Курение",
-       luggage:"🎒 Камера хранения", doorbells:"🔔 Домофоны", gate:"🚪 Ворота (изнутри)", trash:"🗑️ Мусор",
-       doctor:"👩‍⚕️ Врач 24/7", linen_towels:"🧻 Постель / Полотенца", general:"ℹ️ Общий вопрос"
-  },
-
-  uk:{ chooseLang:"Оберіть мову", mainTitle:"Виберіть тему", subTitle:"Підтема", back:"← Назад",
-       catFood:"Їжа та поруч", catTech:"Технічні питання", catOther:"Інше",
-       stillAsk:"Можете також написати власне запитання нижче.",
-       contact:"Якщо не знайшли потрібне, напишіть Давидові (WhatsApp +420 733 439 733).",
-       send:"Надіслати", type:"Введіть запитання…", shortcuts:"Ярлики", hide:"Сховати", show:"⚡ Ярлики",
-       greet:[
-        "Привіт! Чим я можу вам допомогти сьогодні? (українська)"
-       ],
-       dining:"🍽️ Сніданок / Ресторани", bakery:"🥖 Пекарні", grocery:"🛒 Магазини",
-       pharmacy:"💊 Аптеки", exchAtm:"💱 Обмін / Банкомати", exchange:"💱 Обмін валют", atm:"🏧 Банкомати",
-       wifi:"📶 Wi-Fi", power:"⚡ Електрика", hot_water:"💧 Гаряча вода", ac:"❄️ Кондиціонер (AC)",
-       induction:"🍳 Індукційна плита", hood:"🌀 Витяжка", coffee:"☕ Кавоварка Tchibo",
-       fire_alarm:"🔥 Пожежний датчик", elevator_phone:"🛗 Ліфт – сервіс", safe:"🔐 Сейф", keys:"🔑 Запасний ключ",
-       laundry:"🧺 Пральня", access:"♿️ Доступність", smoking:"🚭 Паління",
-       luggage:"🎒 Камера схову", doorbells:"🔔 Дзвінки", gate:"🚪 Ворота (зсередини)", trash:"🗑️ Сміття",
-       doctor:"👩‍⚕️ Лікар 24/7", linen_towels:"🧻 Постіль / Рушники", general:"ℹ️ Загальне запитання"
-  },
-
-  nl:{ chooseLang:"Kies een taal", mainTitle:"Kies een onderwerp", subTitle:"Subonderwerp", back:"← Terug",
-       catFood:"Eten & in de buurt", catTech:"Technische problemen", catOther:"Overig",
-       stillAsk:"Je kunt hieronder ook je eigen vraag typen.",
-       contact:"Niet gevonden wat je zoekt? Stuur David een bericht (WhatsApp +420 733 439 733).",
-       send:"Versturen", type:"Typ je vraag…", shortcuts:"Snelkoppelingen", hide:"Verbergen", show:"⚡ Snelkoppelingen",
-       greet:[
-        "Hallo! Hoe kan ik u vandaag helpen? (Nederlands)"
-       ],
-       dining:"🍽️ Ontbijt / Restaurants", bakery:"🥖 Bakkerijen", grocery:"🛒 Supermarkten",
-       pharmacy:"💊 Apotheken", exchAtm:"💱 Wisselkantoren / ATM", exchange:"💱 Wisselkantoren", atm:"🏧 Geldautomaten",
-       wifi:"📶 Wi-Fi", power:"⚡ Stroom", hot_water:"💧 Warm water", ac:"❄️ Airco (AC)",
-       induction:"🍳 Inductie-kookplaat", hood:"🌀 Afzuigkap", coffee:"☕ Tchibo-koffiemachine",
-       fire_alarm:"🔥 Brandmelder", elevator_phone:"🛗 Lift – service", safe:"🔐 Kluis", keys:"🔑 Reservesleutel",
-       laundry:"🧺 Wasruimte", access:"♿️ Toegankelijkheid", smoking:"🚭 Roken",
-       luggage:"🎒 Bagageruimte", doorbells:"🔔 Deurbellen", gate:"🚪 Poort (binnen)", trash:"🗑️ Afval",
-       doctor:"👩‍⚕️ Arts 24/7", linen_towels:"🧻 Beddengoed / Handdoeken", general:"ℹ️ Algemene vraag"
-  },
-
-  it:{ chooseLang:"Scegli una lingua", mainTitle:"Scegli un argomento", subTitle:"Sottoargomento", back:"← Indietro",
-       catFood:"Cibo e dintorni", catTech:"Problemi tecnici", catOther:"Altro",
-       stillAsk:"Puoi comunque scrivere una domanda qui sotto.",
-       contact:"Se non trovi ciò che ti serve, scrivi a David (WhatsApp +420 733 439 733).",
-       send:"Invia", type:"Scrivi la tua domanda…", shortcuts:"Scorciatoie", hide:"Nascondi", show:"⚡ Scorciatoie",
-       greet:[
-        "Ciao! Come posso aiutarti oggi? (italiano)"
-       ],
-       dining:"🍽️ Colazione / Ristoranti", bakery:"🥖 Panetterie", grocery:"🛒 Supermercati",
-       pharmacy:"💊 Farmacie", exchAtm:"💱 Cambio / ATM", exchange:"💱 Cambiavalute", atm:"🏧 Bancomat",
-       wifi:"📶 Wi-Fi", power:"⚡ Elettricità", hot_water:"💧 Acqua calda", ac:"❄️ Aria condizionata (AC)",
-       induction:"🍳 Piano a induzione", hood:"🌀 Cappa", coffee:"☕ Macchina Tchibo",
-       fire_alarm:"🔥 Allarme antincendio", elevator_phone:"🛗 Ascensore – servizio", safe:"🔐 Cassaforte", keys:"🔑 Chiave di scorta",
-       laundry:"🧺 Lavanderia", access:"♿️ Accessibilità", smoking:"🚭 Fumo",
-       luggage:"🎒 Deposito bagagli", doorbells:"🔔 Campanelli", gate:"🚪 Cancello (interno)", trash:"🗑️ Rifiuti",
-       doctor:"👩‍⚕️ Medico 24/7", linen_towels:"🧻 Lenzuola / Asciugamani", general:"ℹ️ Domanda generale"
-  },
-
-  da:{ chooseLang:"Vælg sprog", mainTitle:"Vælg et emne", subTitle:"Undertema", back:"← Tilbage",
-       catFood:"Mad og i nærheden", catTech:"Tekniske problemer", catOther:"Andet",
-       stillAsk:"Du kan stadig skrive dit eget spørgsmål herunder.",
-       contact:"Finder du ikke det, du skal bruge, så skriv til David (WhatsApp +420 733 439 733).",
-       send:"Send", type:"Skriv dit spørgsmål…", shortcuts:"Genveje", hide:"Skjul", show:"⚡ Genveje",
-       greet:[
-        "Hej! Hvordan kan jeg hjælpe dig i dag? (dansk)"
-       ],
-       dining:"🍽️ Morgenmad / Restauranter", bakery:"🥖 Bagerier", grocery:"🛒 Supermarkeder",
-       pharmacy:"💊 Apoteker", exchAtm:"💱 Vekselkontorer / ATM", exchange:"💱 Vekselkontorer", atm:"🏧 Hæveautomater",
-       wifi:"📶 Wi-Fi", power:"⚡ Strøm", hot_water:"💧 Varmt vand", ac:"❄️ Aircondition (AC)",
-       induction:"🍳 Induktionskomfur", hood:"🌀 Emhætte", coffee:"☕ Tchibo kaffemaskine",
-       fire_alarm:"🔥 Brandalarm", elevator_phone:"🛗 Elevator – service", safe:"🔐 Pengeskab", keys:"🔑 Ekstra nøgle",
-       laundry:"🧺 Vaskeri", access:"♿️ Tilgængelighed", smoking:"🚭 Rygning",
-       luggage:"🎒 Bagagerum", doorbells:"🔔 Dørklokker", gate:"🚪 Port (indvendigt)", trash:"🗑️ Affald",
-       doctor:"👩‍⚕️ Læge 24/7", linen_towels:"🧻 Sengetøj / Håndklæder", general:"ℹ️ Generelt spørgsmål"
-  },
-
-  pl:{ chooseLang:"Wybierz język", mainTitle:"Wybierz temat", subTitle:"Podtemat", back:"← Wstecz",
-       catFood:"Jedzenie i okolica", catTech:"Problemy techniczne", catOther:"Inne",
-       stillAsk:"Możesz też wpisać własne pytanie poniżej.",
-       contact:"Jeśli nie znalazłeś informacji, napisz do Dawida (WhatsApp +420 733 439 733).",
-       send:"Wyślij", type:"Wpisz pytanie…", shortcuts:"Skróty", hide:"Ukryj", show:"⚡ Skróty",
-       greet:[
-        "Cześć! Jak mogę ci dziś pomóc? (polski)"
-       ],
-       dining:"🍽️ Śniadanie / Restauracje", bakery:"🥖 Piekarnie", grocery:"🛒 Sklepy",
-       pharmacy:"💊 Apteki", exchAtm:"💱 Kantory / Bankomaty", exchange:"💱 Kantory", atm:"🏧 Bankomaty",
-       wifi:"📶 Wi-Fi", power:"⚡ Prąd", hot_water:"💧 Ciepła woda", ac:"❄️ Klimatyzacja (AC)",
-       induction:"🍳 Płyta indukcyjna", hood:"🌀 Okap", coffee:"☕ Ekspres Tchibo",
-       fire_alarm:"🔥 Czujnik pożaru", elevator_phone:"🛗 Winda – serwis", safe:"🔐 Sejf", keys:"🔑 Klucz zapasowy",
-       laundry:"🧺 Pralnia", access:"♿️ Dostępność", smoking:"🚭 Palenie",
-       luggage:"🎒 Przechowalnia bagażu", doorbells:"🔔 Dzwonki", gate:"🚪 Brama (od środka)", trash:"🗑️ Śmieci",
-       doctor:"👩‍⚕️ Lekarz 24/7", linen_towels:"🧻 Pościel / Ręczniki", general:"ℹ️ Pytanie ogólne"
-  },
+  /* ... (ponecháno beze změn; tvé překlady) ... */
+  /* Kvůli stručnosti sem nevkládám celé tr – použij totožný obsah, který jsi poslal v poslední verzi. */
 };
 
 /** ====== util ====== */
@@ -351,8 +155,17 @@ const btnColorForIndex = (i) => {
   return mod === 0 ? "var(--blue)" : mod === 1 ? "var(--red)" : mod === 2 ? "var(--yellow)" : "var(--green)";
 };
 
+/** Barva pro kořenové kategorie (jen na první úrovni) */
+function catColor(label, dict){
+  if (label === dict.catFood) return "var(--red)";
+  if (label === dict.catTech) return "var(--yellow)";
+  if (label === dict.catOther) return "var(--green)";
+  return null;
+}
+
 /** ====== sestavení struktur pro UI (labely z tr, sub-klíče v angličtině) ====== */
 function makeFlows(dict){
+  /* ... (beze změn) ... */
   const FOOD = [
     { label:dict.dining,    sub:"dining",    kind:"local" },
     { label:dict.bakery,    sub:"bakery",    kind:"local" },
@@ -363,34 +176,31 @@ function makeFlows(dict){
       { label:dict.atm,      sub:"atm",      kind:"local" },
     ]},
   ];
-
   const TECH = [
-    { label:dict.wifi,            sub:"wifi",            kind:"tech" },
-    { label:dict.power,           sub:"power",           kind:"tech" },
-    { label:dict.hot_water,       sub:"hot_water",       kind:"tech" },
-    { label:dict.ac,              sub:"ac",              kind:"tech" },
-    { label:dict.induction,       sub:"induction",       kind:"tech" },
-    { label:dict.hood,            sub:"hood",            kind:"tech" },
-    { label:dict.coffee,          sub:"coffee",          kind:"tech" },
-    { label:dict.fire_alarm,      sub:"fire_alarm",      kind:"tech" },
-    { label:dict.elevator_phone,  sub:"elevator_phone",  kind:"tech" },
-    { label:dict.safe,            sub:"safe",            kind:"tech" },
-    { label:dict.keys,            sub:"keys",            kind:"tech" },
+    { label:dict.wifi, sub:"wifi", kind:"tech" },
+    { label:dict.power, sub:"power", kind:"tech" },
+    { label:dict.hot_water, sub:"hot_water", kind:"tech" },
+    { label:dict.ac, sub:"ac", kind:"tech" },
+    { label:dict.induction, sub:"induction", kind:"tech" },
+    { label:dict.hood, sub:"hood", kind:"tech" },
+    { label:dict.coffee, sub:"coffee", kind:"tech" },
+    { label:dict.fire_alarm, sub:"fire_alarm", kind:"tech" },
+    { label:dict.elevator_phone, sub:"elevator_phone", kind:"tech" },
+    { label:dict.safe, sub:"safe", kind:"tech" },
+    { label:dict.keys, sub:"keys", kind:"tech" },
   ];
-
   const OTHER = [
-    { label:dict.laundry,        sub:"laundry",       kind:"tech" },
-    { label:dict.access,         sub:"access",        kind:"tech" },
-    { label:dict.smoking,        sub:"smoking",       kind:"tech" },
-    { label:dict.luggage,        sub:"luggage",       kind:"tech" },
-    { label:dict.doorbells,      sub:"doorbells",     kind:"tech" },
-    { label:dict.gate,           sub:"gate",          kind:"tech" },
-    { label:dict.trash,          sub:"trash",         kind:"tech" },
-    { label:dict.doctor,         sub:"doctor",        kind:"tech" },
-    { label:dict.linen_towels,   sub:"linen_towels",  kind:"tech" },
-    { label:dict.general,        prompt:"help",       kind:"free" },
+    { label:dict.laundry, sub:"laundry", kind:"tech" },
+    { label:dict.access, sub:"access", kind:"tech" },
+    { label:dict.smoking, sub:"smoking", kind:"tech" },
+    { label:dict.luggage, sub:"luggage", kind:"tech" },
+    { label:dict.doorbells, sub:"doorbells", kind:"tech" },
+    { label:dict.gate, sub:"gate", kind:"tech" },
+    { label:dict.trash, sub:"trash", kind:"tech" },
+    { label:dict.doctor, sub:"doctor", kind:"tech" },
+    { label:dict.linen_towels, sub:"linen_towels", kind:"tech" },
+    { label:dict.general, prompt:"help", kind:"free" },
   ];
-
   return [
     { label:dict.catFood, children:FOOD },
     { label:dict.catTech, children:TECH },
@@ -447,13 +257,9 @@ export default function App(){
     stack.length === 0 ? FLOWS :
     stack[stack.length - 1]?.children ?? FLOWS;
 
-  const rootFood = lang && stack.length > 0 && stack[stack.length - 1]?.label === tr[lang||"en"].catFood;
-  const rootTech = lang && stack.length > 0 && stack[stack.length - 1]?.label === tr[lang||"en"].catTech;
-
   const onChipClick = async (n) => {
     if (n.children) return openNode(n);
 
-    // posíláme uživateli zobrazený text, ale do controlu dáváme anglický sub + intent
     if (n.kind === "local") {
       setShortcutsOpen(false);
       return sendPrompt(n.label, { intent:"local", sub:n.sub });
@@ -462,30 +268,18 @@ export default function App(){
       setShortcutsOpen(false);
       return sendPrompt(n.label, { intent:"tech", sub:n.sub });
     }
-    // volný text (fallback)
     setShortcutsOpen(false);
     return sendPrompt(n.label || "Help");
   };
 
-  // Greeting blok (vícejazyčný výpis)
+  // Greeting blok (vícejazyčný výpis) – zkrácen kvůli prostoru
   const Greeting = () => (
     <div className="bubble bot" style={{ display:"inline-block", maxWidth:"100%" }}>
-      {/* Pozdravy: EN nahoře + ostatní řádky */}
       <div style={{marginBottom:10}}>
         <strong>{tr.en.greet[0]}</strong>
-        <br/>{tr.cs.greet[0]}
-        <br/>{tr.es.greet[0]}
-        <br/>{tr.de.greet[0]}
-        <br/>{tr.fr.greet[0]}
-        <br/>{tr.ru.greet[0]}
-        <br/>{tr.uk.greet[0]}
-        <br/>{tr.nl.greet[0]}
-        <br/>{tr.it.greet[0]}
-        <br/>{tr.da.greet[0]}
-        <br/>{tr.pl.greet[0]}
+        <br/>{tr.cs.greet[0]}<br/>{tr.es.greet[0]}<br/>{tr.de.greet[0]}<br/>{tr.fr.greet[0]}
+        <br/>{tr.ru.greet[0]}<br/>{tr.uk.greet[0]}<br/>{tr.nl.greet[0]}<br/>{tr.it.greet[0]}<br/>{tr.da.greet[0]}<br/>{tr.pl.greet[0]}
       </div>
-
-      {/* Angličtina – samostatně (větší) */}
       <div style={{marginBottom:8}}>
         <button
           className="chipPrimary"
@@ -495,8 +289,6 @@ export default function App(){
           {LANGS.en}
         </button>
       </div>
-
-      {/* Ostatní jazyky – po dvojicích */}
       <div className="gridLang2">
         {Object.entries(LANGS)
           .filter(([code]) => code !== "en")
@@ -511,7 +303,6 @@ export default function App(){
             </button>
         ))}
       </div>
-
       <div className="tips" style={{marginTop:8}}>
         {Object.keys(LANGS).map(k => k.toUpperCase()).join(" / ")}
       </div>
@@ -543,16 +334,46 @@ export default function App(){
                 {stack.length > 0 && (
                   <button className="backBtn" onClick={goBack}>{tr[lang||"en"].back}</button>
                 )}
-                <button className="backBtn" onClick={() => setShortcutsOpen(false)}>{tr[lang||"en"].hide}</button>
-                <button className="backBtn" onClick={() => { setLang(null); setStack([]); }}>🌐 {tr[lang||"en"].chooseLang}</button>
+                {/* Skrýt → MODRÁ */}
+                <button
+                  className="chipPrimary"
+                  style={{ ["--btn"]: "var(--blue)" }}
+                  onClick={() => setShortcutsOpen(false)}
+                >
+                  {tr[lang||"en"].hide}
+                </button>
+                {/* Zvolte jazyk → beze změny */}
+                <button className="backBtn" onClick={() => { setLang(null); setStack([]); }}>
+                  🌐 {tr[lang||"en"].chooseLang}
+                </button>
               </div>
             </div>
 
             <div className="grid">
-              {currentChildren.map((n, idx) =>
-                n.children ? (
-                  <button key={idx} className="chip" onClick={() => openNode(n)}>{n.label}</button>
-                ) : (
+              {currentChildren.map((n, idx) => {
+                // Root kategorie barevně, ostatní „rodiče“ krémově
+                if (n.children) {
+                  const root = stack.length === 0;
+                  const col = root ? catColor(n.label, tr[lang||"en"]) : null;
+                  if (col) {
+                    return (
+                      <button
+                        key={idx}
+                        className="chipPrimary"
+                        style={{ ["--btn"]: col }}
+                        onClick={() => openNode(n)}
+                      >
+                        {n.label}
+                      </button>
+                    );
+                  }
+                  return (
+                    <button key={idx} className="chip" onClick={() => openNode(n)}>
+                      {n.label}
+                    </button>
+                  );
+                }
+                return (
                   <button
                     key={idx}
                     className="chipPrimary"
@@ -563,8 +384,8 @@ export default function App(){
                   >
                     {n.label}
                   </button>
-                )
-              )}
+                );
+              })}
             </div>
 
             <div className="tips" style={{ marginTop:8 }}>{tr[lang||"en"].stillAsk}</div>
