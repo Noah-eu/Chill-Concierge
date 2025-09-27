@@ -92,22 +92,16 @@ function recentlySentWifiTroubleshoot(messages = []) {
 /** jazyková detekce + překlad */
 function guessLang(userText = "") {
   const t = (userText || "").trim().toLowerCase();
-  // cs/de/es/fr/en
   if (/[ěščřžýáíéúůňťď]/i.test(t)) return "cs";
   if (/[äöüß]/.test(t) || /\b(wie|hallo|bitte|danke|wo|ich|nicht)\b/.test(t)) return "de";
   if (/[áéíóúñ¿¡]/.test(t) || /\b(hola|gracias|dónde|por favor|no puedo)\b/.test(t)) return "es";
   if (/[àâçéèêëîïôùûüÿœ]/.test(t) || /\b(bonjour|merci|où|s'il vous plaît)\b/.test(t)) return "fr";
   if (/\b(hello|please|thanks|where|wifi|password|help)\b/.test(t)) return "en";
-  // ru / uk (cyrilice)
   if (/[а-яё]/i.test(t)) return "ru";
   if (/[іїєґ]/i.test(t)) return "uk";
-  // nl
   if (/\b(hallo|hoi|alsjeblieft|alstublieft|dank je|dank u|waar)\b/i.test(t)) return "nl";
-  // it
   if (/[àèéìòù]/.test(t) || /\b(ciao|per favore|grazie|dove|aiuto)\b/i.test(t)) return "it";
-  // da
   if (/[æøå]/i.test(t) || /\b(hej|venligst|tak|hvor)\b/i.test(t)) return "da";
-  // pl
   if (/[ąćęłńóśźż]/i.test(t) || /\b(cześć|dzień dobry|proszę|dziękuję|gdzie)\b/i.test(t)) return "pl";
   return null;
 }
@@ -435,8 +429,8 @@ export default async (req) => {
           linen_towels: buildLinenTowels,
           doctor: buildDoctor,
           safe: buildSafe,
-          transport: buildTransport,        // NEW
-          food_delivery: buildFoodDelivery, // NEW
+          transport: buildTransport,
+          food_delivery: buildFoodDelivery,
         };
         const fn = map[sub];
         const text = fn ? fn() : HANDOFF_MSG;
@@ -501,7 +495,7 @@ export default async (req) => {
       return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
-    // 4) Obecné → model (zůstává jako nouzový fallback)
+    // 4) Obecné → model (nouzový fallback)
     const completion = await client.chat.completions.create({
       model: MODEL, temperature: 0.2,
       messages: [
@@ -524,3 +518,4 @@ export default async (req) => {
     });
   }
 };
+
