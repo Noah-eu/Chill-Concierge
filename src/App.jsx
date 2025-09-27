@@ -7,37 +7,61 @@ import DOMPurify from "dompurify";
 const GoogleStyle = () => (
   <style>{`
     :root{
+      /* Hlavní (beze změny) – používají je barevná tlačítka */
       --blue:#4285F4; --red:#EA4335; --yellow:#FBBC05; --green:#34A853;
-      --bg-1:#fffdf9; --bg-2:#faf7ef; --card:#ffffff; --border:#eadccd;
-      --muted:#6b645c; --accent:#1f1b16; --bot:#f9f4ea; --me:#eef4ff;
+
+      /* Jemné odstíny odvozené z hlavních barev (pro plochy a bubliny) */
+      --t-blue:   color-mix(in oklab, var(--blue),   white 88%);
+      --t-red:    color-mix(in oklab, var(--red),    white 90%);
+      --t-yellow: color-mix(in oklab, var(--yellow), white 90%);
+      --t-green:  color-mix(in oklab, var(--green),  white 92%);
+
+      /* Neutrály / orámování */
+      --bg-1:#fffefb; --bg-2:#fbf7ef;
+      --border:color-mix(in oklab, #c9b9a6, white 30%);
+      --muted:#6b645c; --accent:#1f1b16;
     }
 
+    /* Jemné pozadí se světelnými „oblaky“ z brand barev */
     body{
-      background: radial-gradient(1500px 800px at 10% -10%, #fff7e6 0%, transparent 50%),
-                  radial-gradient(1500px 800px at 100% 0%, #eef5ff 0%, transparent 45%),
-                  linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%);
+      background:
+        radial-gradient(1200px 700px at 12% -6%, var(--t-yellow) 0%, transparent 55%),
+        radial-gradient(1100px 650px at 100% -10%, var(--t-blue) 0%, transparent 50%),
+        radial-gradient(900px 600px at 40% 120%, var(--t-green) 0%, transparent 35%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%);
       background-attachment: fixed;
     }
+
     .row{display:flex;flex-direction:column;gap:12px}
 
-    .scroller{max-height:70vh;overflow:auto;padding:8px;border-radius:12px;}
+    .scroller{
+      max-height:70vh;overflow:auto;padding:8px;border-radius:14px;
+      background: linear-gradient(180deg, color-mix(in oklab, var(--t-blue), white 70%) 0%, transparent 85%);
+    }
 
+    /* Bubliny – jemné varianty ze žluté (bot) a modré (já) */
     .bubble{
       border-radius:16px;padding:14px 16px;line-height:1.55;width:fit-content;max-width:100%;white-space:pre-line;
       border:1px solid var(--border);
       box-shadow:0 6px 16px rgba(0,0,0,.06);
-      background: linear-gradient(180deg,#fffdfa,#fff7ea);
+      background: #fff;
     }
     .me{
-      background: linear-gradient(180deg,#f4f8ff,#eaf1ff);
-      margin-left:auto
+      background:linear-gradient(180deg, color-mix(in oklab, var(--t-blue), white 10%), color-mix(in oklab, var(--t-blue), white 0%));
+      margin-left:auto;
     }
-    .bot{background: linear-gradient(180deg,#fffaf1,#f7f1e6)}
-    .bot img{max-width:100%;height:auto;border-radius:14px;display:block;margin:10px 0;
-      box-shadow:0 10px 26px rgba(0,0,0,.10);border:1px solid var(--border);}
-    /* hezčí odkazy v odpovědích */
+    .bot{
+      background:linear-gradient(180deg, color-mix(in oklab, var(--t-yellow), white 8%), color-mix(in oklab, var(--t-yellow), white 0%));
+    }
+    .bot img{
+      max-width:100%;height:auto;border-radius:14px;display:block;margin:10px 0;
+      box-shadow:0 10px 26px rgba(0,0,0,.10);border:1px solid var(--border);
+    }
+
+    /* Hezčí odkazy v odpovědích (pilulky v jemné modré) */
     .bot a{
-      display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid color-mix(in oklab, var(--blue), black 15%);
+      display:inline-block;padding:8px 12px;border-radius:999px;
+      border:1px solid color-mix(in oklab, var(--blue), black 15%);
       background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 8%), color-mix(in oklab, var(--blue), black 6%));
       color:#fff;text-decoration:none;font-weight:800;box-shadow:0 6px 16px rgba(66,133,244,.25);
     }
@@ -47,7 +71,7 @@ const GoogleStyle = () => (
     /* GRID pro tlačítka */
     .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:10px;width:100%;}
 
-    /* primární „chips“ (barevné) */
+    /* PRIMÁRNÍ barevné chips – beze změny */
     .chipPrimary{
       --btn: var(--blue);
       padding:12px 14px;border-radius:999px;border:1px solid color-mix(in oklab, var(--btn), black 18%);
@@ -60,38 +84,31 @@ const GoogleStyle = () => (
     .chipPrimary:active{transform:translateY(0);filter:saturate(.96)}
     .chipPrimary:disabled{opacity:.6;cursor:not-allowed}
 
-    /* sekundární (kategoriální) chips */
+    /* Sekundární (kategoriální) chips – jemná krémová */
     .chip{
-      padding:12px 14px;border-radius:999px;border:1px solid #e7e0d5;
-      background:#fff6e8;color:#3b2f24;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.05);
+      padding:12px 14px;border-radius:999px;border:1px solid var(--border);
+      background:linear-gradient(180deg, color-mix(in oklab, var(--t-yellow), white 6%), color-mix(in oklab, var(--t-yellow), white 0%));
+      color:#3b2f24;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.05);
       cursor:pointer;text-align:center;
     }
 
-    /* utility tlačítka – tónovaná */
+    /* Utility tlačítka – jemné neutrály */
     .backBtn{
       padding:10px 14px;border-radius:14px;border:1px solid var(--border);
-      background:linear-gradient(180deg, #fff, #fff7eb);color:var(--accent);font-weight:700;cursor:pointer;
+      background:linear-gradient(180deg, #fff, color-mix(in oklab, var(--t-yellow), white 10%));
+      color:var(--accent);font-weight:700;cursor:pointer;
       box-shadow:0 6px 12px rgba(0,0,0,.05);
     }
 
     .tips{color:var(--muted);font-size:13px;margin-top:8px}
 
-    .contactBar{
-      margin-top:4px;padding:10px 12px;border:1px dashed var(--border);
-      border-radius:12px;background:linear-gradient(180deg, #fffef9, #fff7e6);color:var(--accent);font-size:14px;
-    }
-
-    .input{display:flex;gap:10px;margin-top:8px;padding-top:12px;border-top:1px dashed var(--border);}
-    textarea{
-      flex:1;resize:vertical;min-height:56px;max-height:200px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);
-      outline:none;background:#fffdf9;
-    }
-    textarea:focus{border-color:#d2bba5;box-shadow:0 0 0 4px rgba(210,187,165,.30)}
-
-    /* Shortcuts box (mimo scroller) */
+    /* Panel zkratek – pastelový */
     .shortcuts{
       border:1px solid var(--border);
-      background:linear-gradient(180deg, #fffdfa, #fff7ea);
+      background:
+        radial-gradient(800px 400px at 10% -40%, color-mix(in oklab, var(--t-yellow), white 20%) 0%, transparent 60%),
+        radial-gradient(700px 380px at 100% -40%, color-mix(in oklab, var(--t-blue), white 20%) 0%, transparent 55%),
+        linear-gradient(180deg, #fff, color-mix(in oklab, var(--t-yellow), white 6%));
       box-shadow:0 6px 16px rgba(0,0,0,.06);border-radius:16px;padding:12px 14px;
     }
     .shortcutsHeader{
@@ -99,7 +116,25 @@ const GoogleStyle = () => (
     }
     .btnRow{display:flex;gap:8px;flex-wrap:wrap;}
 
-    /* FAB pro rychlé zobrazení zkratek */
+    .contactBar{
+      margin-top:4px;padding:10px 12px;border:1px dashed var(--border);
+      border-radius:12px;
+      background:linear-gradient(180deg, color-mix(in oklab, var(--t-yellow), white 10%), color-mix(in oklab, var(--t-yellow), white 2%));
+      color:var(--accent);font-size:14px;
+    }
+
+    .input{
+      display:flex;gap:10px;margin-top:8px;padding-top:12px;border-top:1px dashed var(--border);
+      background:linear-gradient(180deg, transparent, color-mix(in oklab, var(--t-blue), white 85%) 90%);
+      border-radius:12px;
+    }
+    textarea{
+      flex:1;resize:vertical;min-height:56px;max-height:200px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);
+      outline:none;background:linear-gradient(180deg, #fff, color-mix(in oklab, var(--t-blue), white 8%));
+    }
+    textarea:focus{border-color:color-mix(in oklab, var(--blue), #d2bba5 30%);box-shadow:0 0 0 4px color-mix(in oklab, var(--t-blue), transparent 60%)}
+
+    /* FAB – zůstává modrý, aby byl jasně vidět */
     .fab{
       position:fixed;right:16px;bottom:90px;z-index:1000;border:none;border-radius:999px;padding:12px 14px;font-weight:800;
       background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 6%), color-mix(in oklab, var(--blue), black 4%));
@@ -252,7 +287,7 @@ export default function App(){
 
   // map pro curated places
   const PLACE_SUB_MAP = {
-    "dining":"dining",         // nové – kombinace breakfast + czech
+    "dining":"dining",         // nové – kombinace breakfast + czech (řeší backend)
     "pekárna":"bakery",
     "supermarket":"grocery",
     "lékárna":"pharmacy",
