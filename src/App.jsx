@@ -25,10 +25,10 @@ const GoogleStyle = () => (
     /* Jemné pozadí se světelnými „oblaky“ z brand barev */
     body{
       background:
-        radial-gradient(1200px 700px at 12% -6%, var(--t-yellow) 0%, transparent 45%),
-        radial-gradient(1100px 650px at 100% -10%, var(--t-blue) 0%, transparent 45%),
-        radial-gradient(900px 600px at 40% 120%, var(--t-green) 0%, transparent 35%),
-        linear-gradient(180deg, var(--bg-1), var(--bg-2) 50%);
+        radial-gradient(1200px 700px at 12% -6%, var(--t-yellow) 0%, transparent 50%),
+        radial-gradient(1100px 650px at 100% -10%, var(--t-blue) 0%, transparent 50%),
+        radial-gradient(900px 600px at 40% 120%, var(--t-green) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2) 35%);
       background-attachment: fixed;
     }
 
