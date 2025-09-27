@@ -43,13 +43,19 @@ const KEYBOX = {
   "301": "3312","302": "3313","303": "3314","304": "3315","305": "3316",
 };
 
+/** ====== HLÁŠKY ====== */
+const HANDOFF_MSG =
+  "Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. " +
+  "Rád pomohu s ostatním (restaurace, doprava, doporučení v okolí, technické potíže mimo kódy, " +
+  "faktury, potvrzení o pobytu, ztráty a nálezy, hluční sousedé).";
+
 /** ====== PROMPT ====== */
 const SYSTEM_PROMPT = `You are a helpful hotel concierge for CHILL Apartments.
 - Always reply in the user's language (mirror the last user message).
 - Location: ${HOTEL.address}. Keep suggestions very close (≤ ${NEARBY_RADIUS} m).
 - Do NOT handle parking, reservation changes, check-in/out, room numbers assignment, prices for rooms, or payment for accommodation.
 - If user asks about those, reply exactly:
-"Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. Rád pomohu s ostatním (restaurace, doprava, doporučení v okolí, technické potíže mimo kódy, faktury, potvrzení o pobytu, ztráty a nálezy, hluční sousedé)."
+"${HANDOFF_MSG}"
 - Otherwise be concise (~4 sentences), friendly, and practical.`;
 
 /** ====== BLOKACE TÉMAT ====== */
@@ -64,24 +70,29 @@ const FORBIDDEN_PATTERNS = [
 const lastUser = (messages=[]) => [...messages].reverse().find(m=>m.role==="user")?.content || "";
 const lastAssistant = (messages=[]) => [...messages].reverse().find(m=>m.role==="assistant")?.content || "";
 
-// >>> vylepšené: tolerantní vůči "apt/ap./pokoj/č.", #, mezerám
+// tolerantní detekce čísla pokoje (apt/room/#/č.)
 const extractRoom = (text = "") => {
   const m = String(text).toLowerCase()
     .match(/(?:room|apt|ap\.?|apartm[áa]n|pokoj|č\.)?\s*#?\s*(00[1]|10[1-5]|20[1-5]|30[1-5])\b/);
   return m?.[1] || null;
 };
-
-const extractSSID = (text) => (text||"").match(/\b([A-Z0-9]{4})\b/)?.[1] || null;
+const extractSSID = (text="") => (text||"").match(/\b([A-Z0-9]{4})\b/)?.[1] || null;
 
 function historyContainsWifi(messages = []) {
   const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
   return /(wi[-\s]?fi|wifi|ssid|router|heslo|password)/i.test(look);
 }
+// >>> NOVÉ: když se zrovna řeší klíče, navazuj na další zprávu s číslem pokoje
+function historyContainsKeys(messages = []) {
+  const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
+  return /(náhradn|spare\s+key|zapomenut[ýy]\s+kl[ií]č|key[-\s]?box|schránk)/i.test(look);
+}
+
 function recentlySentWifiTroubleshoot(messages = []) {
   return /Pokud Wi-?Fi nefunguje:/i.test(lastAssistant(messages) || "");
 }
 
-/** jazyková detekce + překlad (preferuj uiLang z frontendu) */
+/** jazyková detekce + překlad */
 function guessLang(userText = "") {
   const t = (userText || "").trim().toLowerCase();
   if (/[ěščřžýáíéúůňťď]/i.test(t)) return "cs";
@@ -91,10 +102,9 @@ function guessLang(userText = "") {
   if (/\b(hello|please|thanks|where|wifi|password|help)\b/.test(t)) return "en";
   return null;
 }
-
 async function translateToUserLang(text, userText, uiLang) {
   const hint = uiLang || guessLang(userText);
-  if (hint === "cs" && /[ěščřžýáíéúůňťď]/i.test(text)) return text; // už česky
+  if (hint === "cs" && /[ěščřžýáíéúůňťď]/i.test(text)) return text;
 
   const completion = await client.chat.completions.create({
     model: MODEL, temperature: 0.0,
@@ -262,9 +272,9 @@ function detectLocalSubtype(t) {
   if (/(supermarket|potravin|grocery|market)/i.test(s)) return "grocery";
   if (/(kavárn|kavarn|cafe|coffee|káva|kava)/i.test(s)) return "cafe";
   if (/(bakery|pekárn|pekarn|pekárna)/i.test(s)) return "bakery";
-  if (/(vegan|vegetari)/i.test(s)) return "veggie";            // <<< doplněno
+  if (/(vegan|vegetari)/i.test(s)) return "veggie";
   if (/(viet|vietnam)/i.test(s)) return "vietnam";
-  if (/(česk|cesk|czech cuisine|local food)/i.test(s)) return "czech"; // <<< doplněno "cesk"
+  if (/(česk|cesk|czech cuisine|local food)/i.test(s)) return "czech";
   if (/\b(bar|pub|drink|pivo)\b/i.test(s)) return "bar";
   if (/exchange|směn|smen/i.test(s)) return "exchange";
   if (/\batm\b|bankomat/i.test(s)) return "atm";
@@ -286,7 +296,7 @@ function detectIntent(text) {
   if (/(prádeln|pradel|laund)/i.test(t)) return "laundry";
   if (/(úschovn|uschovn|batožin|batozin|zavazadel|luggage)/i.test(t)) return "luggage";
 
-  // >>> pevnější detekce klíčů (náhradní / key...room)
+  // keys
   if (/\b(náhradn[íy]|spare\s+key)\b/i.test(t)) return "keys";
   if (/(kl[ií]č|klic|key).{0,30}(apartm|pokoj|room)/i.test(t)) return "keys";
 
@@ -304,7 +314,7 @@ function detectIntent(text) {
   if (/(digesto[rř]|odsava[cč]|hood)/i.test(t)) return "hood";
   if (/(trezor|safe)/i.test(t)) return "safe";
 
-  // local → curated only (rozšířeno o snidan/cesk/vegan/vegetari)
+  // local → curated only
   if (/(restaurac|snídan|snidan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|\bbar\b|kavárn|kavarn|vegan|vegetari|czech|cesk|bistro|exchange|směn|smen|\batm\b|bankomat)/i.test(t)) {
     return "local";
   }
@@ -327,7 +337,13 @@ export default async (req) => {
     const { messages = [], uiLang = null, control = null } = body || {};
     const userText = lastUser(messages);
 
-    // 1) CONTROL – pevná tlačítka (bez modelu, bez halucinací)
+    // 0) Follow-up: číslo pokoje po „Náhradní klíč“ → rovnou pošli kód + fotku
+    const roomOnly = extractRoom(userText);
+    if (roomOnly && historyContainsKeys(messages)) {
+      return ok(await translateToUserLang(buildKeyHelp(roomOnly), userText, uiLang));
+    }
+
+    // 1) CONTROL – pevná tlačítka (bez modelu)
     if (control) {
       // a) Lokální curated seznamy
       if (control.intent === "local") {
@@ -335,15 +351,14 @@ export default async (req) => {
         const labelMap = { cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir" };
         const valid = new Set(["breakfast","cafe","bakery","veggie","czech","bar","vietnam","grocery","pharmacy","exchange","atm"]);
         if (!valid.has(sub)) {
-          const ask = "Napište prosím typ: snídaně / kavárna / pekárna / vegan / česká / market / lékárna / směnárna / ATM – pošlu odkazy.";
-          return ok(await translateToUserLang(ask, userText || sub, uiLang));
+          return ok(await translateToUserLang(HANDOFF_MSG, userText || sub, uiLang)); // sjednocená hláška
         }
         const curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
-        const reply = curated || "Pro tuto kategorii teď nemám připravený seznam.";
+        const reply = curated || HANDOFF_MSG; // sjednocená hláška při prázdných datech
         return ok(await translateToUserLang(reply, userText || sub, uiLang));
       }
 
-      // b) Technické / interní – vracíme přímo naše markdowny + fotky
+      // b) Technické / interní – vracíme naše markdowny + fotky
       if (control.intent === "tech") {
         const sub = String(control.sub || "").toLowerCase();
         const map = {
@@ -370,18 +385,14 @@ export default async (req) => {
           safe: buildSafe,
         };
         const fn = map[sub];
-        const text = fn ? fn() : "Toto tlačítko zatím nemám napojené.";
+        const text = fn ? fn() : HANDOFF_MSG;
         return ok(await translateToUserLang(text, userText || sub, uiLang));
       }
     }
 
     // 2) Handoff (parkování apod.)
     if (FORBIDDEN_PATTERNS.some(r => r.test(userText))) {
-      return ok(await translateToUserLang(
-        "Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. Rád pomohu se vším ostatním (doporučení v okolí, doprava, technické potíže, potvrzení o pobytu, faktury, ztráty/nálezy, stížnosti).",
-        userText,
-        uiLang
-      ));
+      return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
     }
 
     // 3) Intent z volného textu
@@ -413,7 +424,6 @@ export default async (req) => {
       const room = extractRoom(userText);
       return ok(await translateToUserLang(buildKeyHelp(room), userText, uiLang));
     }
-
     if (intent === "trash")            return ok(await translateToUserLang(buildTrash(), userText, uiLang));
     if (intent === "gate")             return ok(await translateToUserLang(buildGate(), userText, uiLang));
     if (intent === "doorbells")        return ok(await translateToUserLang(buildDoorbells(), userText, uiLang));
@@ -431,15 +441,11 @@ export default async (req) => {
     if (intent === "local") {
       let sub = detectLocalSubtype(userText);
       if (!sub) {
-        const msg = [
-          `Jsme na **${HOTEL.address}**.`,
-          `Napište prosím typ: snídaně / kavárna / pekárna / vegan / česká / market / lékárna / směnárna / ATM – pošlu odkazy.`,
-        ].join("\n");
-        return ok(await translateToUserLang(msg, userText, uiLang));
+        return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
       }
       const labelMap = { cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir" };
       const curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
-      const reply = curated || "Pro tuto kategorii teď nemám připravený seznam.";
+      const reply = curated || HANDOFF_MSG;
       return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
@@ -457,9 +463,7 @@ export default async (req) => {
 
   } catch (e) {
     console.error(e);
-    if (e?.code === "model_not_found" || /does not exist/i.test(e?.error?.message || e?.message || "")) {
-      return ok("⚠️ Serverový model není dostupný. Zkuste prosím jiný model (např. gpt-4o-mini).");
-    }
+    // nechávám obecnou omluvu – chybový stav serveru není „nemáme data“
     return ok("Omlouvám se, nastala chyba. Zkuste to prosím znovu.");
   }
 
