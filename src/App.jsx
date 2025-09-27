@@ -98,16 +98,16 @@ const GoogleStyle = () => (
     .pillRow{display:flex;gap:8px;flex-wrap:wrap}
     .pill{
       padding:10px 14px;border-radius:999px;border:1px solid var(--border);
-      background:#ffffff;color:var(--blue); /* bílé pozadí, MODRÝ text */
+      background:#ffffff;color:var(--blue);
       cursor:pointer;font-weight:800;letter-spacing:.1px;
     }
     .pill.active{
       border:1px solid color-mix(in oklab, var(--blue), black 18%);
       background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 6%), color-mix(in oklab, var(--blue), black 4%));
-      color:#fff; /* invert po kliknutí */
+      color:#fff;
     }
 
-    /* Plovoucí akční tlačítka (stack) */
+    /* CTA pod obsahem */
     .fabStack{
       position:fixed;left:50%;transform:translateX(-50%);
       bottom:18px;z-index:1100;display:flex;flex-direction:column;gap:10px;
@@ -139,110 +139,241 @@ const tr = {
        contact:"Pokud jste nenašli, co potřebujete, napište Davidovi (WhatsApp +420 733 439 733).",
        shortcuts:"Zkratky", hide:"Skrýt", show:"⚡ Zkratky",
        foodDelivery:"🛵 Jídlo domů", transportInfo:"🗺️ Doprava po Praze",
+       diningLabel:"🍽️ Snídaně / Restaurace", bakeryLabel:"🥖 Pekárny",
+       groceryLabel:"🛒 Obchody", pharmacyLabel:"💊 Lékárny",
+       moneyGroupLabel:"💱 Směnárny / ATM", exchangeLabel:"💱 Směnárny", atmLabel:"🏧 ATM",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Elektřina", hotWaterLabel:"💧 Teplá voda",
+       acLabel:"❄️ Klimatizace (AC)", inductionLabel:"🍳 Indukční deska", hoodLabel:"🌀 Digestoř",
+       coffeeLabel:"☕ Kávovar Tchibo", fireAlarmLabel:"🔥 Požární hlásič",
+       elevatorPhoneLabel:"🛗 Výtah – servis", safeLabel:"🔐 Trezor", spareKeyLabel:"🔑 Náhradní klíč",
+       laundryLabel:"🧺 Prádelna", accessLabel:"♿️ Bezbariérovost", smokingLabel:"🚭 Kouření",
+       luggageLabel:"🎒 Úschovna zavazadel", doorbellsLabel:"🔔 Zvonky",
+       gateLabel:"🚪 Brána (zevnitř)", trashLabel:"🗑️ Odpadky / Popelnice",
+       doctorLabel:"👩‍⚕️ Lékař 24/7", linenLabel:"🧻 Povlečení / Ručníky",
        pickRoom:"Zvolte číslo apartmánu", floor:"Patro", room:"Pokoj", confirm:"Zobrazit", cancel:"Zavřít",
        wifiStatus:"Funguje Wi-Fi?", ok:"Funguje", notOk:"Nefunguje",
        pickSsid:"Vyberte SSID, které na vašem zařízení svítí nejsilněji",
        showMyWifi:"Zobrazit moje heslo" },
+
   en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
        catFood:"Food & Nearby", catTech:"Technical issues", catOther:"Other", catTransport:"Transport",
        stillAsk:"Pick one of the options below.",
        contact:"If you can’t find what you need, message David (WhatsApp +420 733 439 733).",
        shortcuts:"Shortcuts", hide:"Hide", show:"⚡ Shortcuts",
        foodDelivery:"🛵 Food delivery", transportInfo:"🗺️ Getting around Prague",
+       diningLabel:"🍽️ Breakfast / Restaurants", bakeryLabel:"🥖 Bakeries",
+       groceryLabel:"🛒 Groceries", pharmacyLabel:"💊 Pharmacies",
+       moneyGroupLabel:"💱 Exchanges / ATMs", exchangeLabel:"💱 Exchanges", atmLabel:"🏧 ATMs",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Power", hotWaterLabel:"💧 Hot water",
+       acLabel:"❄️ Air conditioning (AC)", inductionLabel:"🍳 Induction hob", hoodLabel:"🌀 Cooker hood",
+       coffeeLabel:"☕ Tchibo coffee machine", fireAlarmLabel:"🔥 Fire alarm",
+       elevatorPhoneLabel:"🛗 Elevator – service", safeLabel:"🔐 Safe", spareKeyLabel:"🔑 Spare key",
+       laundryLabel:"🧺 Laundry", accessLabel:"♿️ Accessibility", smokingLabel:"🚭 Smoking",
+       luggageLabel:"🎒 Luggage room", doorbellsLabel:"🔔 Doorbells",
+       gateLabel:"🚪 Gate (inside)", trashLabel:"🗑️ Trash / bins",
+       doctorLabel:"👩‍⚕️ Doctor 24/7", linenLabel:"🧻 Linen / towels",
        pickRoom:"Choose your apartment number", floor:"Floor", room:"Room", confirm:"Show", cancel:"Close",
        wifiStatus:"Is the Wi-Fi working?", ok:"Works", notOk:"Doesn’t work",
        pickSsid:"Pick the SSID that appears strongest on your device",
        showMyWifi:"Show my password" },
+
   de:{ chooseLang:"Sprache wählen", mainTitle:"Thema wählen", subTitle:"Unterthema", back:"← Zurück",
        catFood:"Essen & Umgebung", catTech:"Technische Probleme", catOther:"Sonstiges", catTransport:"Verkehr",
        stillAsk:"Wählen Sie unten eine Option.",
        contact:"Wenn etwas fehlt, schreiben Sie David (WhatsApp +420 733 439 733).",
        shortcuts:"Kurzbefehle", hide:"Ausblenden", show:"⚡ Kurzbefehle",
        foodDelivery:"🛵 Essen nach Hause", transportInfo:"🗺️ Unterwegs in Prag",
+       diningLabel:"🍽️ Frühstück / Restaurants", bakeryLabel:"🥖 Bäckereien",
+       groceryLabel:"🛒 Lebensmittel", pharmacyLabel:"💊 Apotheken",
+       moneyGroupLabel:"💱 Wechselstuben / Geldautomaten", exchangeLabel:"💱 Wechselstuben", atmLabel:"🏧 Geldautomaten",
+       wifiLabel:"📶 WLAN", powerLabel:"⚡ Strom", hotWaterLabel:"💧 Warmwasser",
+       acLabel:"❄️ Klimaanlage (AC)", inductionLabel:"🍳 Induktionskochfeld", hoodLabel:"🌀 Dunstabzug",
+       coffeeLabel:"☕ Tchibo-Kaffeemaschine", fireAlarmLabel:"🔥 Rauchmelder",
+       elevatorPhoneLabel:"🛗 Aufzug – Service", safeLabel:"🔐 Safe", spareKeyLabel:"🔑 Ersatzschlüssel",
+       laundryLabel:"🧺 Wäscherei", accessLabel:"♿️ Barrierefreiheit", smokingLabel:"🚭 Rauchen",
+       luggageLabel:"🎒 Gepäckaufbewahrung", doorbellsLabel:"🔔 Klingeln",
+       gateLabel:"🚪 Tor (innen)", trashLabel:"🗑️ Müll / Tonnen",
+       doctorLabel:"👩‍⚕️ Arzt 24/7", linenLabel:"🧻 Bettwäsche / Handtücher",
        pickRoom:"Wohnungsnummer wählen", floor:"Etage", room:"Zimmer", confirm:"Anzeigen", cancel:"Schließen",
        wifiStatus:"Funktioniert das WLAN?", ok:"Funktioniert", notOk:"Funktioniert nicht",
        pickSsid:"Wählen Sie die SSID mit dem stärksten Signal",
        showMyWifi:"Mein Passwort anzeigen" },
+
   fr:{ chooseLang:"Choisir la langue", mainTitle:"Choisir un sujet", subTitle:"Sous-thème", back:"← Retour",
        catFood:"Restauration & alentours", catTech:"Problèmes techniques", catOther:"Autre", catTransport:"Transports",
        stillAsk:"Choisissez une option ci-dessous.",
        contact:"Si besoin, contactez David (WhatsApp +420 733 439 733).",
        shortcuts:"Raccourcis", hide:"Masquer", show:"⚡ Raccourcis",
        foodDelivery:"🛵 Livraison de repas", transportInfo:"🗺️ Se déplacer à Prague",
+       diningLabel:"🍽️ Petit-déjeuner / Restaurants", bakeryLabel:"🥖 Boulangeries",
+       groceryLabel:"🛒 Épiceries", pharmacyLabel:"💊 Pharmacies",
+       moneyGroupLabel:"💱 Bureaux de change / DAB", exchangeLabel:"💱 Change", atmLabel:"🏧 DAB",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Électricité", hotWaterLabel:"💧 Eau chaude",
+       acLabel:"❄️ Climatisation (AC)", inductionLabel:"🍳 Plaque à induction", hoodLabel:"🌀 Hotte",
+       coffeeLabel:"☕ Machine à café Tchibo", fireAlarmLabel:"🔥 Alarme incendie",
+       elevatorPhoneLabel:"🛗 Ascenseur – service", safeLabel:"🔐 Coffre-fort", spareKeyLabel:"🔑 Clé de rechange",
+       laundryLabel:"🧺 Laverie", accessLabel:"♿️ Accessibilité", smokingLabel:"🚭 Fumer",
+       luggageLabel:"🎒 Consigne à bagages", doorbellsLabel:"🔔 Sonnette",
+       gateLabel:"🚪 Portail (intérieur)", trashLabel:"🗑️ Poubelles",
+       doctorLabel:"👩‍⚕️ Médecin 24/7", linenLabel:"🧻 Linge / serviettes",
        pickRoom:"Choisissez votre numéro d’appartement", floor:"Étage", room:"Appartement", confirm:"Afficher", cancel:"Fermer",
        wifiStatus:"Le Wi-Fi fonctionne-t-il ?", ok:"Oui", notOk:"Non",
        pickSsid:"Choisissez le SSID le plus fort sur votre appareil",
        showMyWifi:"Afficher mon mot de passe" },
+
   es:{ chooseLang:"Elige idioma", mainTitle:"Elige un tema", subTitle:"Subtema", back:"← Atrás",
        catFood:"Comida y alrededores", catTech:"Problemas técnicos", catOther:"Otros", catTransport:"Transporte",
        stillAsk:"Elige una opción abajo.",
        contact:"Si no encuentras lo que necesitas, escribe a David (WhatsApp +420 733 439 733).",
        shortcuts:"Atajos", hide:"Ocultar", show:"⚡ Atajos",
        foodDelivery:"🛵 Comida a domicilio", transportInfo:"🗺️ Transporte por Praga",
+       diningLabel:"🍽️ Desayuno / Restaurantes", bakeryLabel:"🥖 Panaderías",
+       groceryLabel:"🛒 Supermercados", pharmacyLabel:"💊 Farmacias",
+       moneyGroupLabel:"💱 Casas de cambio / Cajeros", exchangeLabel:"💱 Casas de cambio", atmLabel:"🏧 Cajeros",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Electricidad", hotWaterLabel:"💧 Agua caliente",
+       acLabel:"❄️ Aire acondicionado (AC)", inductionLabel:"🍳 Placa de inducción", hoodLabel:"🌀 Campana extractora",
+       coffeeLabel:"☕ Cafetera Tchibo", fireAlarmLabel:"🔥 Alarma de incendio",
+       elevatorPhoneLabel:"🛗 Ascensor – servicio", safeLabel:"🔐 Caja fuerte", spareKeyLabel:"🔑 Llave de repuesto",
+       laundryLabel:"🧺 Lavandería", accessLabel:"♿️ Accesibilidad", smokingLabel:"🚭 Fumar",
+       luggageLabel:"🎒 Consigna", doorbellsLabel:"🔔 Timbres",
+       gateLabel:"🚪 Portón (interior)", trashLabel:"🗑️ Basura / contenedores",
+       doctorLabel:"👩‍⚕️ Médico 24/7", linenLabel:"🧻 Ropa de cama / toallas",
        pickRoom:"Elige tu número de apartamento", floor:"Planta", room:"Habitación", confirm:"Mostrar", cancel:"Cerrar",
        wifiStatus:"¿Funciona el Wi-Fi?", ok:"Funciona", notOk:"No funciona",
        pickSsid:"Elige el SSID con la señal más fuerte",
        showMyWifi:"Mostrar mi contraseña" },
+
   ru:{ chooseLang:"Выберите язык", mainTitle:"Выберите тему", subTitle:"Подтема", back:"← Назад",
        catFood:"Еда и рядом", catTech:"Технические проблемы", catOther:"Другое", catTransport:"Транспорт",
        stillAsk:"Выберите один из вариантов ниже.",
        contact:"Если не нашли нужное, напишите Давиду (WhatsApp +420 733 439 733).",
        shortcuts:"Ярлыки", hide:"Скрыть", show:"⚡ Ярлыки",
        foodDelivery:"🛵 Доставка еды", transportInfo:"🗺️ Как передвигаться по Праге",
+       diningLabel:"🍽️ Завтрак / Рестораны", bakeryLabel:"🥖 Пекарни",
+       groceryLabel:"🛒 Продукты", pharmacyLabel:"💊 Аптеки",
+       moneyGroupLabel:"💱 Обмен / Банкоматы", exchangeLabel:"💱 Обмен валют", atmLabel:"🏧 Банкоматы",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Электричество", hotWaterLabel:"💧 Горячая вода",
+       acLabel:"❄️ Кондиционер (AC)", inductionLabel:"🍳 Индукционная плита", hoodLabel:"🌀 Вытяжка",
+       coffeeLabel:"☕ Кофемашина Tchibo", fireAlarmLabel:"🔥 Пожарная сигнализация",
+       elevatorPhoneLabel:"🛗 Лифт – сервис", safeLabel:"🔐 Сейф", spareKeyLabel:"🔑 Запасной ключ",
+       laundryLabel:"🧺 Прачечная", accessLabel:"♿️ Доступность", smokingLabel:"🚭 Курение",
+       luggageLabel:"🎒 Камера хранения", doorbellsLabel:"🔔 Домофоны",
+       gateLabel:"🚪 Ворота (изнутри)", trashLabel:"🗑️ Мусор / баки",
+       doctorLabel:"👩‍⚕️ Врач 24/7", linenLabel:"🧻 Постель / полотенца",
        pickRoom:"Выберите номер апартамента", floor:"Этаж", room:"Номер", confirm:"Показать", cancel:"Закрыть",
-       wifiStatus:"Работает Wi-Fi?", ok:"Работает", notOk:"Не работает",
+       wifiStatus:"Работает ли Wi-Fi?", ok:"Работает", notOk:"Не работает",
        pickSsid:"Выберите SSID с самым сильным сигналом на вашем устройстве",
        showMyWifi:"Показать мой пароль" },
+
   uk:{ chooseLang:"Оберіть мову", mainTitle:"Виберіть тему", subTitle:"Підтема", back:"← Назад",
        catFood:"Їжа та поруч", catTech:"Технічні питання", catOther:"Інше", catTransport:"Транспорт",
        stillAsk:"Оберіть один із варіантів нижче.",
        contact:"Якщо не знайшли потрібне, напишіть Давидові (WhatsApp +420 733 439 733).",
        shortcuts:"Ярлики", hide:"Сховати", show:"⚡ Ярлики",
        foodDelivery:"🛵 Їжа додому", transportInfo:"🗺️ Пересування по Празі",
+       diningLabel:"🍽️ Сніданок / Ресторани", bakeryLabel:"🥖 Пекарні",
+       groceryLabel:"🛒 Продукти", pharmacyLabel:"💊 Аптеки",
+       moneyGroupLabel:"💱 Обмін / Банкомати", exchangeLabel:"💱 Обмін валют", atmLabel:"🏧 Банкомати",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Електрика", hotWaterLabel:"💧 Гаряча вода",
+       acLabel:"❄️ Кондиціонер (AC)", inductionLabel:"🍳 Індукційна плита", hoodLabel:"🌀 Витяжка",
+       coffeeLabel:"☕ Кавоварка Tchibo", fireAlarmLabel:"🔥 Пожежна сигналізація",
+       elevatorPhoneLabel:"🛗 Ліфт – сервіс", safeLabel:"🔐 Сейф", spareKeyLabel:"🔑 Запасний ключ",
+       laundryLabel:"🧺 Пральня", accessLabel:"♿️ Доступність", smokingLabel:"🚭 Куріння",
+       luggageLabel:"🎒 Камера схову", doorbellsLabel:"🔔 Дзвінки",
+       gateLabel:"🚪 Ворота (зсередини)", trashLabel:"🗑️ Сміття / баки",
+       doctorLabel:"👩‍⚕️ Лікар 24/7", linenLabel:"🧻 Постіль / рушники",
        pickRoom:"Оберіть номер апартаментів", floor:"Поверх", room:"Кімната", confirm:"Показати", cancel:"Закрити",
        wifiStatus:"Працює Wi-Fi?", ok:"Працює", notOk:"Не працює",
-       pickSsid:"Виберіть SSID з найсильнішим сигналом на вашому пристрої",
+       pickSsid:"Виберіть SSID з найсильнішим сигналом",
        showMyWifi:"Показати мій пароль" },
+
   nl:{ chooseLang:"Kies een taal", mainTitle:"Kies een onderwerp", subTitle:"Subonderwerp", back:"← Terug",
        catFood:"Eten & in de buurt", catTech:"Technische problemen", catOther:"Overig", catTransport:"Vervoer",
        stillAsk:"Kies hieronder een optie.",
        contact:"Niet gevonden wat je zoekt? Stuur David een bericht (WhatsApp +420 733 439 733).",
        shortcuts:"Snelkoppelingen", hide:"Verbergen", show:"⚡ Snelkoppelingen",
        foodDelivery:"🛵 Eten bestellen", transportInfo:"🗺️ Rondreizen in Praag",
-       pickRoom:"Kies je apartementnummer", floor:"Verdieping", room:"Kamer", confirm:"Tonen", cancel:"Sluiten",
+       diningLabel:"🍽️ Ontbijt / Restaurants", bakeryLabel:"🥖 Bakkerijen",
+       groceryLabel:"🛒 Boodschappen", pharmacyLabel:"💊 Apotheken",
+       moneyGroupLabel:"💱 Wisselkantoren / Geldautomaten", exchangeLabel:"💱 Wisselkantoren", atmLabel:"🏧 Geldautomaten",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Stroom", hotWaterLabel:"💧 Warm water",
+       acLabel:"❄️ Airconditioning (AC)", inductionLabel:"🍳 Inductiekookplaat", hoodLabel:"🌀 Afzuigkap",
+       coffeeLabel:"☕ Tchibo-koffiemachine", fireAlarmLabel:"🔥 Brandalarm",
+       elevatorPhoneLabel:"🛗 Lift – service", safeLabel:"🔐 Kluis", spareKeyLabel:"🔑 Reservesleutel",
+       laundryLabel:"🧺 Wasserette", accessLabel:"♿️ Toegankelijkheid", smokingLabel:"🚭 Roken",
+       luggageLabel:"🎒 Bagageruimte", doorbellsLabel:"🔔 Deurbellen",
+       gateLabel:"🚪 Poort (binnen)", trashLabel:"🗑️ Afval / containers",
+       doctorLabel:"👩‍⚕️ Arts 24/7", linenLabel:"🧻 Beddengoed / handdoeken",
+       pickRoom:"Kies je appartementnummer", floor:"Verdieping", room:"Kamer", confirm:"Tonen", cancel:"Sluiten",
        wifiStatus:"Werkt de Wi-Fi?", ok:"Werkt", notOk:"Werkt niet",
        pickSsid:"Kies de SSID met het sterkste signaal",
        showMyWifi:"Toon mijn wachtwoord" },
+
   it:{ chooseLang:"Scegli una lingua", mainTitle:"Scegli un argomento", subTitle:"Sottoargomento", back:"← Indietro",
        catFood:"Cibo e dintorni", catTech:"Problemi tecnici", catOther:"Altro", catTransport:"Trasporti",
        stillAsk:"Scegli una delle opzioni sotto.",
        contact:"Se non trovi ciò che ti serve, scrivi a David (WhatsApp +420 733 439 733).",
        shortcuts:"Scorciatoie", hide:"Nascondi", show:"⚡ Scorciatoie",
        foodDelivery:"🛵 Cibo a domicilio", transportInfo:"🗺️ Muoversi a Praga",
+       diningLabel:"🍽️ Colazione / Ristoranti", bakeryLabel:"🥖 Panetterie",
+       groceryLabel:"🛒 Alimentari", pharmacyLabel:"💊 Farmacie",
+       moneyGroupLabel:"💱 Cambi / Bancomat", exchangeLabel:"💱 Cambi", atmLabel:"🏧 Bancomat",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Elettricità", hotWaterLabel:"💧 Acqua calda",
+       acLabel:"❄️ Aria condizionata (AC)", inductionLabel:"🍳 Piano a induzione", hoodLabel:"🌀 Cappa",
+       coffeeLabel:"☕ Macchina Tchibo", fireAlarmLabel:"🔥 Allarme antincendio",
+       elevatorPhoneLabel:"🛗 Ascensore – assistenza", safeLabel:"🔐 Cassaforte", spareKeyLabel:"🔑 Chiave di riserva",
+       laundryLabel:"🧺 Lavanderia", accessLabel:"♿️ Accessibilità", smokingLabel:"🚭 Fumo",
+       luggageLabel:"🎒 Deposito bagagli", doorbellsLabel:"🔔 Campanelli",
+       gateLabel:"🚪 Cancello (interno)", trashLabel:"🗑️ Spazzatura / bidoni",
+       doctorLabel:"👩‍⚕️ Medico 24/7", linenLabel:"🧻 Lenzuola / asciugamani",
        pickRoom:"Scegli il numero dell’appartamento", floor:"Piano", room:"Camera", confirm:"Mostra", cancel:"Chiudi",
        wifiStatus:"Il Wi-Fi funziona?", ok:"Sì", notOk:"No",
-       pickSsid:"Scegli l’SSID con il segnale più forte",
+       pickSsid:"Seleziona l’SSID con il segnale più forte",
        showMyWifi:"Mostra la mia password" },
+
   da:{ chooseLang:"Vælg sprog", mainTitle:"Vælg et emne", subTitle:"Undertema", back:"← Tilbage",
        catFood:"Mad og i nærheden", catTech:"Tekniske problemer", catOther:"Andet", catTransport:"Transport",
        stillAsk:"Vælg en mulighed herunder.",
        contact:"Finder du ikke det, du skal bruge, så skriv til David (WhatsApp +420 733 439 733).",
        shortcuts:"Genveje", hide:"Skjul", show:"⚡ Genveje",
        foodDelivery:"🛵 Madlevering", transportInfo:"🗺️ Rundt i Prag",
+       diningLabel:"🍽️ Morgenmad / Restauranter", bakeryLabel:"🥖 Bagerier",
+       groceryLabel:"🛒 Dagligvarer", pharmacyLabel:"💊 Apoteker",
+       moneyGroupLabel:"💱 Vekselkontorer / Hæveautomater", exchangeLabel:"💱 Vekselkontorer", atmLabel:"🏧 Hæveautomater",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Strøm", hotWaterLabel:"💧 Varmt vand",
+       acLabel:"❄️ Aircondition (AC)", inductionLabel:"🍳 Induktionskomfur", hoodLabel:"🌀 Emhætte",
+       coffeeLabel:"☕ Tchibo-kaffemaskine", fireAlarmLabel:"🔥 Brandalarm",
+       elevatorPhoneLabel:"🛗 Elevator – service", safeLabel:"🔐 Pengeskab", spareKeyLabel:"🔑 Ekstranøgle",
+       laundryLabel:"🧺 Vaskeri", accessLabel:"♿️ Tilgængelighed", smokingLabel:"🚭 Rygning",
+       luggageLabel:"🎒 Bagageopbevaring", doorbellsLabel:"🔔 Dørklokker",
+       gateLabel:"🚪 Port (indefra)", trashLabel:"🗑️ Affald / containere",
+       doctorLabel:"👩‍⚕️ Læge 24/7", linenLabel:"🧻 Sengetøj / håndklæder",
        pickRoom:"Vælg værelsesnummer", floor:"Etage", room:"Værelse", confirm:"Vis", cancel:"Luk",
        wifiStatus:"Virker Wi-Fi?", ok:"Virker", notOk:"Virker ikke",
        pickSsid:"Vælg den SSID, der er stærkest på enheden",
        showMyWifi:"Vis min adgangskode" },
+
   pl:{ chooseLang:"Wybierz język", mainTitle:"Wybierz temat", subTitle:"Podtemat", back:"← Wstecz",
        catFood:"Jedzenie i okolica", catTech:"Problemy techniczne", catOther:"Inne", catTransport:"Transport",
        stillAsk:"Wybierz jedną z opcji poniżej.",
        contact:"Jeśli nie znalazłeś informacji, napisz do Dawida (WhatsApp +420 733 439 733).",
        shortcuts:"Skróty", hide:"Ukryj", show:"⚡ Skróty",
        foodDelivery:"🛵 Jedzenie do domu", transportInfo:"🗺️ Poruszanie się po Pradze",
+       diningLabel:"🍽️ Śniadanie / Restauracje", bakeryLabel:"🥖 Piekarnie",
+       groceryLabel:"🛒 Sklepy spożywcze", pharmacyLabel:"💊 Apteki",
+       moneyGroupLabel:"💱 Kantory / Bankomaty", exchangeLabel:"💱 Kantory", atmLabel:"🏧 Bankomaty",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Prąd", hotWaterLabel:"💧 Ciepła woda",
+       acLabel:"❄️ Klimatyzacja (AC)", inductionLabel:"🍳 Płyta indukcyjna", hoodLabel:"🌀 Okap",
+       coffeeLabel:"☕ Ekspres Tchibo", fireAlarmLabel:"🔥 Czujnik pożaru",
+       elevatorPhoneLabel:"🛗 Winda – serwis", safeLabel:"🔐 Sejf", spareKeyLabel:"🔑 Zapasowy klucz",
+       laundryLabel:"🧺 Pralnia", accessLabel:"♿️ Dostępność", smokingLabel:"🚭 Palenie",
+       luggageLabel:"🎒 Przechowalnia bagażu", doorbellsLabel:"🔔 Dzwonki",
+       gateLabel:"🚪 Brama (od środka)", trashLabel:"🗑️ Śmieci / kosze",
+       doctorLabel:"👩‍⚕️ Lekarz 24/7", linenLabel:"🧻 Pościel / ręczniki",
        pickRoom:"Wybierz numer apartamentu", floor:"Piętro", room:"Pokój", confirm:"Pokaż", cancel:"Zamknij",
        wifiStatus:"Czy Wi-Fi działa?", ok:"Działa", notOk:"Nie działa",
        pickSsid:"Wybierz SSID z najsilniejszym sygnałem",
-       showMyWifi:"Pokaż moje hasło" },
+       showMyWifi:"Pokaż moje hasło" }
 };
 
 /** ================== barvy ============== */
@@ -279,45 +410,45 @@ export default function App(){
   /** ====== FLOWS ====== */
   function makeFlows(dict){
     const FOOD = [
-      { label:"🍽️ Snídaně / Restaurace", control:{ intent:"local", sub:"dining" } },
-      { label:"🥖 Pekárny",               control:{ intent:"local", sub:"bakery" } },
-      { label:"🛒 Obchody",               control:{ intent:"local", sub:"grocery" } },
-      { label:"💊 Lékárny",               control:{ intent:"local", sub:"pharmacy" } },
-      { label: dict.foodDelivery,         control:{ intent:"tech",  sub:"food_delivery" } },
-      { label:"💱 Směnárny / ATM", children:[
-        { label:"💱 Směnárny", control:{ intent:"local", sub:"exchange" } },
-        { label:"🏧 ATM",      control:{ intent:"local", sub:"atm" } },
+      { label: dict.diningLabel,   control:{ intent:"local", sub:"dining" } },
+      { label: dict.bakeryLabel,   control:{ intent:"local", sub:"bakery" } },
+      { label: dict.groceryLabel,  control:{ intent:"local", sub:"grocery" } },
+      { label: dict.pharmacyLabel, control:{ intent:"local", sub:"pharmacy" } },
+      { label: dict.foodDelivery,  control:{ intent:"tech",  sub:"food_delivery" } },
+      { label: dict.moneyGroupLabel, children:[
+        { label: dict.exchangeLabel, control:{ intent:"local", sub:"exchange" } },
+        { label: dict.atmLabel,      control:{ intent:"local", sub:"atm" } },
       ]},
     ];
 
     const TECH = [
-      { label:"📶 Wi-Fi",               control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
-      { label:"⚡ Elektřina",           control:{ intent:"tech", sub:"power" } },
-      { label:"💧 Teplá voda",          control:{ intent:"tech", sub:"hot_water" } },
-      { label:"❄️ Klimatizace (AC)",    control:{ intent:"tech", sub:"ac" } },
-      { label:"🍳 Indukční deska",      control:{ intent:"tech", sub:"induction" } },
-      { label:"🌀 Digestoř",            control:{ intent:"tech", sub:"hood" } },
-      { label:"☕ Kávovar Tchibo",      control:{ intent:"tech", sub:"coffee" } },
-      { label:"🔥 Požární hlásič",      control:{ intent:"tech", sub:"fire_alarm" } },
-      { label:"🛗 Výtah – servis",      control:{ intent:"tech", sub:"elevator_phone" } },
-      { label:"🔐 Trezor",              control:{ intent:"tech", sub:"safe" } },
-      { label:"🔑 Náhradní klíč",       control:{ intent:"tech", sub:"keys", needsRoom:true } },
+      { label: dict.wifiLabel,            control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
+      { label: dict.powerLabel,           control:{ intent:"tech", sub:"power" } },
+      { label: dict.hotWaterLabel,        control:{ intent:"tech", sub:"hot_water" } },
+      { label: dict.acLabel,              control:{ intent:"tech", sub:"ac" } },
+      { label: dict.inductionLabel,       control:{ intent:"tech", sub:"induction" } },
+      { label: dict.hoodLabel,            control:{ intent:"tech", sub:"hood" } },
+      { label: dict.coffeeLabel,          control:{ intent:"tech", sub:"coffee" } },
+      { label: dict.fireAlarmLabel,       control:{ intent:"tech", sub:"fire_alarm" } },
+      { label: dict.elevatorPhoneLabel,   control:{ intent:"tech", sub:"elevator_phone" } },
+      { label: dict.safeLabel,            control:{ intent:"tech", sub:"safe" } },
+      { label: dict.spareKeyLabel,        control:{ intent:"tech", sub:"keys", needsRoom:true } },
     ];
 
     const TRANSPORT = [
-      { label: dict.transportInfo,      control:{ intent:"tech", sub:"transport" } },
+      { label: dict.transportInfo, control:{ intent:"tech", sub:"transport" } },
     ];
 
     const OTHER = [
-      { label:"🧺 Prádelna",            control:{ intent:"tech", sub:"laundry" } },
-      { label:"♿️ Bezbariérovost",      control:{ intent:"tech", sub:"access" } },
-      { label:"🚭 Kouření",             control:{ intent:"tech", sub:"smoking" } },
-      { label:"🎒 Úschovna zavazadel",  control:{ intent:"tech", sub:"luggage" } },
-      { label:"🔔 Zvonky",              control:{ intent:"tech", sub:"doorbells" } },
-      { label:"🚪 Brána (zevnitř)",     control:{ intent:"tech", sub:"gate" } },
-      { label:"🗑️ Odpadky / Popelnice", control:{ intent:"tech", sub:"trash" } },
-      { label:"👩‍⚕️ Lékař 24/7",        control:{ intent:"tech", sub:"doctor" } },
-      { label:"🧻 Povlečení / Ručníky", control:{ intent:"tech", sub:"linen_towels" } },
+      { label: dict.laundryLabel,     control:{ intent:"tech", sub:"laundry" } },
+      { label: dict.accessLabel,      control:{ intent:"tech", sub:"access" } },
+      { label: dict.smokingLabel,     control:{ intent:"tech", sub:"smoking" } },
+      { label: dict.luggageLabel,     control:{ intent:"tech", sub:"luggage" } },
+      { label: dict.doorbellsLabel,   control:{ intent:"tech", sub:"doorbells" } },
+      { label: dict.gateLabel,        control:{ intent:"tech", sub:"gate" } },
+      { label: dict.trashLabel,       control:{ intent:"tech", sub:"trash" } },
+      { label: dict.doctorLabel,      control:{ intent:"tech", sub:"doctor" } },
+      { label: dict.linenLabel,       control:{ intent:"tech", sub:"linen_towels" } },
     ];
 
     return [
@@ -412,14 +543,14 @@ export default function App(){
     return sendControl(`Náhradní klíč ${room}`, { intent:"tech", sub:"keys", room });
   };
 
-  // -------- Wi-Fi: potvrzení výběru pokoje → heslo + zobraz „Nefunguje“ --------
+  // -------- Wi-Fi: potvrzení výběru pokoje → heslo + „Nefunguje“ --------
   const confirmWifiRoom = () => {
     const { floor, last } = wifiRoomSheet;
     if (floor === null || last === null) return;
     const room = `${floor}${last}`.padStart(3, "0");
     setWifiRoomSheet({ open:false, floor:null, last:null });
     setWifiCtas({ showPassword:false, showNotOk:true });
-    return sendText(room); // backend vrátí heslo k dané Wi-Fi (podle pokoje)
+    return sendText(room); // backend vrátí heslo k dané Wi-Fi
   };
 
   const confirmWifiSsid = () => {
@@ -518,7 +649,7 @@ export default function App(){
         <div className="contactBar">{tr[lang||"cs"].contact}</div>
       </div>
 
-      {/* ===== CTA STACK (pod bublinami) ===== */}
+      {/* ===== CTA STACK ===== */}
       <div className="fabStack" aria-live="polite">
         {showKeysCta && (
           <button className="fabAction" onClick={() => setRoomSheet({ open:true, floor:null, last:null })}>
