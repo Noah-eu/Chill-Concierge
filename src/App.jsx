@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -144,7 +143,10 @@ const GoogleStyle = () => (
 );
 
 /** ================== i18n ================== */
-const LANGS = { cs:"Čeština", en:"English", es:"Español", de:"Deutsch", fr:"Français" };
+const LANGS = {
+  cs:"Čeština", en:"English", es:"Español", de:"Deutsch", fr:"Français",
+  ru:"Русский", uk:"Українська", nl:"Nederlands", it:"Italiano", da:"Dansk", pl:"Polski"
+};
 
 const tr = {
   cs:{ chooseLang:"Zvolte jazyk", mainTitle:"Vyberte téma", subTitle:"Podtéma / Subtopic", back:"← Zpět",
@@ -172,6 +174,38 @@ const tr = {
        stillAsk:"Vous pouvez toujours écrire votre question ci-dessous.",
        contact:"Si besoin, contactez David (WhatsApp +420 733 439 733).",
        send:"Envoyer", type:"Écrivez votre question…", shortcuts:"Raccourcis", hide:"Masquer", show:"⚡ Raccourcis" },
+
+  /* Nové jazyky */
+  ru:{ chooseLang:"Выберите язык", mainTitle:"Выберите тему", subTitle:"Подтема", back:"← Назад",
+       catFood:"Еда и рядом", catTech:"Технические проблемы", catOther:"Другое",
+       stillAsk:"Можете также написать свой вопрос ниже.",
+       contact:"Если не нашли нужное, напишите Давиду (WhatsApp +420 733 439 733).",
+       send:"Отправить", type:"Введите вопрос…", shortcuts:"Ярлыки", hide:"Скрыть", show:"⚡ Ярлыки" },
+  uk:{ chooseLang:"Оберіть мову", mainTitle:"Виберіть тему", subTitle:"Підтема", back:"← Назад",
+       catFood:"Їжа та поруч", catTech:"Технічні питання", catOther:"Інше",
+       stillAsk:"Можете також написати власне запитання нижче.",
+       contact:"Якщо не знайшли потрібне, напишіть Давидові (WhatsApp +420 733 439 733).",
+       send:"Надіслати", type:"Введіть запитання…", shortcuts:"Ярлики", hide:"Сховати", show:"⚡ Ярлики" },
+  nl:{ chooseLang:"Kies een taal", mainTitle:"Kies een onderwerp", subTitle:"Subonderwerp", back:"← Terug",
+       catFood:"Eten & in de buurt", catTech:"Technische problemen", catOther:"Overig",
+       stillAsk:"Je kunt hieronder ook je eigen vraag typen.",
+       contact:"Niet gevonden wat je zoekt? Stuur David een bericht (WhatsApp +420 733 439 733).",
+       send:"Versturen", type:"Typ je vraag…", shortcuts:"Snelkoppelingen", hide:"Verbergen", show:"⚡ Snelkoppelingen" },
+  it:{ chooseLang:"Scegli una lingua", mainTitle:"Scegli un argomento", subTitle:"Sottoargomento", back:"← Indietro",
+       catFood:"Cibo e dintorni", catTech:"Problemi tecnici", catOther:"Altro",
+       stillAsk:"Puoi comunque scrivere una domanda qui sotto.",
+       contact:"Se non trovi ciò che ti serve, scrivi a David (WhatsApp +420 733 439 733).",
+       send:"Invia", type:"Scrivi la tua domanda…", shortcuts:"Scorciatoie", hide:"Nascondi", show:"⚡ Scorciatoie" },
+  da:{ chooseLang:"Vælg sprog", mainTitle:"Vælg et emne", subTitle:"Undertema", back:"← Tilbage",
+       catFood:"Mad og i nærheden", catTech:"Tekniske problemer", catOther:"Andet",
+       stillAsk:"Du kan stadig skrive dit eget spørgsmål herunder.",
+       contact:"Finder du ikke det, du skal bruge, så skriv til David (WhatsApp +420 733 439 733).",
+       send:"Send", type:"Skriv dit spørgsmål…", shortcuts:"Genveje", hide:"Skjul", show:"⚡ Genveje" },
+  pl:{ chooseLang:"Wybierz język", mainTitle:"Wybierz temat", subTitle:"Podtemat", back:"← Wstecz",
+       catFood:"Jedzenie i okolica", catTech:"Problemy techniczne", catOther:"Inne",
+       stillAsk:"Możesz też wpisać własne pytanie poniżej.",
+       contact:"Jeśli nie znalazłeś informacji, napisz do Dawida (WhatsApp +420 733 439 733).",
+       send:"Wyślij", type:"Wpisz pytanie…", shortcuts:"Skróty", hide:"Ukryj", show:"⚡ Skróty" },
 };
 
 /** ================== prompty (upravené kategorie) ================== */
