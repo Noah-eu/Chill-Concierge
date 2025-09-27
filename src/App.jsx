@@ -12,7 +12,7 @@ const GoogleStyle = () => (
       /* Jemné odstíny odvozené z hlavních barev (pro plochy a bubliny) */
       --t-blue:   color-mix(in oklab, var(--blue),   white 40%);
       --t-red:    color-mix(in oklab, var(--red),    white 40%);
-      --t-yellow: color-mix(in oklab, var(--yellow), white 40%);
+      --t-yellow: color-mix(in oklab, var(--yellow), white 70%);
       --t-green:  color-mix(in oklab, var(--green),  white 40%);
 
       /* Neutrály / orámování */
