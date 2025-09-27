@@ -9,21 +9,40 @@ const GoogleStyle = () => (
     :root{
       --blue:#4285F4; --red:#EA4335; --yellow:#FBBC05; --green:#34A853;
       --bg-1:#fffdf9; --bg-2:#faf7ef; --card:#ffffff; --border:#eadccd;
-      --muted:#6b645c; --accent:#1f1b16; --bot:#f7f3ea; --me:#eef4ff;
+      --muted:#6b645c; --accent:#1f1b16; --bot:#f9f4ea; --me:#eef4ff;
     }
 
-    body{ background:linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%); background-attachment:fixed; }
+    body{
+      background: radial-gradient(1500px 800px at 10% -10%, #fff7e6 0%, transparent 50%),
+                  radial-gradient(1500px 800px at 100% 0%, #eef5ff 0%, transparent 45%),
+                  linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%);
+      background-attachment: fixed;
+    }
     .row{display:flex;flex-direction:column;gap:12px}
 
-    .scroller{max-height:70vh;overflow:auto;padding:8px;border-radius:12px;background:transparent;}
+    .scroller{max-height:70vh;overflow:auto;padding:8px;border-radius:12px;}
 
     .bubble{
       border-radius:16px;padding:14px 16px;line-height:1.55;width:fit-content;max-width:100%;white-space:pre-line;
-      border:1px solid var(--border);box-shadow:0 6px 16px rgba(0,0,0,.06);background:var(--card);
+      border:1px solid var(--border);
+      box-shadow:0 6px 16px rgba(0,0,0,.06);
+      background: linear-gradient(180deg,#fffdfa,#fff7ea);
     }
-    .me{background:var(--me);margin-left:auto}
-    .bot{background:var(--bot)}
-    .bot img{max-width:100%;height:auto;border-radius:14px;display:block;margin:10px 0;box-shadow:0 10px 26px rgba(0,0,0,.10);border:1px solid var(--border);}
+    .me{
+      background: linear-gradient(180deg,#f4f8ff,#eaf1ff);
+      margin-left:auto
+    }
+    .bot{background: linear-gradient(180deg,#fffaf1,#f7f1e6)}
+    .bot img{max-width:100%;height:auto;border-radius:14px;display:block;margin:10px 0;
+      box-shadow:0 10px 26px rgba(0,0,0,.10);border:1px solid var(--border);}
+    /* hezčí odkazy v odpovědích */
+    .bot a{
+      display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid color-mix(in oklab, var(--blue), black 15%);
+      background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 8%), color-mix(in oklab, var(--blue), black 6%));
+      color:#fff;text-decoration:none;font-weight:800;box-shadow:0 6px 16px rgba(66,133,244,.25);
+    }
+    .bot a:hover{filter:saturate(1.02) brightness(1.02)}
+    .bot a:active{transform:translateY(1px)}
 
     /* GRID pro tlačítka */
     .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:10px;width:100%;}
@@ -41,14 +60,14 @@ const GoogleStyle = () => (
     .chipPrimary:active{transform:translateY(0);filter:saturate(.96)}
     .chipPrimary:disabled{opacity:.6;cursor:not-allowed}
 
-    /* sekundární (kategoriální) chips – tónované do „Google“ barev */
+    /* sekundární (kategoriální) chips */
     .chip{
       padding:12px 14px;border-radius:999px;border:1px solid #e7e0d5;
       background:#fff6e8;color:#3b2f24;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.05);
       cursor:pointer;text-align:center;
     }
 
-    /* utility tlačítka – nyní tónovaná */
+    /* utility tlačítka – tónovaná */
     .backBtn{
       padding:10px 14px;border-radius:14px;border:1px solid var(--border);
       background:linear-gradient(180deg, #fff, #fff7eb);color:var(--accent);font-weight:700;cursor:pointer;
@@ -69,15 +88,16 @@ const GoogleStyle = () => (
     }
     textarea:focus{border-color:#d2bba5;box-shadow:0 0 0 4px rgba(210,187,165,.30)}
 
-    /* Shortcuts box (mimo scroller) – tónované pozadí */
+    /* Shortcuts box (mimo scroller) */
     .shortcuts{
-      border:1px solid var(--border);background:linear-gradient(180deg, #fffdfa, #fff7ea);
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, #fffdfa, #fff7ea);
       box-shadow:0 6px 16px rgba(0,0,0,.06);border-radius:16px;padding:12px 14px;
     }
     .shortcutsHeader{
-      display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap; /* <<< wrap proti přetékání */
+      display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;
     }
-    .btnRow{display:flex;gap:8px;flex-wrap:wrap;} /* <<< kontejnér pro tlačítka vpravo */
+    .btnRow{display:flex;gap:8px;flex-wrap:wrap;}
 
     /* FAB pro rychlé zobrazení zkratek */
     .fab{
@@ -119,21 +139,21 @@ const tr = {
        send:"Envoyer", type:"Écrivez votre question…", shortcuts:"Raccourcis", hide:"Masquer", show:"⚡ Raccourcis" },
 };
 
-/** ================== prompty (nové seskupení kategorií) ================== */
+/** ================== prompty (upravené kategorie) ================== */
 function makeFlows(dict){
-  // FOOD – zredukované kategorie (Směnárny/ATM se rozbalí na 2 chips)
+  // FOOD – „Snídaně / Restaurace“ posílá virtuální sub "dining" (kombinace)
   const FOOD = [
-    { label:"🍽️ Snídaně / Restaurace", prompt:"snídaně" },
-    { label:"🥖 Pekárny", prompt:"pekárna" },
-    { label:"🛒 Obchody", prompt:"supermarket" },
-    { label:"💊 Lékárny", prompt:"lékárna" },
+    { label:"🍽️ Snídaně / Restaurace", prompt:"dining" },
+    { label:"🥖 Pekárny",               prompt:"pekárna" },
+    { label:"🛒 Obchody",               prompt:"supermarket" },
+    { label:"💊 Lékárny",               prompt:"lékárna" },
     { label:"💱 Směnárny / ATM", children:[
       { label:"💱 Směnárny", prompt:"směnárna" },
-      { label:"🏧 ATM", prompt:"atm" },
+      { label:"🏧 ATM",      prompt:"atm" },
     ]},
   ];
 
-  // TECH – čistě technické potíže (bez utilit, ty jdou do „Ostatní“)
+  // TECH – čistě technické potíže
   const TECH = [
     { label:"📶 Wi-Fi",               prompt:"wifi heslo" },
     { label:"⚡ Elektřina",           prompt:"elektrina nejde proud jistič" },
@@ -148,7 +168,7 @@ function makeFlows(dict){
     { label:"🔑 Náhradní klíč",       prompt:"náhradní klíč" },
   ];
 
-  // OTHER – utilitní podsekce přesunuté z TECH
+  // OTHER – utilitní podsekce
   const OTHER = [
     { label:"🧺 Prádelna",            prompt:"prádelna kde je prádelna" },
     { label:"♿️ Bezbariérovost",      prompt:"bezbariérovost invalid" },
@@ -188,7 +208,6 @@ export default function App(){
   const [shortcutsOpen, setShortcutsOpen] = useState(true);
   const scrollerRef = useRef(null);
 
-  // skrytí multi-greeting v index.html
   useEffect(() => {
     if (lang) document.body.classList.add("lang-selected"); else document.body.classList.remove("lang-selected");
   }, [lang]);
@@ -228,12 +247,12 @@ export default function App(){
     stack.length === 0 ? FLOWS :
     stack[stack.length - 1]?.children ?? FLOWS;
 
-  const inFood = lang && stack.length > 0 && stack[stack.length - 1]?.label === dict.catFood;
-  const inTech = lang && stack.length > 0 && stack[stack.length - 1]?.label === dict.catTech;
+  const inFood = lang && stack.length > 0 && stack[stack.length - 1]?.label === tr[lang||"cs"].catFood;
+  const inTech = lang && stack.length > 0 && stack[stack.length - 1]?.label === tr[lang||"cs"].catTech;
 
   // map pro curated places
   const PLACE_SUB_MAP = {
-    "snídaně":"breakfast",
+    "dining":"dining",         // nové – kombinace breakfast + czech
     "pekárna":"bakery",
     "supermarket":"grocery",
     "lékárna":"pharmacy",
@@ -241,7 +260,6 @@ export default function App(){
     "atm":"atm",
   };
 
-  // map pro TECH do backendu
   const TECH_MAP = {
     "wifi heslo": "wifi",
     "elektrina nejde proud jistič": "power",
@@ -257,19 +275,15 @@ export default function App(){
   };
 
   const onChipClick = async (n) => {
-    // FOOD → curated places
     if (inFood) {
       const key = (n.prompt || "").toLowerCase();
-      // rozbalovací uzel (Směnárny/ATM) – má children
       if (n.children) return openNode(n);
-
       const sub = PLACE_SUB_MAP[key];
       if (sub) {
         setShortcutsOpen(false);
         return sendPrompt(n.prompt, { intent: "local", sub });
       }
     }
-    // TECH → deterministické markdowny
     if (inTech) {
       const subTech = TECH_MAP[(n.prompt || "").toLowerCase()];
       if (subTech) {
@@ -277,7 +291,6 @@ export default function App(){
         return sendPrompt(n.prompt, { intent: "tech", sub: subTech });
       }
     }
-    // Ostatní → standardně
     setShortcutsOpen(false);
     return sendPrompt(n.prompt);
   };
@@ -304,7 +317,9 @@ export default function App(){
                   </button>
                 ))}
               </div>
-              <div className="tips">CZ / EN / ES / DE / FR</div>
+              <div className="tips">
+                {Object.keys(LANGS).map(k => k.toUpperCase()).join(" / ")}
+              </div>
             </div>
           )}
 
@@ -315,58 +330,56 @@ export default function App(){
           )}
         </div>
 
-        {/* ZKRATKY – mimo scroller */}
-        {lang && currentChildren && (
-          <>
-            <div className="shortcuts">
-              <div className="shortcutsHeader">
-                <strong>{stack.length === 0 ? dict.mainTitle : dict.subTitle}</strong>
-                <div className="btnRow">
-                  {stack.length > 0 && (
-                    <button className="backBtn" onClick={goBack}>{dict.back}</button>
-                  )}
-                  <button className="backBtn" onClick={() => setShortcutsOpen(false)}>{dict.hide}</button>
-                  <button className="backBtn" onClick={() => { setLang(null); setStack([]); }}>🌐 {dict.chooseLang}</button>
-                </div>
-              </div>
-
-              <div className="grid">
-                {currentChildren.map((n, idx) =>
-                  n.children ? (
-                    <button key={idx} className="chip" onClick={() => openNode(n)}>{n.label}</button>
-                  ) : (
-                    <button
-                      key={idx}
-                      className="chipPrimary"
-                      style={{ ["--btn"]: btnColorForIndex(idx) }}
-                      onClick={() => onChipClick(n)}
-                      disabled={loading}
-                      title={n.prompt}
-                    >
-                      {n.label}
-                    </button>
-                  )
+        {/* ZKRATKY – mimo scroller, podmíněně zobrazované */}
+        {lang && currentChildren && shortcutsOpen && (
+          <div className="shortcuts">
+            <div className="shortcutsHeader">
+              <strong>{stack.length === 0 ? tr[lang||"cs"].mainTitle : tr[lang||"cs"].subTitle}</strong>
+              <div className="btnRow">
+                {stack.length > 0 && (
+                  <button className="backBtn" onClick={goBack}>{tr[lang||"cs"].back}</button>
                 )}
+                <button className="backBtn" onClick={() => setShortcutsOpen(false)}>{tr[lang||"cs"].hide}</button>
+                <button className="backBtn" onClick={() => { setLang(null); setStack([]); }}>🌐 {tr[lang||"cs"].chooseLang}</button>
               </div>
-
-              <div className="tips" style={{ marginTop:8 }}>{dict.stillAsk}</div>
             </div>
 
-            {!shortcutsOpen && (
-              <button className="fab" onClick={() => setShortcutsOpen(true)} title={dict.shortcuts}>
-                {dict.show}
-              </button>
-            )}
-          </>
+            <div className="grid">
+              {currentChildren.map((n, idx) =>
+                n.children ? (
+                  <button key={idx} className="chip" onClick={() => openNode(n)}>{n.label}</button>
+                ) : (
+                  <button
+                    key={idx}
+                    className="chipPrimary"
+                    style={{ ["--btn"]: btnColorForIndex(idx) }}
+                    onClick={() => onChipClick(n)}
+                    disabled={loading}
+                    title={n.prompt}
+                  >
+                    {n.label}
+                  </button>
+                )
+              )}
+            </div>
+
+            <div className="tips" style={{ marginTop:8 }}>{tr[lang||"cs"].stillAsk}</div>
+          </div>
+        )}
+
+        {!shortcutsOpen && lang && (
+          <button className="fab" onClick={() => setShortcutsOpen(true)} title={tr[lang||"cs"].shortcuts}>
+            {tr[lang||"cs"].show}
+          </button>
         )}
 
         {/* Kontaktní lišta */}
-        <div className="contactBar">{dict.contact}</div>
+        <div className="contactBar">{tr[lang||"cs"].contact}</div>
 
         {/* Vstup + odeslání */}
         <div className="input">
           <textarea
-            placeholder={dict.type}
+            placeholder={tr[lang||"cs"].type}
             value={input}
             onChange={(e)=>setInput(e.target.value)}
             onKeyDown={(e)=>{
@@ -392,7 +405,7 @@ export default function App(){
               }
             }}
           >
-            {loading ? "…" : dict.send}
+            {loading ? "…" : tr[lang||"cs"].send}
           </button>
         </div>
       </div>

@@ -82,7 +82,7 @@ function historyContainsWifi(messages = []) {
   const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
   return /(wi[-\s]?fi|wifi|ssid|router|heslo|password)/i.test(look);
 }
-// >>> NOVÉ: když se zrovna řeší klíče, navazuj na další zprávu s číslem pokoje
+// když se řeší klíče, navazuj na další zprávu s číslem pokoje
 function historyContainsKeys(messages = []) {
   const look = messages.slice(-6).map(m => (m.content || "").toLowerCase()).join(" ");
   return /(náhradn|spare\s+key|zapomenut[ýy]\s+kl[ií]č|key[-\s]?box|schránk)/i.test(look);
@@ -322,6 +322,25 @@ function detectIntent(text) {
   return "general";
 }
 
+/** ====== Pomocný sloučený výpis pro „dining“ ====== */
+function buildMergedCuratedList(keys = [], { max = 12, labelOpen = "Otevřít" } = {}) {
+  const seen = new Set();
+  const items = [];
+  keys.forEach(k => {
+    (PLACES[k] || []).forEach(p => {
+      if (!seen.has(p.name)) {
+        seen.add(p.name);
+        items.push(p);
+      }
+    });
+  });
+  const list = items.slice(0, max);
+  if (!list.length) return null;
+  return list.map(p =>
+    `- **${p.name}**${p.tags?.length ? ` — *${p.tags.join(", ")}*` : ""}\n  - [${labelOpen}](${p.url})`
+  ).join("\n\n");
+}
+
 /** ====== MAIN ====== */
 export default async (req) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
@@ -349,11 +368,19 @@ export default async (req) => {
       if (control.intent === "local") {
         const sub = String(control.sub || "").toLowerCase();
         const labelMap = { cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir" };
-        const valid = new Set(["breakfast","cafe","bakery","veggie","czech","bar","vietnam","grocery","pharmacy","exchange","atm"]);
+        const valid = new Set(["dining","breakfast","cafe","bakery","veggie","czech","bar","vietnam","grocery","pharmacy","exchange","atm"]);
         if (!valid.has(sub)) {
           return ok(await translateToUserLang(HANDOFF_MSG, userText || sub, uiLang)); // sjednocená hláška
         }
-        const curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
+
+        let curated;
+        if (sub === "dining") {
+          // breakfast + czech (bez duplicit)
+          curated = buildMergedCuratedList(["breakfast","czech"], { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
+        } else {
+          curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
+        }
+
         const reply = curated || HANDOFF_MSG; // sjednocená hláška při prázdných datech
         return ok(await translateToUserLang(reply, userText || sub, uiLang));
       }
@@ -463,7 +490,7 @@ export default async (req) => {
 
   } catch (e) {
     console.error(e);
-    // nechávám obecnou omluvu – chybový stav serveru není „nemáme data“
+    // obecná omluva – chybový stav serveru není „nemáme data“
     return ok("Omlouvám se, nastala chyba. Zkuste to prosím znovu.");
   }
 
