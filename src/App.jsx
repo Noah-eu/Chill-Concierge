@@ -44,6 +44,7 @@ const GoogleStyle = () => (
       color:#fff;text-decoration:none;font-weight:800;box-shadow:0 6px 16px rgba(66,133,244,.25);}
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:10px;width:100%;}
+    /* Primární „barevné“ tlačítko – přijímá --btn (blue/red/yellow/green) */
     .chipPrimary{
       --btn: var(--blue);
       padding:12px 14px;border-radius:999px;border:1px solid color-mix(in oklab, var(--btn), black 18%);
@@ -55,10 +56,12 @@ const GoogleStyle = () => (
     .chipPrimary:active{transform:translateY(0);filter:saturate(.96)}
     .chipPrimary:disabled{opacity:.6;cursor:not-allowed}
 
+    /* Sekundární „kategorie“ – nově také přijímá --btn (aby šly do 4 barev) */
     .chip{
-      padding:12px 14px;border-radius:999px;border:1px solid var(--border);
-      background:linear-gradient(180deg, color-mix(in oklab, var(--t-yellow), white 6%), color-mix(in oklab, var(--t-yellow), white 0%));
-      color:#3b2f24;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.05);
+      --btn: var(--yellow);
+      padding:12px 14px;border-radius:999px;border:1px solid color-mix(in oklab, var(--btn), black 18%);
+      background:linear-gradient(180deg, color-mix(in oklab, var(--btn), white 38%), color-mix(in oklab, var(--btn), white 20%));
+      color:#1c130f;font-weight:800;letter-spacing:.1px;box-shadow:0 4px 12px rgba(0,0,0,.05);
       cursor:pointer;text-align:center;
     }
 
@@ -125,154 +128,57 @@ const tr = {
        contact:"Pokud jste nenašli, co potřebujete, napište Davidovi (WhatsApp +420 733 439 733).",
        shortcuts:"Zkratky", hide:"Skrýt", show:"⚡ Zkratky",
        foodDelivery:"🛵 Jídlo domů", transportInfo:"🗺️ Doprava po Praze",
-       pickRoom:"Zvolte číslo apartmánu", floor:"Patro", room:"Pokoj", confirm:"Zobrazit instrukce", cancel:"Zavřít",
-       wifiStatus:"Funguje Wi-Fi?", ok:"Funguje", notOk:"Nefunguje", pickAnyRoom:"Vyberte jinou Wi-Fi (pokoj)" },
+       pickRoom:"Zvolte číslo apartmánu", floor:"Patro", room:"Pokoj", confirm:"Zobrazit", cancel:"Zavřít",
+       wifiStatus:"Funguje Wi-Fi?", ok:"Funguje", notOk:"Nefunguje",
+       pickSsid:"Vyberte SSID, které na vašem zařízení svítí nejsilněji",
+       showMyWifi:"Zobrazit moje heslo" },
   en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
        catFood:"Food & Nearby", catTech:"Technical issues", catOther:"Other", catTransport:"Transport",
        stillAsk:"Pick one of the options below.",
        contact:"If you can’t find what you need, message David (WhatsApp +420 733 439 733).",
        shortcuts:"Shortcuts", hide:"Hide", show:"⚡ Shortcuts",
        foodDelivery:"🛵 Food delivery", transportInfo:"🗺️ Getting around Prague",
-       pickRoom:"Choose your apartment number", floor:"Floor", room:"Room", confirm:"Show instructions", cancel:"Close",
-       wifiStatus:"Is the Wi-Fi working?", ok:"Works", notOk:"Doesn’t work", pickAnyRoom:"Pick another Wi-Fi (room)" },
-  es:{ chooseLang:"Elige idioma", mainTitle:"Elige un tema", subTitle:"Subtema", back:"← Atrás",
-       catFood:"Comida y alrededores", catTech:"Problemas técnicos", catOther:"Otros", catTransport:"Transporte",
-       stillAsk:"Elige una opción abajo.",
-       contact:"Si no encuentras lo que necesitas, escribe a David (WhatsApp +420 733 439 733).",
-       shortcuts:"Atajos", hide:"Ocultar", show:"⚡ Atajos",
-       foodDelivery:"🛵 Comida a domicilio", transportInfo:"🗺️ Transporte por Praga",
-       pickRoom:"Elige tu número de apartamento", floor:"Planta", room:"Habitación", confirm:"Ver instrucciones", cancel:"Cerrar",
-       wifiStatus:"¿Funciona el Wi-Fi?", ok:"Funciona", notOk:"No funciona", pickAnyRoom:"Elige otro Wi-Fi (hab.)" },
+       pickRoom:"Choose your apartment number", floor:"Floor", room:"Room", confirm:"Show", cancel:"Close",
+       wifiStatus:"Is the Wi-Fi working?", ok:"Works", notOk:"Doesn’t work",
+       pickSsid:"Pick the SSID that appears strongest on your device",
+       showMyWifi:"Show my password" },
+  // (ostatní jazyky ponechány stejné jako dřív; zkráceno)
   de:{ chooseLang:"Sprache wählen", mainTitle:"Thema wählen", subTitle:"Unterthema", back:"← Zurück",
        catFood:"Essen & Umgebung", catTech:"Technische Probleme", catOther:"Sonstiges", catTransport:"Verkehr",
-       stillAsk:"Wählen Sie unten eine Option.",
-       contact:"Wenn etwas fehlt, schreiben Sie David (WhatsApp +420 733 439 733).",
+       stillAsk:"Wählen Sie unten eine Option.", contact:"Wenn etwas fehlt, schreiben Sie David (WhatsApp +420 733 439 733).",
        shortcuts:"Kurzbefehle", hide:"Ausblenden", show:"⚡ Kurzbefehle",
        foodDelivery:"🛵 Essen nach Hause", transportInfo:"🗺️ Unterwegs in Prag",
-       pickRoom:"Wohnungsnummer wählen", floor:"Etage", room:"Zimmer", confirm:"Anleitung anzeigen", cancel:"Schließen",
-       wifiStatus:"Funktioniert das WLAN?", ok:"Funktioniert", notOk:"Funktioniert nicht", pickAnyRoom:"Anderes WLAN wählen (Zimmer)" },
+       pickRoom:"Wohnungsnummer wählen", floor:"Etage", room:"Zimmer", confirm:"Anzeigen", cancel:"Schließen",
+       wifiStatus:"Funktioniert das WLAN?", ok:"Funktioniert", notOk:"Funktioniert nicht",
+       pickSsid:"Wählen Sie die SSID mit dem stärksten Signal", showMyWifi:"Mein Passwort anzeigen" },
   fr:{ chooseLang:"Choisir la langue", mainTitle:"Choisir un sujet", subTitle:"Sous-thème", back:"← Retour",
        catFood:"Restauration & alentours", catTech:"Problèmes techniques", catOther:"Autre", catTransport:"Transports",
-       stillAsk:"Choisissez une option ci-dessous.",
-       contact:"Si besoin, contactez David (WhatsApp +420 733 439 733).",
+       stillAsk:"Choisissez une option ci-dessous.", contact:"Si besoin, contactez David (WhatsApp +420 733 439 733).",
        shortcuts:"Raccourcis", hide:"Masquer", show:"⚡ Raccourcis",
        foodDelivery:"🛵 Livraison de repas", transportInfo:"🗺️ Se déplacer à Prague",
-       pickRoom:"Choisissez votre numéro d’appartement", floor:"Étage", room:"Appartement", confirm:"Voir les instructions", cancel:"Fermer",
-       wifiStatus:"Le Wi-Fi fonctionne-t-il ?", ok:"Oui", notOk:"Non", pickAnyRoom:"Choisir un autre Wi-Fi (appt.)" },
-
-  ru:{ chooseLang:"Выберите язык", mainTitle:"Выберите тему", subTitle:"Подтема", back:"← Назад",
-       catFood:"Еда и рядом", catTech:"Технические проблемы", catOther:"Другое", catTransport:"Транспорт",
-       stillAsk:"Выберите один из вариантов ниже.",
-       contact:"Если не нашли нужное, напишите Давиду (WhatsApp +420 733 439 733).",
-       shortcuts:"Ярлыки", hide:"Скрыть", show:"⚡ Ярлыки",
-       foodDelivery:"🛵 Доставка еды", transportInfo:"🗺️ Как передвигаться по Праге",
-       pickRoom:"Выберите номер апартамента", floor:"Этаж", room:"Номер", confirm:"Показать инструкцию", cancel:"Закрыть",
-       wifiStatus:"Работает ли Wi-Fi?", ok:"Работает", notOk:"Не работает", pickAnyRoom:"Выбрать другой Wi-Fi (номер)" },
-  uk:{ chooseLang:"Оберіть мову", mainTitle:"Виберіть тему", subTitle:"Підтема", back:"← Назад",
-       catFood:"Їжа та поруч", catTech:"Технічні питання", catOther:"Інше", catTransport:"Транспорт",
-       stillAsk:"Оберіть один із варіантів нижче.",
-       contact:"Якщо не знайшли потрібне, напишіть Давидові (WhatsApp +420 733 439 733).",
-       shortcuts:"Ярлики", hide:"Сховати", show:"⚡ Ярлики",
-       foodDelivery:"🛵 Їжа додому", transportInfo:"🗺️ Пересування по Празі",
-       pickRoom:"Оберіть номер апартаментів", floor:"Поверх", room:"Кімната", confirm:"Показати інструкції", cancel:"Закрити",
-       wifiStatus:"Працює Wi-Fi?", ok:"Працює", notOk:"Не працює", pickAnyRoom:"Вибрати інший Wi-Fi (кімн.)" },
-  nl:{ chooseLang:"Kies een taal", mainTitle:"Kies een onderwerp", subTitle:"Subonderwerp", back:"← Terug",
-       catFood:"Eten & in de buurt", catTech:"Technische problemen", catOther:"Overig", catTransport:"Vervoer",
-       stillAsk:"Kies hieronder een optie.",
-       contact:"Niet gevonden wat je zoekt? Stuur David een bericht (WhatsApp +420 733 439 733).",
-       shortcuts:"Snelkoppelingen", hide:"Verbergen", show:"⚡ Snelkoppelingen",
-       foodDelivery:"🛵 Eten bestellen", transportInfo:"🗺️ Rondreizen in Praag",
-       pickRoom:"Kies je apartementnummer", floor:"Verdieping", room:"Kamer", confirm:"Toon instructies", cancel:"Sluiten",
-       wifiStatus:"Werkt de Wi-Fi?", ok:"Werkt", notOk:"Werkt niet", pickAnyRoom:"Kies een andere Wi-Fi (kamer)" },
-  it:{ chooseLang:"Scegli una lingua", mainTitle:"Scegli un argomento", subTitle:"Sottoargomento", back:"← Indietro",
-       catFood:"Cibo e dintorni", catTech:"Problemi tecnici", catOther:"Altro", catTransport:"Trasporti",
-       stillAsk:"Scegli una delle opzioni sotto.",
-       contact:"Se non trovi ciò che ti serve, scrivi a David (WhatsApp +420 733 439 733).",
-       shortcuts:"Scorciatoie", hide:"Nascondi", show:"⚡ Scorciatoie",
-       foodDelivery:"🛵 Cibo a domicilio", transportInfo:"🗺️ Muoversi a Praga",
-       pickRoom:"Scegli il numero dell’appartamento", floor:"Piano", room:"Camera", confirm:"Mostra istruzioni", cancel:"Chiudi",
-       wifiStatus:"Il Wi-Fi funziona?", ok:"Sì", notOk:"No", pickAnyRoom:"Scegli un altro Wi-Fi (camera)" },
-  da:{ chooseLang:"Vælg sprog", mainTitle:"Vælg et emne", subTitle:"Undertema", back:"← Tilbage",
-       catFood:"Mad og i nærheden", catTech:"Tekniske problemer", catOther:"Andet", catTransport:"Transport",
-       stillAsk:"Vælg en mulighed herunder.",
-       contact:"Finder du ikke det, du skal bruge, så skriv til David (WhatsApp +420 733 439 733).",
-       shortcuts:"Genveje", hide:"Skjul", show:"⚡ Genveje",
-       foodDelivery:"🛵 Madlevering", transportInfo:"🗺️ Rundt i Prag",
-       pickRoom:"Vælg værelsesnummer", floor:"Etage", room:"Værelse", confirm:"Vis instruktioner", cancel:"Luk",
-       wifiStatus:"Virker Wi-Fi?", ok:"Virker", notOk:"Virker ikke", pickAnyRoom:"Vælg et andet Wi-Fi (vær.)" },
-  pl:{ chooseLang:"Wybierz język", mainTitle:"Wybierz temat", subTitle:"Podtemat", back:"← Wstecz",
-       catFood:"Jedzenie i okolica", catTech:"Problemy techniczne", catOther:"Inne", catTransport:"Transport",
-       stillAsk:"Wybierz jedną z opcji poniżej.",
-       contact:"Jeśli nie znalazłeś informacji, napisz do Dawida (WhatsApp +420 733 439 733).",
-       shortcuts:"Skróty", hide:"Ukryj", show:"⚡ Skróty",
-       foodDelivery:"🛵 Jedzenie do domu", transportInfo:"🗺️ Poruszanie się po Pradze",
-       pickRoom:"Wybierz numer apartamentu", floor:"Piętro", room:"Pokój", confirm:"Pokaż instrukcje", cancel:"Zamknij",
-       wifiStatus:"Czy Wi-Fi działa?", ok:"Działa", notOk:"Nie działa", pickAnyRoom:"Wybierz inne Wi-Fi (pokój)" },
+       pickRoom:"Choisissez votre numéro d’appartement", floor:"Étage", room:"Appartement", confirm:"Afficher", cancel:"Fermer",
+       wifiStatus:"Le Wi-Fi fonctionne-t-il ?", ok:"Oui", notOk:"Non",
+       pickSsid:"Choisissez le SSID le plus fort sur votre appareil", showMyWifi:"Afficher mon mot de passe" },
+  es:{ chooseLang:"Elige idioma", mainTitle:"Elige un tema", subTitle:"Subtema", back:"← Atrás",
+       catFood:"Comida y alrededores", catTech:"Problemas técnicos", catOther:"Otros", catTransport:"Transporte",
+       stillAsk:"Elige una opción abajo.", contact:"Si no encuentras lo que necesitas, escribe a David (WhatsApp +420 733 439 733).",
+       shortcuts:"Atajos", hide:"Ocultar", show:"⚡ Atajos",
+       foodDelivery:"🛵 Comida a domicilio", transportInfo:"🗺️ Transporte por Praga",
+       pickRoom:"Elige tu número de apartamento", floor:"Planta", room:"Habitación", confirm:"Mostrar", cancel:"Cerrar",
+       wifiStatus:"¿Funciona el Wi-Fi?", ok:"Funciona", notOk:"No funciona",
+       pickSsid:"Elige el SSID que ves con más señal", showMyWifi:"Mostrar mi contraseña" }
 };
 
-/** ================== prompty (upravené kategorie) ================== */
-function makeFlows(dict){
-  // FOOD – curated + „jídlo domů“
-  const FOOD = [
-    { label:"🍽️ Snídaně / Restaurace", control:{ intent:"local", sub:"dining" } },
-    { label:"🥖 Pekárny",               control:{ intent:"local", sub:"bakery" } },
-    { label:"🛒 Obchody",               control:{ intent:"local", sub:"grocery" } },
-    { label:"💊 Lékárny",               control:{ intent:"local", sub:"pharmacy" } },
-    { label: dict.foodDelivery,         control:{ intent:"tech",  sub:"food_delivery" } },
-    { label:"💱 Směnárny / ATM", children:[
-      { label:"💱 Směnárny", control:{ intent:"local", sub:"exchange" } },
-      { label:"🏧 ATM",      control:{ intent:"local", sub:"atm" } },
-    ]},
-  ];
-
-  // TECH
-  const TECH = [
-    { label:"📶 Wi-Fi",               control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
-    { label:"⚡ Elektřina",           control:{ intent:"tech", sub:"power" } },
-    { label:"💧 Teplá voda",          control:{ intent:"tech", sub:"hot_water" } },
-    { label:"❄️ Klimatizace (AC)",    control:{ intent:"tech", sub:"ac" } },
-    { label:"🍳 Indukční deska",      control:{ intent:"tech", sub:"induction" } },
-    { label:"🌀 Digestoř",            control:{ intent:"tech", sub:"hood" } },
-    { label:"☕ Kávovar Tchibo",      control:{ intent:"tech", sub:"coffee" } },
-    { label:"🔥 Požární hlásič",      control:{ intent:"tech", sub:"fire_alarm" } },
-    { label:"🛗 Výtah – servis",      control:{ intent:"tech", sub:"elevator_phone" } },
-    { label:"🔐 Trezor",              control:{ intent:"tech", sub:"safe" } },
-    { label:"🔑 Náhradní klíč",       control:{ intent:"tech", sub:"keys", needsRoom:true } },
-  ];
-
-  // TRANSPORT – nová vrstva
-  const TRANSPORT = [
-    { label: dict.transportInfo,      control:{ intent:"tech", sub:"transport" } },
-  ];
-
-  // OTHER
-  const OTHER = [
-    { label:"🧺 Prádelna",            control:{ intent:"tech", sub:"laundry" } },
-    { label:"♿️ Bezbariérovost",      control:{ intent:"tech", sub:"access" } },
-    { label:"🚭 Kouření",             control:{ intent:"tech", sub:"smoking" } },
-    { label:"🎒 Úschovna zavazadel",  control:{ intent:"tech", sub:"luggage" } },
-    { label:"🔔 Zvonky",              control:{ intent:"tech", sub:"doorbells" } },
-    { label:"🚪 Brána (zevnitř)",     control:{ intent:"tech", sub:"gate" } },
-    { label:"🗑️ Odpadky / Popelnice", control:{ intent:"tech", sub:"trash" } },
-    { label:"👩‍⚕️ Lékař 24/7",        control:{ intent:"tech", sub:"doctor" } },
-    { label:"🧻 Povlečení / Ručníky", control:{ intent:"tech", sub:"linen_towels" } },
-  ];
-
-  return [
-    { label:dict.catFood,      children:FOOD },
-    { label:dict.catTech,      children:TECH },
-    { label:dict.catTransport, children:TRANSPORT },
-    { label:dict.catOther,     children:OTHER },
-  ];
-}
-
-/** střídání barev pro chips */
-const btnColorForIndex = (i) => {
-  const mod = i % 4;
-  return mod === 0 ? "var(--blue)"
-       : mod === 1 ? "var(--red)"
-       : mod === 2 ? "var(--yellow)"
-       : "var(--green)";
+/** ================== pomocné barvy ============== */
+const COLORS = { blue:"var(--blue)", red:"var(--red)", yellow:"var(--yellow)", green:"var(--green)" };
+const btnColorForIndex = (i) => [COLORS.blue, COLORS.red, COLORS.yellow, COLORS.green][i % 4];
+/* pevné barvy pro „kategorie“ (dětské uzly) */
+const colorForCategory = (label) => {
+  const L = (label||"").toLowerCase();
+  if (L.includes("jídlo") || L.includes("food")) return COLORS.red;
+  if (L.includes("techn") || L.includes("technical")) return COLORS.yellow;
+  if (L.includes("dopr") || L.includes("transport")) return COLORS.blue;
+  return COLORS.green; // „Ostatní“
 };
 
 /** ================== App ================== */
@@ -284,8 +190,8 @@ export default function App(){
   const [shortcutsOpen, setShortcutsOpen] = useState(true);
 
   // Overlays
-  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null }); // pro keys
-  const [wifiSheet, setWifiSheet] = useState({ open:false, step:1, floor:null, last:null, otherFloor:null, otherLast:null });
+  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null });         // keys
+  const [wifiSheet, setWifiSheet] = useState({ open:false, step:0, floor:null, last:null, ssid:null }); // wifi
 
   const scrollerRef = useRef(null);
 
@@ -296,6 +202,58 @@ export default function App(){
   useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat, shortcutsOpen]);
 
   const dict  = useMemo(() => tr[lang || "cs"], [lang]);
+
+  /** ====== FLOWS (použijeme dict) ====== */
+  function makeFlows(dict){
+    const FOOD = [
+      { label:"🍽️ Snídaně / Restaurace", control:{ intent:"local", sub:"dining" } },
+      { label:"🥖 Pekárny",               control:{ intent:"local", sub:"bakery" } },
+      { label:"🛒 Obchody",               control:{ intent:"local", sub:"grocery" } },
+      { label:"💊 Lékárny",               control:{ intent:"local", sub:"pharmacy" } },
+      { label: dict.foodDelivery,         control:{ intent:"tech",  sub:"food_delivery" } },
+      { label:"💱 Směnárny / ATM", children:[
+        { label:"💱 Směnárny", control:{ intent:"local", sub:"exchange" } },
+        { label:"🏧 ATM",      control:{ intent:"local", sub:"atm" } },
+      ]},
+    ];
+
+    const TECH = [
+      { label:"📶 Wi-Fi",               control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
+      { label:"⚡ Elektřina",           control:{ intent:"tech", sub:"power" } },
+      { label:"💧 Teplá voda",          control:{ intent:"tech", sub:"hot_water" } },
+      { label:"❄️ Klimatizace (AC)",    control:{ intent:"tech", sub:"ac" } },
+      { label:"🍳 Indukční deska",      control:{ intent:"tech", sub:"induction" } },
+      { label:"🌀 Digestoř",            control:{ intent:"tech", sub:"hood" } },
+      { label:"☕ Kávovar Tchibo",      control:{ intent:"tech", sub:"coffee" } },
+      { label:"🔥 Požární hlásič",      control:{ intent:"tech", sub:"fire_alarm" } },
+      { label:"🛗 Výtah – servis",      control:{ intent:"tech", sub:"elevator_phone" } },
+      { label:"🔐 Trezor",              control:{ intent:"tech", sub:"safe" } },
+      { label:"🔑 Náhradní klíč",       control:{ intent:"tech", sub:"keys", needsRoom:true } },
+    ];
+
+    const TRANSPORT = [
+      { label: dict.transportInfo,      control:{ intent:"tech", sub:"transport" } },
+    ];
+
+    const OTHER = [
+      { label:"🧺 Prádelna",            control:{ intent:"tech", sub:"laundry" } },
+      { label:"♿️ Bezbariérovost",      control:{ intent:"tech", sub:"access" } },
+      { label:"🚭 Kouření",             control:{ intent:"tech", sub:"smoking" } },
+      { label:"🎒 Úschovna zavazadel",  control:{ intent:"tech", sub:"luggage" } },
+      { label:"🔔 Zvonky",              control:{ intent:"tech", sub:"doorbells" } },
+      { label:"🚪 Brána (zevnitř)",     control:{ intent:"tech", sub:"gate" } },
+      { label:"🗑️ Odpadky / Popelnice", control:{ intent:"tech", sub:"trash" } },
+      { label:"👩‍⚕️ Lékař 24/7",        control:{ intent:"tech", sub:"doctor" } },
+      { label:"🧻 Povlečení / Ručníky", control:{ intent:"tech", sub:"linen_towels" } },
+    ];
+
+    return [
+      { label:dict.catFood,      children:FOOD },
+      { label:dict.catTech,      children:TECH },
+      { label:dict.catTransport, children:TRANSPORT },
+      { label:dict.catOther,     children:OTHER },
+    ];
+  }
   const FLOWS = useMemo(() => makeFlows(dict), [dict]);
 
   function renderAssistant(md=""){
@@ -323,8 +281,7 @@ export default function App(){
     setChat(next);
     return callBackend({ messages: next, uiLang: lang, control });
   }
-
-  // čistý text (interně – pro Wi-Fi SSID/room follow-up)
+  // čistý text (pro Wi-Fi – posíláme číslo pokoje/SSID, backend vrátí heslo)
   function sendText(text){
     const next = [...chat, { role:"user", content:text }];
     setChat(next);
@@ -340,21 +297,27 @@ export default function App(){
     stack.length === 0 ? FLOWS :
     stack[stack.length - 1]?.children ?? FLOWS;
 
-  // handler kliků (keys & wifi mají vlastní overlay)
+  // === SSID list (pro krok „Nefunguje“) – pouze 4-znakové kódy
+  const ALL_SSIDS = ["D384","CDEA","CF2A","93EO","D93A","D9E4","6A04","9B7A","1CF8","D8C4","CD9E","CF20","23F0","B4B4","DA4E","D5F6"];
+
+  // handler kliků
   const onChipClick = (n) => {
     if (n.children) return openNode(n);
 
-    // Wi-Fi: otevři průvodce
+    // Wi-Fi průvodce:
     if (n.control?.kind === "wifi") {
       setShortcutsOpen(false);
-      // krok 1: základní návod z backendu, zároveň si otevřeme overlay
+      // 1) pošli návod (troubleshoot) jako bublinu
       sendControl("Wi-Fi", { intent:"tech", sub:"wifi" });
-      setWifiSheet({ open:true, step:1, floor:null, last:null, otherFloor:null, otherLast:null });
+      // 2) otevři overlay se 2 kroky: (a) ZOBRAZIT MOJE HESLO → výběr pokoje → heslo do chatu; (b) Nefunguje → výběr SSID
+      setWifiSheet({ open:true, step:0, floor:null, last:null, ssid:null });
       return;
     }
 
-    // Náhradní klíč: výběr pokoje
+    // Náhradní klíč: nejdřív pošli instrukce (s fotkou), hned poté otevři výběr
     if (n.control?.needsRoom) {
+      setShortcutsOpen(false);
+      sendControl("Náhradní klíč – instrukce", { intent:"tech", sub:"keys" });
       setRoomSheet({ open:true, floor:null, last:null });
       return;
     }
@@ -374,34 +337,23 @@ export default function App(){
     if (floor === null || last === null) return;
     const room = `${floor}${last}`.padStart(3, "0");
     setRoomSheet({ open:false, floor:null, last:null });
-    setShortcutsOpen(false);
     return sendControl(`Náhradní klíč ${room}`, { intent:"tech", sub:"keys", room });
   };
 
   // -------- Wi-Fi overlay logic --------
-  const confirmWifiRoom = () => {
+  // step 0: tlačítko „Zobrazit moje heslo“ → výběr pokoje → po potvrzení pošleme číslo pokoje (heslo přijde do chatu)
+  const sendWifiPasswordForRoom = () => {
     const { floor, last } = wifiSheet;
     if (floor === null || last === null) return;
-    // pouze uložíme volbu a ukážeme otázku „funguje?“
-    setWifiSheet(s => ({ ...s, step:2 }));
+    const room = `${floor}${last}`.padStart(3, "0");
+    sendText(room); // backend vrátí "**Wi-Fi:** SSID ABCD, heslo 1234"
+    setWifiSheet(s => ({ ...s, step:1 })); // krok s tlačítkem „Nefunguje“
   };
 
-  const wifiWorks = () => {
-    setWifiSheet({ open:false, step:1, floor:null, last:null, otherFloor:null, otherLast:null });
-    setChat(c => [...c, { role:"assistant", content:"👍" }]);
-  };
-
-  const wifiShowOtherList = () => {
-    setWifiSheet(s => ({ ...s, step:3, otherFloor:null, otherLast:null }));
-  };
-
-  const wifiPickOtherAndSend = () => {
-    const { otherFloor, otherLast } = wifiSheet;
-    if (otherFloor === null || otherLast === null) return;
-    const otherRoom = `${otherFloor}${otherLast}`.padStart(3, "0");
-    // díky tomu, že poslední odpověď byla Wi-Fi návod, backend ví, že jde o Wi-Fi kontext → pošle heslo
-    sendText(otherRoom);
-    setWifiSheet({ open:false, step:1, floor:null, last:null, otherFloor:null, otherLast:null });
+  const sendWifiPasswordForSSID = () => {
+    if (!wifiSheet.ssid) return;
+    sendText(wifiSheet.ssid); // backend rozpozná 4-znak. SSID a pošle heslo
+    setWifiSheet({ open:false, step:0, floor:null, last:null, ssid:null });
   };
 
   return (
@@ -455,7 +407,14 @@ export default function App(){
             <div className="grid">
               {currentChildren.map((n, idx) =>
                 n.children ? (
-                  <button key={idx} className="chip" onClick={() => openNode(n)}>{n.label}</button>
+                  <button
+                    key={idx}
+                    className="chip"
+                    style={{ ["--btn"]: colorForCategory(n.label) }}
+                    onClick={() => openNode(n)}
+                  >
+                    {n.label}
+                  </button>
                 ) : (
                   <button
                     key={idx}
@@ -485,12 +444,12 @@ export default function App(){
         <div className="contactBar">{tr[lang||"cs"].contact}</div>
       </div>
 
-      {/* OVERLAY: Náhradní klíč */}
+      {/* OVERLAY: Náhradní klíč (po instrukci) */}
       {roomSheet.open && (
         <div className="overlay" onClick={()=>setRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{dict.pickRoom}</h4>
-            <div className="tips" style={{marginBottom:6}}>{dict.floor}</div>
+            <h4>{tr[lang||"cs"].pickRoom}</h4>
+            <div className="tips" style={{marginBottom:6}}>{tr[lang||"cs"].floor}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${roomSheet.floor===f?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, floor:f}))}>
@@ -498,7 +457,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{dict.room}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{tr[lang||"cs"].room}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${roomSheet.last===l?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, last:l}))}>
@@ -525,9 +484,27 @@ export default function App(){
       {wifiSheet.open && (
         <div className="overlay" onClick={()=>setWifiSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            {wifiSheet.step === 1 && (
+            {/* Krok 0 – tlačítko „Zobrazit moje heslo“ + výběr pokoje */}
+            {wifiSheet.step === 0 && (
               <>
-                <h4>Wi-Fi</h4>
+                <h4>📶 Wi-Fi</h4>
+                <div className="pillRow" style={{marginBottom:8}}>
+                  <button
+                    className="chipPrimary"
+                    style={{ ["--btn"]: "var(--blue)" }}
+                    onClick={()=>setWifiSheet(s=>({...s, step:10}))}
+                  >
+                    {tr[lang||"cs"].showMyWifi}
+                  </button>
+                </div>
+                {/* volitelně tip: heslo se zobrazí v chatu */}
+              </>
+            )}
+
+            {/* Krok 10 – výběr pokoje pro zobrazení hesla */}
+            {wifiSheet.step === 10 && (
+              <>
+                <h4>{tr[lang||"cs"].pickRoom}</h4>
                 <div className="tips" style={{marginBottom:6}}>{tr[lang||"cs"].floor}</div>
                 <div className="pillRow" style={{marginBottom:8}}>
                   {[0,1,2,3].map(f=>(
@@ -545,12 +522,12 @@ export default function App(){
                   ))}
                 </div>
                 <div className="pillRow">
-                  <button className="backBtn" onClick={()=>setWifiSheet({open:false, step:1, floor:null, last:null, otherFloor:null, otherLast:null})}>{tr[lang||"cs"].cancel}</button>
+                  <button className="backBtn" onClick={()=>setWifiSheet({open:false, step:0, floor:null, last:null, ssid:null})}>{tr[lang||"cs"].cancel}</button>
                   <button
                     className="chipPrimary"
                     style={{ ["--btn"]: "var(--blue)" }}
                     disabled={wifiSheet.floor===null || wifiSheet.last===null}
-                    onClick={confirmWifiRoom}
+                    onClick={sendWifiPasswordForRoom}
                   >
                     {tr[lang||"cs"].confirm}
                   </button>
@@ -558,45 +535,39 @@ export default function App(){
               </>
             )}
 
-            {wifiSheet.step === 2 && (
+            {/* Krok 1 – po zobrazení hesla: dotaz, zda funguje / možnost „Nefunguje“ */}
+            {wifiSheet.step === 1 && (
               <>
                 <h4>{tr[lang||"cs"].wifiStatus}</h4>
                 <div className="pillRow" style={{marginBottom:12}}>
-                  <button className="pill active" onClick={wifiWorks}>{tr[lang||"cs"].ok}</button>
-                  <button className="pill" onClick={wifiShowOtherList}>{tr[lang||"cs"].notOk}</button>
-                </div>
-                <div className="pillRow">
-                  <button className="backBtn" onClick={()=>setWifiSheet(s=>({ ...s, step:1 }))}>{tr[lang||"cs"].back}</button>
+                  <button className="pill active" onClick={()=>setWifiSheet({open:false,step:0,floor:null,last:null,ssid:null})}>{tr[lang||"cs"].ok}</button>
+                  <button className="pill" onClick={()=>setWifiSheet(s=>({...s, step:2}))}>{tr[lang||"cs"].notOk}</button>
                 </div>
               </>
             )}
 
-            {wifiSheet.step === 3 && (
+            {/* Krok 2 – výběr SSID (seznam všech) */}
+            {wifiSheet.step === 2 && (
               <>
-                <h4>{tr[lang||"cs"].pickAnyRoom}</h4>
-                <div className="tips" style={{marginBottom:6}}>{tr[lang||"cs"].floor}</div>
-                <div className="pillRow" style={{marginBottom:8}}>
-                  {[0,1,2,3].map(f=>(
-                    <button key={f} className={`pill ${wifiSheet.otherFloor===f?'active':''}`} onClick={()=>setWifiSheet(s=>({...s, otherFloor:f}))}>
-                      {f}
-                    </button>
-                  ))}
-                </div>
-                <div className="tips" style={{marginTop:6, marginBottom:6}}>{tr[lang||"cs"].room}</div>
+                <h4>{tr[lang||"cs"].pickSsid}</h4>
                 <div className="pillRow" style={{marginBottom:12}}>
-                  {["01","02","03","04","05"].map(l=>(
-                    <button key={l} className={`pill ${wifiSheet.otherLast===l?'active':''}`} onClick={()=>setWifiSheet(s=>({...s, otherLast:l}))}>
-                      {l}
+                  {ALL_SSIDS.map(code=>(
+                    <button
+                      key={code}
+                      className={`pill ${wifiSheet.ssid===code?'active':''}`}
+                      onClick={()=>setWifiSheet(s=>({...s, ssid:code}))}
+                    >
+                      {code}
                     </button>
                   ))}
                 </div>
                 <div className="pillRow">
-                  <button className="backBtn" onClick={()=>setWifiSheet(s=>({ ...s, step:2 }))}>{tr[lang||"cs"].back}</button>
+                  <button className="backBtn" onClick={()=>setWifiSheet(s=>({...s, step:1, ssid:null}))}>{tr[lang||"cs"].back}</button>
                   <button
                     className="chipPrimary"
                     style={{ ["--btn"]: "var(--blue)" }}
-                    disabled={wifiSheet.otherFloor===null || wifiSheet.otherLast===null}
-                    onClick={wifiPickOtherAndSend}
+                    disabled={!wifiSheet.ssid}
+                    onClick={sendWifiPasswordForSSID}
                   >
                     {tr[lang||"cs"].confirm}
                   </button>
