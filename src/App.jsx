@@ -26,15 +26,18 @@ const GoogleStyle = () => (
       --me:#eef4ff;
     }
 
-    /* soft background with subtle bands of G colors */
     body{
-      background:
-        linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%);
+      background: linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%);
       background-attachment: fixed;
     }
 
     .row{display:flex;flex-direction:column;gap:12px}
-    .scroller{max-height:70vh;overflow:auto;padding:8px;border-radius:12px;}
+
+    .scroller{
+      max-height:70vh;overflow:auto;padding:8px;border-radius:12px;
+      background:transparent;
+    }
+
     .bubble{
       border-radius:16px;padding:14px 16px;line-height:1.55;
       width:fit-content;max-width:100%;white-space:pre-line;
@@ -56,7 +59,6 @@ const GoogleStyle = () => (
       width:100%;
     }
 
-    /* primární „chip“ – barva bere z CSS proměnné --btn */
     .chipPrimary{
       --btn: var(--blue);
       padding:12px 14px;border-radius:999px;border:1px solid color-mix(in oklab, var(--btn), black 18%);
@@ -70,7 +72,6 @@ const GoogleStyle = () => (
     .chipPrimary:active{transform:translateY(0);filter:saturate(.96)}
     .chipPrimary:disabled{opacity:.6;cursor:not-allowed}
 
-    /* sekundární chip (skupiny/podtémata) */
     .chip{
       padding:12px 14px;border-radius:999px;border:1px solid #e7e0d5;
       background:#fff6e8;color:#3b2f24;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.05);
@@ -85,6 +86,11 @@ const GoogleStyle = () => (
 
     .tips{color:var(--muted);font-size:13px;margin-top:8px}
 
+    .contactBar{
+      margin-top:4px;padding:10px 12px;border:1px dashed var(--border);
+      border-radius:12px;background:#fffaf3;color:var(--accent);font-size:14px;
+    }
+
     .input{
       display:flex;gap:10px;margin-top:8px;padding-top:12px;border-top:1px dashed var(--border);
     }
@@ -94,9 +100,21 @@ const GoogleStyle = () => (
     }
     textarea:focus{border-color:#d2bba5;box-shadow:0 0 0 4px rgba(210,187,165,.30)}
 
-    .contactBar{
-      margin-top:4px;padding:10px 12px;border:1px dashed var(--border);
-      border-radius:12px;background:#fffaf3;color:var(--accent);font-size:14px;
+    /* Shortcuts box (mimo scroller) */
+    .shortcuts{
+      border:1px solid var(--border);background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.06);
+      border-radius:16px;padding:12px 14px;
+    }
+    .shortcutsHeader{
+      display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;
+    }
+
+    /* FAB pro rychlé zobrazení zkratek */
+    .fab{
+      position:fixed;right:16px;bottom:90px; /* nad vstupem */
+      z-index:1000;border:none;border-radius:999px;padding:12px 14px;font-weight:800;
+      background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 6%), color-mix(in oklab, var(--blue), black 4%));
+      color:#fff;box-shadow:0 10px 24px rgba(66,133,244,.35);cursor:pointer;
     }
   `}</style>
 );
@@ -109,27 +127,27 @@ const tr = {
        catFood:"Jídlo a okolí", catTech:"Technické potíže", catOther:"Ostatní",
        stillAsk:"Stále můžete napsat vlastní dotaz do pole níže.",
        contact:"Pokud jste nenašli, co potřebujete, napište Davidovi (WhatsApp +420 733 439 733).",
-       send:"Poslat", type:"Napište dotaz…" },
+       send:"Poslat", type:"Napište dotaz…", shortcuts:"Zkratky", hide:"Skrýt", show:"⚡ Zkratky" },
   en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
        catFood:"Food & Nearby", catTech:"Technical issues", catOther:"Other",
        stillAsk:"You can still type a custom question below.",
        contact:"If you can’t find what you need, message David (WhatsApp +420 733 439 733).",
-       send:"Send", type:"Type your question…" },
+       send:"Send", type:"Type your question…", shortcuts:"Shortcuts", hide:"Hide", show:"⚡ Shortcuts" },
   es:{ chooseLang:"Elige idioma", mainTitle:"Elige un tema", subTitle:"Subtema", back:"← Atrás",
        catFood:"Comida y alrededores", catTech:"Problemas técnicos", catOther:"Otros",
        stillAsk:"Aún puedes escribir tu pregunta abajo.",
        contact:"Si no encuentras lo que necesitas, escribe a David (WhatsApp +420 733 439 733).",
-       send:"Enviar", type:"Escribe tu pregunta…" },
+       send:"Enviar", type:"Escribe tu pregunta…", shortcuts:"Atajos", hide:"Ocultar", show:"⚡ Atajos" },
   de:{ chooseLang:"Sprache wählen", mainTitle:"Thema wählen", subTitle:"Unterthema", back:"← Zurück",
        catFood:"Essen & Umgebung", catTech:"Technische Probleme", catOther:"Sonstiges",
        stillAsk:"Sie können unten weiterhin eine Frage eingeben.",
        contact:"Wenn etwas fehlt, schreiben Sie David (WhatsApp +420 733 439 733).",
-       send:"Senden", type:"Frage eingeben…" },
+       send:"Senden", type:"Frage eingeben…", shortcuts:"Kurzbefehle", hide:"Ausblenden", show:"⚡ Kurzbefehle" },
   fr:{ chooseLang:"Choisir la langue", mainTitle:"Choisir un sujet", subTitle:"Sous-thème", back:"← Retour",
        catFood:"Restauration & alentours", catTech:"Problèmes techniques", catOther:"Autre",
        stillAsk:"Vous pouvez toujours écrire votre question ci-dessous.",
        contact:"Si besoin, contactez David (WhatsApp +420 733 439 733).",
-       send:"Envoyer", type:"Écrivez votre question…" },
+       send:"Envoyer", type:"Écrivez votre question…", shortcuts:"Raccourcis", hide:"Masquer", show:"⚡ Raccourcis" },
 };
 
 /** ================== prompty pro tlačítka (aktivují přesné intent v concierge.js) ================== */
@@ -194,6 +212,8 @@ export default function App(){
   const [chat, setChat]   = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(true);
+
   const scrollerRef = useRef(null);
 
   // skrytí multi-greeting v index.html (třída na <body>)
@@ -201,7 +221,8 @@ export default function App(){
     if (lang) document.body.classList.add("lang-selected"); else document.body.classList.remove("lang-selected");
   }, [lang]);
 
-  useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat]);
+  // auto-scroll na konec při nové zprávě nebo při znovuotevření zkratek
+  useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat, shortcutsOpen]);
 
   const dict  = useMemo(() => tr[lang || "cs"], [lang]);
   const FLOWS = useMemo(() => makeFlows(dict), [dict]);
@@ -212,19 +233,23 @@ export default function App(){
     return <div className="bubble bot" dangerouslySetInnerHTML={{ __html: clean }} />;
   }
 
-  async function sendPrompt(prompt){
+  // odeslání zprávy (+ volitelný control objekt pro deterministické odpovědi)
+  async function sendPrompt(prompt, control = null){
     const next = [...chat, { role:"user", content:prompt }];
     setChat(next); setLoading(true);
     try{
       const r = await fetch("/.netlify/functions/concierge", {
-        method:"POST", headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ messages: next })
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ messages: next, uiLang: lang, control })
       });
       const data = await r.json();
       setChat([...next, { role:"assistant", content:data.reply }]);
     }catch{
       setChat([...next, { role:"assistant", content:"⚠️ Nelze se připojit k serveru. Zkuste to prosím znovu." }]);
-    }finally{ setLoading(false); }
+    }finally{
+      setLoading(false);
+    }
   }
 
   const openNode = (node) => setStack(s => [...s, node]);
@@ -236,10 +261,77 @@ export default function App(){
     stack.length === 0 ? FLOWS :
     stack[stack.length - 1]?.children ?? FLOWS;
 
+  const inFood = lang && stack.length > 0 && stack[stack.length - 1]?.label === dict.catFood;
+  const inTech = lang && stack.length > 0 && stack[stack.length - 1]?.label === dict.catTech;
+
+  // Mapování textu promptu → klíč v PLACES (sub-kategorie pro curated výpis)
+  const PLACE_SUB_MAP = {
+    "snídaně":"breakfast",
+    "kavárna":"cafe",
+    "pekárna":"bakery",
+    "vegan":"veggie",
+    "česká kuchyně":"czech",
+    "viet":"vietnam",
+    "bar":"bar",
+    "supermarket":"grocery",
+    "lékárna":"pharmacy",
+    "směnárna":"exchange",
+    "atm":"atm",
+  };
+
+  // Mapování TECH promptů → backend sub klíče
+  const TECH_MAP = {
+    "wifi heslo": "wifi",
+    "elektrina nejde proud jistič": "power",
+    "teplá voda nejde": "hot_water",
+    "klimatizace ac": "ac",
+    "indukce nefunguje": "induction",
+    "digestoř": "hood",
+    "kávovar tchibo": "coffee",
+    "požární hlásič": "fire_alarm",
+    "výtah telefon servis porucha": "elevator_phone",
+    "úschovna batožiny": "luggage",
+    "náhradní klíč": "keys",
+    "otevírání brány": "gate",
+    "zvonky na apartmány": "doorbells",
+    "kde jsou popelnice odpadky": "trash",
+    "bezbariérovost invalid": "access",
+    "kouření kde mohu kouřit": "smoking",
+    "prádelna kde je prádelna": "laundry",
+    "povlečení ručníky kód skříň": "linen_towels",
+    "doktor lékař 24": "doctor",
+    "trezor safe": "safe",
+  };
+
+  // Pomocná – klik na chip
+  const onChipClick = (n) => {
+    // FOOD → curated places
+    if (inFood) {
+      const subKey = PLACE_SUB_MAP[(n.prompt || "").toLowerCase()];
+      if (subKey) {
+        setShortcutsOpen(false); // po kliku schovat zkratky
+        return sendPrompt(n.prompt, { intent: "local", sub: subKey });
+      }
+    }
+    // TECH → deterministické markdowny
+    if (inTech) {
+      const subTech = TECH_MAP[(n.prompt || "").toLowerCase()];
+      if (subTech) {
+        setShortcutsOpen(false); // po kliku schovat zkratky
+        return sendPrompt(n.prompt, { intent: "tech", sub: subTech });
+      }
+    }
+    // Ostatní → standardně
+    setShortcutsOpen(false);
+    return sendPrompt(n.prompt);
+  };
+
   return (
     <>
       <GoogleStyle />
       <div className="row">
+
+        {/* CHAT SCROLLER – jen historie chatu */}
         <div className="scroller" ref={scrollerRef}>
           {!lang && (
             <div className="bubble bot" style={{ display:"inline-block", maxWidth:"100%" }}>
@@ -265,24 +357,28 @@ export default function App(){
               ? <div key={i}>{renderAssistant(m.content)}</div>
               : <div key={i} className="bubble me">{m.content}</div>
           )}
+        </div>
 
-          {lang && currentChildren && (
-            <div className="bubble bot" style={{ display:"inline-block", maxWidth:"100%" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:8 }}>
-                <strong style={{ marginBottom:6 }}>
-                  {stack.length === 0 ? dict.mainTitle : dict.subTitle}
-                </strong>
+        {/* ZKRATKY (Chipy) – mimo scroller */}
+        {lang && currentChildren && (
+          shortcutsOpen ? (
+            <div className="shortcuts">
+              <div className="shortcutsHeader">
+                <strong>{stack.length === 0 ? dict.mainTitle : dict.subTitle}</strong>
                 <div style={{ display:"flex", gap:8 }}>
                   {stack.length > 0 && (
                     <button className="backBtn" onClick={goBack}>{dict.back}</button>
                   )}
+                  <button className="backBtn" onClick={() => setShortcutsOpen(false)}>
+                    {dict.hide}
+                  </button>
                   <button className="backBtn" onClick={() => { setLang(null); setStack([]); }}>
                     🌐 {dict.chooseLang}
                   </button>
                 </div>
               </div>
 
-              <div className="grid" style={{ marginTop:8 }}>
+              <div className="grid">
                 {currentChildren.map((n, idx) =>
                   n.children ? (
                     <button key={idx} className="chip" onClick={() => openNode(n)}>{n.label}</button>
@@ -291,7 +387,7 @@ export default function App(){
                       key={idx}
                       className="chipPrimary"
                       style={{ ["--btn"]: btnColorForIndex(idx) }}
-                      onClick={() => sendPrompt(n.prompt)}
+                      onClick={() => onChipClick(n)}
                       disabled={loading}
                       title={n.prompt}
                     >
@@ -301,10 +397,15 @@ export default function App(){
                 )}
               </div>
 
-              <div className="tips">{dict.stillAsk}</div>
+              <div className="tips" style={{ marginTop:8 }}>{dict.stillAsk}</div>
             </div>
-          )}
-        </div>
+          ) : (
+            // FAB pro rychlé otevření zkratek
+            <button className="fab" onClick={() => setShortcutsOpen(true)} title={dict.shortcuts}>
+              {dict.show}
+            </button>
+          )
+        )}
 
         {/* Jediná (překládající se) kontaktní lišta */}
         <div className="contactBar">{dict.contact}</div>
@@ -315,13 +416,28 @@ export default function App(){
             placeholder={dict.type}
             value={input}
             onChange={(e)=>setInput(e.target.value)}
-            onKeyDown={(e)=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); if(input.trim()){ sendPrompt(input.trim()); setInput(""); }}}}
+            onKeyDown={(e)=>{
+              if(e.key==="Enter" && !e.shiftKey){
+                e.preventDefault();
+                if(input.trim()){
+                  setShortcutsOpen(false); // při psaní schovej, ať je vstup hned nahoře
+                  sendPrompt(input.trim());
+                  setInput("");
+                }
+              }
+            }}
           />
           <button
             className="chipPrimary"
             style={{ ["--btn"]: "var(--blue)" }}
             disabled={loading || !input.trim()}
-            onClick={()=>{ if(input.trim()){ sendPrompt(input.trim()); setInput(""); } }}
+            onClick={()=>{
+              if(input.trim()){
+                setShortcutsOpen(false);
+                sendPrompt(input.trim());
+                setInput("");
+              }
+            }}
           >
             {loading ? "…" : dict.send}
           </button>

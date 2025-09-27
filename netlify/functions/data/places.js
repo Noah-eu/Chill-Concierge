@@ -75,7 +75,12 @@ export function buildCuratedList(category, opts = {}) {
   const list = (PLACES[category] || []).slice(0, max);
   if (!list.length) return null;
 
-  return list.map(p =>
-    `- **${p.name}**${p.tags?.length ? ` — *${p.tags.join(", ")}*` : ""}\n  - [${labelOpen}](${p.url})`
-  ).join("\n\n");
+  const ensureHttp = (u="") => /^https?:\/\//i.test(u) ? u : `https://${u.replace(/^\/+/, "")}`;
+
+  return list.map(p => {
+    const name = String(p.name || "").trim();
+    const url = ensureHttp(String(p.url || "").trim());
+    const tags = Array.isArray(p.tags) ? p.tags.map(t=>String(t).trim()).filter(Boolean) : null;
+    return `- **${name}**${tags?.length ? ` — *${tags.join(", ")}*` : ""}\n  - [${labelOpen}](${url})`;
+  }).join("\n\n");
 }

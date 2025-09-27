@@ -63,7 +63,14 @@ const FORBIDDEN_PATTERNS = [
 /** ====== UTIL ====== */
 const lastUser = (messages=[]) => [...messages].reverse().find(m=>m.role==="user")?.content || "";
 const lastAssistant = (messages=[]) => [...messages].reverse().find(m=>m.role==="assistant")?.content || "";
-const extractRoom = (text) => (text||"").match(/\b(00[1]|10[1-5]|20[1-5]|30[1-5])\b/)?.[1] || null;
+
+// >>> vylepšené: tolerantní vůči "apt/ap./pokoj/č.", #, mezerám
+const extractRoom = (text = "") => {
+  const m = String(text).toLowerCase()
+    .match(/(?:room|apt|ap\.?|apartm[áa]n|pokoj|č\.)?\s*#?\s*(00[1]|10[1-5]|20[1-5]|30[1-5])\b/);
+  return m?.[1] || null;
+};
+
 const extractSSID = (text) => (text||"").match(/\b([A-Z0-9]{4})\b/)?.[1] || null;
 
 function historyContainsWifi(messages = []) {
@@ -84,6 +91,7 @@ function guessLang(userText = "") {
   if (/\b(hello|please|thanks|where|wifi|password|help)\b/.test(t)) return "en";
   return null;
 }
+
 async function translateToUserLang(text, userText, uiLang) {
   const hint = uiLang || guessLang(userText);
   if (hint === "cs" && /[ěščřžýáíéúůňťď]/i.test(text)) return text; // už česky
@@ -110,7 +118,7 @@ const P = {
   CHECKOUT_BOX: "/help/check-out-box.jpg",
   SPARE_KEY: "/help/spare-key.jpg",
   GARBAGE: "/help/garbage.jpg",
-  GATE_SWITCH: "/help/inside-gate-switch.jpg", // POZOR: „switch“, ne „sitch“
+  GATE_SWITCH: "/help/inside-gate-switch.jpg",
   DOOR_BELLS: "/help/door-bells.jpg",
 };
 
@@ -249,13 +257,14 @@ const buildSafe = () => [
 /** ====== INTENTY ====== */
 function detectLocalSubtype(t) {
   const s = (t || "").toLowerCase();
-  if (/(snídan|breakfast)/i.test(s)) return "breakfast";
+  if (/(snídan|snidan|breakfast)/i.test(s)) return "breakfast";
   if (/(lékárn|lekárn|lekarn|pharm|pharmacy)/i.test(s)) return "pharmacy";
   if (/(supermarket|potravin|grocery|market)/i.test(s)) return "grocery";
   if (/(kavárn|kavarn|cafe|coffee|káva|kava)/i.test(s)) return "cafe";
   if (/(bakery|pekárn|pekarn|pekárna)/i.test(s)) return "bakery";
+  if (/(vegan|vegetari)/i.test(s)) return "veggie";            // <<< doplněno
   if (/(viet|vietnam)/i.test(s)) return "vietnam";
-  if (/(česk|czech cuisine|local food)/i.test(s)) return "czech";
+  if (/(česk|cesk|czech cuisine|local food)/i.test(s)) return "czech"; // <<< doplněno "cesk"
   if (/\b(bar|pub|drink|pivo)\b/i.test(s)) return "bar";
   if (/exchange|směn|smen/i.test(s)) return "exchange";
   if (/\batm\b|bankomat/i.test(s)) return "atm";
@@ -276,7 +285,10 @@ function detectIntent(text) {
   if (/\b(pes|psi|dog|mazl(í|i)č|pets?)\b/i.test(t)) return "pets";
   if (/(prádeln|pradel|laund)/i.test(t)) return "laundry";
   if (/(úschovn|uschovn|batožin|batozin|zavazadel|luggage)/i.test(t)) return "luggage";
-  if (/(klíč|klic|spare key|key).*(apartm|room)|\bnáhradn/i.test(t)) return "keys";
+
+  // >>> pevnější detekce klíčů (náhradní / key...room)
+  if (/\b(náhradn[íy]|spare\s+key)\b/i.test(t)) return "keys";
+  if (/(kl[ií]č|klic|key).{0,30}(apartm|pokoj|room)/i.test(t)) return "keys";
 
   // utility
   if (/popelnic|odpad|trash|bin/i.test(t)) return "trash";
@@ -292,8 +304,8 @@ function detectIntent(text) {
   if (/(digesto[rř]|odsava[cč]|hood)/i.test(t)) return "hood";
   if (/(trezor|safe)/i.test(t)) return "safe";
 
-  // local → curated only
-  if (/(restaurac|snídan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|\bbar\b|kavárn|kavarn|vegan|vegetari|czech|bistro|exchange|směn|smen|\batm\b|bankomat)/i.test(t)) {
+  // local → curated only (rozšířeno o snidan/cesk/vegan/vegetari)
+  if (/(restaurac|snídan|snidan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|\bbar\b|kavárn|kavarn|vegan|vegetari|czech|cesk|bistro|exchange|směn|smen|\batm\b|bankomat)/i.test(t)) {
     return "local";
   }
 
