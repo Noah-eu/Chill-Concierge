@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
+/** ================== Konstanta: 3D Tour ================== */
+const MATTERPORT_URL = "https://my.matterport.com/show/?m=PTEAUeUbMno&ss=53&sr=-1.6%2C1.05&tag=8hiaV2GWWhB&pin-pos=20.12%2C-3.85%2C8.94";
+
 /** ================== Google palette + UI (inline CSS) ================== */
 const GoogleStyle = () => (
   <style>{`
@@ -131,6 +134,7 @@ const LANGS = {
 const tr = {
   cs:{ chooseLang:"Zvolte jazyk", mainTitle:"Vyberte téma", subTitle:"Podtéma / Subtopic", back:"← Zpět",
        catFood:"Jídlo a okolí", catTech:"Technické potíže", catOther:"Ostatní", catTransport:"Doprava", catAmenities:"Vybavení hotelu",
+       tourLabel:"🧭 3D prohlídka hotelu", tourOpenMsg:"[Otevřít 3D prohlídku]("+MATTERPORT_URL+")",
        stillAsk:"Vyberte jednu z možností níže.",
        contact:"Pokud jste nenašli, co potřebujete, napište Davidovi (WhatsApp +420 733 439 733).",
        shortcuts:"Zkratky", hide:"Skrýt", show:"⚡ Zkratky",
@@ -138,25 +142,24 @@ const tr = {
        diningLabel:"🍽️ Snídaně / Restaurace", bakeryLabel:"🥖 Pekárny",
        groceryLabel:"🛒 Obchody", pharmacyLabel:"💊 Lékárny",
        moneyGroupLabel:"💱 Směnárny / ATM", exchangeLabel:"💱 Směnárny", atmLabel:"🏧 ATM",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Elektřina", hotWaterLabel:"💧 Teplá voda",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Elektřina", hotWaterLabel:"💧 Teplá voda",
        acLabel:"❄️ Klimatizace (AC)", inductionLabel:"🍳 Indukční deska", hoodLabel:"🌀 Digestoř",
        coffeeLabel:"☕ Kávovar Tchibo", fireAlarmLabel:"🔥 Požární hlásič",
        elevatorPhoneLabel:"🛗 Výtah – servis", safeLabel:"🔐 Trezor",
-       // spareKeyLabel intentionally kept for i18n consistency but hidden in UI
        spareKeyLabel:"🔑 Náhradní klíč",
        laundryLabel:"🧺 Prádelna", accessLabel:"♿️ Bezbariérovost", smokingLabel:"🚭 Kouření",
        luggageLabel:"🎒 Úschovna zavazadel", doorbellsLabel:"🔔 Zvonky",
        gateLabel:"🚪 Brána (zevnitř)", trashLabel:"🗑️ Odpadky / Popelnice",
        doctorLabel:"👩‍⚕️ Lékař 24/7", linenLabel:"🧻 Povlečení / Ručníky",
        pickRoom:"Zvolte číslo apartmánu", floor:"Patro", room:"Pokoj", confirm:"Zobrazit", cancel:"Zavřít",
-       wifiStatus:"Funguje Wi‑Fi?", ok:"Funguje", notOk:"Nefunguje",
+       wifiStatus:"Funguje Wi-Fi?", ok:"Funguje", notOk:"Nefunguje",
        pickSsid:"Vyberte SSID, které na vašem zařízení svítí nejsilněji",
        showMyWifi:"Zobrazit moje heslo",
-       // Amenities
        aRooms:"🛏️ Pokoje", aKitchen:"🍳 Kuchyň", aBathroom:"🛁 Koupelna", aService:"🧰 Prádelna, úschovna, odpadky" },
 
   en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
        catFood:"Food & Nearby", catTech:"Technical issues", catOther:"Other", catTransport:"Transport", catAmenities:"Hotel amenities",
+       tourLabel:"🧭 3D virtual tour", tourOpenMsg:"[Open the 3D tour]("+MATTERPORT_URL+")",
        stillAsk:"Pick one of the options below.",
        contact:"If you can’t find what you need, message David (WhatsApp +420 733 439 733).",
        shortcuts:"Shortcuts", hide:"Hide", show:"⚡ Shortcuts",
@@ -164,7 +167,7 @@ const tr = {
        diningLabel:"🍽️ Breakfast / Restaurants", bakeryLabel:"🥖 Bakeries",
        groceryLabel:"🛒 Groceries", pharmacyLabel:"💊 Pharmacies",
        moneyGroupLabel:"💱 Exchanges / ATMs", exchangeLabel:"💱 Exchanges", atmLabel:"🏧 ATMs",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Power", hotWaterLabel:"💧 Hot water",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Power", hotWaterLabel:"💧 Hot water",
        acLabel:"❄️ Air conditioning (AC)", inductionLabel:"🍳 Induction hob", hoodLabel:"🌀 Cooker hood",
        coffeeLabel:"☕ Tchibo coffee machine", fireAlarmLabel:"🔥 Fire alarm",
        elevatorPhoneLabel:"🛗 Elevator – service", safeLabel:"🔐 Safe",
@@ -174,13 +177,14 @@ const tr = {
        gateLabel:"🚪 Gate (inside)", trashLabel:"🗑️ Trash / bins",
        doctorLabel:"👩‍⚕️ Doctor 24/7", linenLabel:"🧻 Linen / towels",
        pickRoom:"Choose your apartment number", floor:"Floor", room:"Room", confirm:"Show", cancel:"Close",
-       wifiStatus:"Is the Wi‑Fi working?", ok:"Works", notOk:"Doesn’t work",
+       wifiStatus:"Is the Wi-Fi working?", ok:"Works", notOk:"Doesn’t work",
        pickSsid:"Pick the SSID that appears strongest on your device",
        showMyWifi:"Show my password",
        aRooms:"🛏️ Rooms", aKitchen:"🍳 Kitchen", aBathroom:"🛁 Bathroom", aService:"🧰 Laundry, luggage, trash" },
 
   de:{ chooseLang:"Sprache wählen", mainTitle:"Thema wählen", subTitle:"Unterthema", back:"← Zurück",
        catFood:"Essen & Umgebung", catTech:"Technische Probleme", catOther:"Sonstiges", catTransport:"Verkehr", catAmenities:"Hotelausstattung",
+       tourLabel:"🧭 3D-Rundgang", tourOpenMsg:"[3D-Rundgang öffnen]("+MATTERPORT_URL+")",
        stillAsk:"Wählen Sie unten eine Option.",
        contact:"Wenn etwas fehlt, schreiben Sie David (WhatsApp +420 733 439 733).",
        shortcuts:"Kurzbefehle", hide:"Ausblenden", show:"⚡ Kurzbefehle",
@@ -190,7 +194,7 @@ const tr = {
        moneyGroupLabel:"💱 Wechselstuben / Geldautomaten", exchangeLabel:"💱 Wechselstuben", atmLabel:"🏧 Geldautomaten",
        wifiLabel:"📶 WLAN", powerLabel:"⚡ Strom", hotWaterLabel:"💧 Warmwasser",
        acLabel:"❄️ Klimaanlage (AC)", inductionLabel:"🍳 Induktionskochfeld", hoodLabel:"🌀 Dunstabzug",
-       coffeeLabel:"☕ Tchibo‑Kaffeemaschine", fireAlarmLabel:"🔥 Rauchmelder",
+       coffeeLabel:"☕ Tchibo-Kaffeemaschine", fireAlarmLabel:"🔥 Rauchmelder",
        elevatorPhoneLabel:"🛗 Aufzug – Service", safeLabel:"🔐 Safe",
        spareKeyLabel:"🔑 Ersatzschlüssel",
        laundryLabel:"🧺 Wäscherei", accessLabel:"♿️ Barrierefreiheit", smokingLabel:"🚭 Rauchen",
@@ -203,32 +207,34 @@ const tr = {
        showMyWifi:"Mein Passwort anzeigen",
        aRooms:"🛏️ Zimmer", aKitchen:"🍳 Küche", aBathroom:"🛁 Bad", aService:"🧰 Wäscherei, Gepäck, Müll" },
 
-  fr:{ chooseLang:"Choisir la langue", mainTitle:"Choisir un sujet", subTitle:"Sous‑thème", back:"← Retour",
+  fr:{ chooseLang:"Choisir la langue", mainTitle:"Choisir un sujet", subTitle:"Sous-thème", back:"← Retour",
        catFood:"Restauration & alentours", catTech:"Problèmes techniques", catOther:"Autre", catTransport:"Transports", catAmenities:"Équipements de l’hôtel",
-       stillAsk:"Choisissez une option ci‑dessous.",
+       tourLabel:"🧭 Visite 3D", tourOpenMsg:"[Ouvrir la visite 3D]("+MATTERPORT_URL+")",
+       stillAsk:"Choisissez une option ci-dessous.",
        contact:"Si besoin, contactez David (WhatsApp +420 733 439 733).",
        shortcuts:"Raccourcis", hide:"Masquer", show:"⚡ Raccourcis",
        foodDelivery:"🛵 Livraison de repas", transportInfo:"🗺️ Se déplacer à Prague",
-       diningLabel:"🍽️ Petit‑déjeuner / Restaurants", bakeryLabel:"🥖 Boulangeries",
+       diningLabel:"🍽️ Petit-déjeuner / Restaurants", bakeryLabel:"🥖 Boulangeries",
        groceryLabel:"🛒 Épiceries", pharmacyLabel:"💊 Pharmacies",
        moneyGroupLabel:"💱 Bureaux de change / DAB", exchangeLabel:"💱 Change", atmLabel:"🏧 DAB",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Électricité", hotWaterLabel:"💧 Eau chaude",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Électricité", hotWaterLabel:"💧 Eau chaude",
        acLabel:"❄️ Climatisation (AC)", inductionLabel:"🍳 Plaque à induction", hoodLabel:"🌀 Hotte",
        coffeeLabel:"☕ Machine à café Tchibo", fireAlarmLabel:"🔥 Alarme incendie",
-       elevatorPhoneLabel:"🛗 Ascenseur – service", safeLabel:"🔐 Coffre‑fort",
+       elevatorPhoneLabel:"🛗 Ascenseur – service", safeLabel:"🔐 Coffre-fort",
        spareKeyLabel:"🔑 Clé de rechange",
        laundryLabel:"🧺 Laverie", accessLabel:"♿️ Accessibilité", smokingLabel:"🚭 Fumer",
        luggageLabel:"🎒 Consigne à bagages", doorbellsLabel:"🔔 Sonnette",
        gateLabel:"🚪 Portail (intérieur)", trashLabel:"🗑️ Poubelles",
        doctorLabel:"👩‍⚕️ Médecin 24/7", linenLabel:"🧻 Linge / serviettes",
        pickRoom:"Choisissez votre numéro d’appartement", floor:"Étage", room:"Appartement", confirm:"Afficher", cancel:"Fermer",
-       wifiStatus:"Le Wi‑Fi fonctionne‑t‑il ?", ok:"Oui", notOk:"Non",
+       wifiStatus:"Le Wi-Fi fonctionne-t-il ?", ok:"Oui", notOk:"Non",
        pickSsid:"Choisissez le SSID le plus fort sur votre appareil",
        showMyWifi:"Afficher mon mot de passe",
        aRooms:"🛏️ Chambres", aKitchen:"🍳 Cuisine", aBathroom:"🛁 Salle de bain", aService:"🧰 Laverie, consigne, déchets" },
 
   es:{ chooseLang:"Elige idioma", mainTitle:"Elige un tema", subTitle:"Subtema", back:"← Atrás",
        catFood:"Comida y alrededores", catTech:"Problemas técnicos", catOther:"Otros", catTransport:"Transporte", catAmenities:"Servicios del hotel",
+       tourLabel:"🧭 Recorrido 3D", tourOpenMsg:"[Abrir el recorrido 3D]("+MATTERPORT_URL+")",
        stillAsk:"Elige una opción abajo.",
        contact:"Si no encuentras lo que necesitas, escribe a David (WhatsApp +420 733 439 733).",
        shortcuts:"Atajos", hide:"Ocultar", show:"⚡ Atajos",
@@ -236,7 +242,7 @@ const tr = {
        diningLabel:"🍽️ Desayuno / Restaurantes", bakeryLabel:"🥖 Panaderías",
        groceryLabel:"🛒 Supermercados", pharmacyLabel:"💊 Farmacias",
        moneyGroupLabel:"💱 Casas de cambio / Cajeros", exchangeLabel:"💱 Casas de cambio", atmLabel:"🏧 Cajeros",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Electricidad", hotWaterLabel:"💧 Agua caliente",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Electricidad", hotWaterLabel:"💧 Agua caliente",
        acLabel:"❄️ Aire acondicionado (AC)", inductionLabel:"🍳 Placa de inducción", hoodLabel:"🌀 Campana extractora",
        coffeeLabel:"☕ Cafetera Tchibo", fireAlarmLabel:"🔥 Alarma de incendio",
        elevatorPhoneLabel:"🛗 Ascensor – servicio", safeLabel:"🔐 Caja fuerte",
@@ -246,13 +252,14 @@ const tr = {
        gateLabel:"🚪 Portón (interior)", trashLabel:"🗑️ Basura / contenedores",
        doctorLabel:"👩‍⚕️ Médico 24/7", linenLabel:"🧻 Ropa de cama / toallas",
        pickRoom:"Elige tu número de apartamento", floor:"Planta", room:"Habitación", confirm:"Mostrar", cancel:"Cerrar",
-       wifiStatus:"¿Funciona el Wi‑Fi?", ok:"Funciona", notOk:"No funciona",
+       wifiStatus:"¿Funciona el Wi-Fi?", ok:"Funciona", notOk:"No funciona",
        pickSsid:"Elige el SSID con la señal más fuerte",
        showMyWifi:"Mostrar mi contraseña",
        aRooms:"🛏️ Habitaciones", aKitchen:"🍳 Cocina", aBathroom:"🛁 Baño", aService:"🧰 Lavandería, consigna, basura" },
 
   ru:{ chooseLang:"Выберите язык", mainTitle:"Выберите тему", subTitle:"Подтема", back:"← Назад",
        catFood:"Еда и рядом", catTech:"Технические проблемы", catOther:"Другое", catTransport:"Транспорт", catAmenities:"Удобства отеля",
+       tourLabel:"🧭 3D-тур", tourOpenMsg:"[Открыть 3D-тур]("+MATTERPORT_URL+")",
        stillAsk:"Выберите один из вариантов ниже.",
        contact:"Если не нашли нужное, напишите Давиду (WhatsApp +420 733 439 733).",
        shortcuts:"Ярлыки", hide:"Скрыть", show:"⚡ Ярлыки",
@@ -260,7 +267,7 @@ const tr = {
        diningLabel:"🍽️ Завтрак / Рестораны", bakeryLabel:"🥖 Пекарни",
        groceryLabel:"🛒 Продукты", pharmacyLabel:"💊 Аптеки",
        moneyGroupLabel:"💱 Обмен / Банкоматы", exchangeLabel:"💱 Обмен валют", atmLabel:"🏧 Банкоматы",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Электричество", hotWaterLabel:"💧 Горячая вода",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Электричество", hotWaterLabel:"💧 Горячая вода",
        acLabel:"❄️ Кондиционер (AC)", inductionLabel:"🍳 Индукционная плита", hoodLabel:"🌀 Вытяжка",
        coffeeLabel:"☕ Кофемашина Tchibo", fireAlarmLabel:"🔥 Пожарная сигнализация",
        elevatorPhoneLabel:"🛗 Лифт – сервис", safeLabel:"🔐 Сейф",
@@ -270,13 +277,14 @@ const tr = {
        gateLabel:"🚪 Ворота (изнутри)", trashLabel:"🗑️ Мусор / баки",
        doctorLabel:"👩‍⚕️ Врач 24/7", linenLabel:"🧻 Постель / полотенца",
        pickRoom:"Выберите номер апартамента", floor:"Этаж", room:"Номер", confirm:"Показать", cancel:"Закрыть",
-       wifiStatus:"Работает ли Wi‑Fi?", ok:"Работает", notOk:"Не работает",
+       wifiStatus:"Работает ли Wi-Fi?", ok:"Работает", notOk:"Не работает",
        pickSsid:"Выберите SSID с самым сильным сигналом",
        showMyWifi:"Показать мой пароль",
        aRooms:"🛏️ Номера", aKitchen:"🍳 Кухня", aBathroom:"🛁 Ванная", aService:"🧰 Прачечная, багаж, мусор" },
 
   uk:{ chooseLang:"Оберіть мову", mainTitle:"Виберіть тему", subTitle:"Підтема", back:"← Назад",
        catFood:"Їжа та поруч", catTech:"Технічні питання", catOther:"Інше", catTransport:"Транспорт", catAmenities:"Зручності готелю",
+       tourLabel:"🧭 3D-тур", tourOpenMsg:"[Відкрити 3D-тур]("+MATTERPORT_URL+")",
        stillAsk:"Оберіть один із варіантів нижче.",
        contact:"Якщо не знайшли потрібне, напишіть Давидові (WhatsApp +420 733 439 733).",
        shortcuts:"Ярлики", hide:"Сховати", show:"⚡ Ярлики",
@@ -284,7 +292,7 @@ const tr = {
        diningLabel:"🍽️ Сніданок / Ресторани", bakeryLabel:"🥖 Пекарні",
        groceryLabel:"🛒 Продукти", pharmacyLabel:"💊 Аптеки",
        moneyGroupLabel:"💱 Обмін / Банкомати", exchangeLabel:"💱 Обмін валют", atmLabel:"🏧 Банкомати",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Електрика", hotWaterLabel:"💧 Гаряча вода",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Електрика", hotWaterLabel:"💧 Гаряча вода",
        acLabel:"❄️ Кондиціонер (AC)", inductionLabel:"🍳 Індукційна плита", hoodLabel:"🌀 Витяжка",
        coffeeLabel:"☕ Кавоварка Tchibo", fireAlarmLabel:"🔥 Пожежна сигналізація",
        elevatorPhoneLabel:"🛗 Ліфт – сервіс", safeLabel:"🔐 Сейф",
@@ -294,13 +302,14 @@ const tr = {
        gateLabel:"🚪 Ворота (зсередини)", trashLabel:"🗑️ Сміття / баки",
        doctorLabel:"👩‍⚕️ Лікар 24/7", linenLabel:"🧻 Постіль / рушники",
        pickRoom:"Оберіть номер апартаментів", floor:"Поверх", room:"Кімната", confirm:"Показати", cancel:"Закрити",
-       wifiStatus:"Працює Wi‑Fi?", ok:"Працює", notOk:"Не працює",
+       wifiStatus:"Працює Wi-Fi?", ok:"Працює", notOk:"Не працює",
        pickSsid:"Виберіть SSID з найсильнішим сигналом",
        showMyWifi:"Показати мій пароль",
        aRooms:"🛏️ Кімнати", aKitchen:"🍳 Кухня", aBathroom:"🛁 Ванна", aService:"🧰 Пральня, багаж, сміття" },
 
   nl:{ chooseLang:"Kies een taal", mainTitle:"Kies een onderwerp", subTitle:"Subonderwerp", back:"← Terug",
        catFood:"Eten & in de buurt", catTech:"Technische problemen", catOther:"Overig", catTransport:"Vervoer", catAmenities:"Hotelvoorzieningen",
+       tourLabel:"🧭 3D-rondleiding", tourOpenMsg:"[Open de 3D-rondleiding]("+MATTERPORT_URL+")",
        stillAsk:"Kies hieronder een optie.",
        contact:"Niet gevonden wat je zoekt? Stuur David een bericht (WhatsApp +420 733 439 733).",
        shortcuts:"Snelkoppelingen", hide:"Verbergen", show:"⚡ Snelkoppelingen",
@@ -308,9 +317,9 @@ const tr = {
        diningLabel:"🍽️ Ontbijt / Restaurants", bakeryLabel:"🥖 Bakkerijen",
        groceryLabel:"🛒 Boodschappen", pharmacyLabel:"💊 Apotheken",
        moneyGroupLabel:"💱 Wisselkantoren / Geldautomaten", exchangeLabel:"💱 Wisselkantoren", atmLabel:"🏧 Geldautomaten",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Stroom", hotWaterLabel:"💧 Warm water",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Stroom", hotWaterLabel:"💧 Warm water",
        acLabel:"❄️ Airconditioning (AC)", inductionLabel:"🍳 Inductiekookplaat", hoodLabel:"🌀 Afzuigkap",
-       coffeeLabel:"☕ Tchibo‑koffiemachine", fireAlarmLabel:"🔥 Brandalarm",
+       coffeeLabel:"☕ Tchibo-koffiemachine", fireAlarmLabel:"🔥 Brandalarm",
        elevatorPhoneLabel:"🛗 Lift – service", safeLabel:"🔐 Kluis",
        spareKeyLabel:"🔑 Reservesleutel",
        laundryLabel:"🧺 Wasserette", accessLabel:"♿️ Toegankelijkheid", smokingLabel:"🚭 Roken",
@@ -318,13 +327,14 @@ const tr = {
        gateLabel:"🚪 Poort (binnen)", trashLabel:"🗑️ Afval / containers",
        doctorLabel:"👩‍⚕️ Arts 24/7", linenLabel:"🧻 Beddengoed / handdoeken",
        pickRoom:"Kies je appartementnummer", floor:"Verdieping", room:"Kamer", confirm:"Tonen", cancel:"Sluiten",
-       wifiStatus:"Werkt de Wi‑Fi?", ok:"Werkt", notOk:"Werkt niet",
+       wifiStatus:"Werkt de Wi-Fi?", ok:"Werkt", notOk:"Werkt niet",
        pickSsid:"Kies de SSID met het sterkste signaal",
        showMyWifi:"Toon mijn wachtwoord",
        aRooms:"🛏️ Kamers", aKitchen:"🍳 Keuken", aBathroom:"🛁 Badkamer", aService:"🧰 Wasruimte, bagage, afval" },
 
   it:{ chooseLang:"Scegli una lingua", mainTitle:"Scegli un argomento", subTitle:"Sottoargomento", back:"← Indietro",
        catFood:"Cibo e dintorni", catTech:"Problemi tecnici", catOther:"Altro", catTransport:"Trasporti", catAmenities:"Servizi dell’hotel",
+       tourLabel:"🧭 Tour 3D", tourOpenMsg:"[Apri il tour 3D]("+MATTERPORT_URL+")",
        stillAsk:"Scegli una delle opzioni sotto.",
        contact:"Se non trovi ciò che ti serve, scrivi a David (WhatsApp +420 733 439 733).",
        shortcuts:"Scorciatoie", hide:"Nascondi", show:"⚡ Scorciatoie",
@@ -332,7 +342,7 @@ const tr = {
        diningLabel:"🍽️ Colazione / Ristoranti", bakeryLabel:"🥖 Panetterie",
        groceryLabel:"🛒 Alimentari", pharmacyLabel:"💊 Farmacie",
        moneyGroupLabel:"💱 Cambi / Bancomat", exchangeLabel:"💱 Cambi", atmLabel:"🏧 Bancomat",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Elettricità", hotWaterLabel:"💧 Acqua calda",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Elettricità", hotWaterLabel:"💧 Acqua calda",
        acLabel:"❄️ Aria condizionata (AC)", inductionLabel:"🍳 Piano a induzione", hoodLabel:"🌀 Cappa",
        coffeeLabel:"☕ Macchina Tchibo", fireAlarmLabel:"🔥 Allarme antincendio",
        elevatorPhoneLabel:"🛗 Ascensore – assistenza", safeLabel:"🔐 Cassaforte",
@@ -342,13 +352,14 @@ const tr = {
        gateLabel:"🚪 Cancello (interno)", trashLabel:"🗑️ Spazzatura / bidoni",
        doctorLabel:"👩‍⚕️ Medico 24/7", linenLabel:"🧻 Lenzuola / asciugamani",
        pickRoom:"Scegli il numero dell’appartamento", floor:"Piano", room:"Camera", confirm:"Mostra", cancel:"Chiudi",
-       wifiStatus:"Il Wi‑Fi funziona?", ok:"Sì", notOk:"No",
+       wifiStatus:"Il Wi-Fi funziona?", ok:"Sì", notOk:"No",
        pickSsid:"Seleziona l’SSID con il segnale più forte",
        showMyWifi:"Mostra la mia password",
        aRooms:"🛏️ Camere", aKitchen:"🍳 Cucina", aBathroom:"🛁 Bagno", aService:"🧰 Lavanderia, bagagli, rifiuti" },
 
   da:{ chooseLang:"Vælg sprog", mainTitle:"Vælg et emne", subTitle:"Undertema", back:"← Tilbage",
        catFood:"Mad og i nærheden", catTech:"Tekniske problemer", catOther:"Andet", catTransport:"Transport", catAmenities:"Hoteludstyr",
+       tourLabel:"🧭 3D-rundvisning", tourOpenMsg:"[Åbn 3D-rundvisningen]("+MATTERPORT_URL+")",
        stillAsk:"Vælg en mulighed herunder.",
        contact:"Finder du ikke det, du skal bruge, så skriv til David (WhatsApp +420 733 439 733).",
        shortcuts:"Genveje", hide:"Skjul", show:"⚡ Genveje",
@@ -356,9 +367,9 @@ const tr = {
        diningLabel:"🍽️ Morgenmad / Restauranter", bakeryLabel:"🥖 Bagerier",
        groceryLabel:"🛒 Dagligvarer", pharmacyLabel:"💊 Apoteker",
        moneyGroupLabel:"💱 Vekselkontorer / Hæveautomater", exchangeLabel:"💱 Vekselkontorer", atmLabel:"🏧 Hæveautomater",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Strøm", hotWaterLabel:"💧 Varmt vand",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Strøm", hotWaterLabel:"💧 Varmt vand",
        acLabel:"❄️ Aircondition (AC)", inductionLabel:"🍳 Induktionskomfur", hoodLabel:"🌀 Emhætte",
-       coffeeLabel:"☕ Tchibo‑kaffemaskine", fireAlarmLabel:"🔥 Brandalarm",
+       coffeeLabel:"☕ Tchibo-kaffemaskine", fireAlarmLabel:"🔥 Brandalarm",
        elevatorPhoneLabel:"🛗 Elevator – service", safeLabel:"🔐 Pengeskab",
        spareKeyLabel:"🔑 Ekstranøgle",
        laundryLabel:"🧺 Vaskeri", accessLabel:"♿️ Tilgængelighed", smokingLabel:"🚭 Rygning",
@@ -366,13 +377,14 @@ const tr = {
        gateLabel:"🚪 Port (indefra)", trashLabel:"🗑️ Affald / containere",
        doctorLabel:"👩‍⚕️ Læge 24/7", linenLabel:"🧻 Sengetøj / håndklæder",
        pickRoom:"Vælg værelsesnummer", floor:"Etage", room:"Værelse", confirm:"Vis", cancel:"Luk",
-       wifiStatus:"Virker Wi‑Fi?", ok:"Virker", notOk:"Virker ikke",
+       wifiStatus:"Virker Wi-Fi?", ok:"Virker", notOk:"Virker ikke",
        pickSsid:"Vælg den SSID, der er stærkest på enheden",
        showMyWifi:"Vis min adgangskode",
        aRooms:"🛏️ Værelser", aKitchen:"🍳 Køkken", aBathroom:"🛁 Badeværelse", aService:"🧰 Vaskeri, bagage, affald" },
 
   pl:{ chooseLang:"Wybierz język", mainTitle:"Wybierz temat", subTitle:"Podtemat", back:"← Wstecz",
        catFood:"Jedzenie i okolica", catTech:"Problemy techniczne", catOther:"Inne", catTransport:"Transport", catAmenities:"Udogodnienia hotelowe",
+       tourLabel:"🧭 Wirtualny spacer 3D", tourOpenMsg:"[Otwórz spacer 3D]("+MATTERPORT_URL+")",
        stillAsk:"Wybierz jedną z opcji poniżej.",
        contact:"Jeśli nie znalazłeś informacji, napisz do Dawida (WhatsApp +420 733 439 733).",
        shortcuts:"Skróty", hide:"Ukryj", show:"⚡ Skróty",
@@ -380,7 +392,7 @@ const tr = {
        diningLabel:"🍽️ Śniadanie / Restauracje", bakeryLabel:"🥖 Piekarnie",
        groceryLabel:"🛒 Sklepy", pharmacyLabel:"💊 Apteki",
        moneyGroupLabel:"💱 Kantory / Bankomaty", exchangeLabel:"💱 Kantory", atmLabel:"🏧 Bankomaty",
-       wifiLabel:"📶 Wi‑Fi", powerLabel:"⚡ Prąd", hotWaterLabel:"💧 Ciepła woda",
+       wifiLabel:"📶 Wi-Fi", powerLabel:"⚡ Prąd", hotWaterLabel:"💧 Ciepła woda",
        acLabel:"❄️ Klimatyzacja (AC)", inductionLabel:"🍳 Płyta indukcyjna", hoodLabel:"🌀 Okap",
        coffeeLabel:"☕ Ekspres Tchibo", fireAlarmLabel:"🔥 Czujnik pożaru",
        elevatorPhoneLabel:"🛗 Winda – serwis", safeLabel:"🔐 Sejf",
@@ -390,7 +402,7 @@ const tr = {
        gateLabel:"🚪 Brama (od środka)", trashLabel:"🗑️ Śmieci / kosze",
        doctorLabel:"👩‍⚕️ Lekarz 24/7", linenLabel:"🧻 Pościel / ręczniki",
        pickRoom:"Wybierz numer apartamentu", floor:"Piętro", room:"Pokój", confirm:"Pokaż", cancel:"Zamknij",
-       wifiStatus:"Czy Wi‑Fi działa?", ok:"Działa", notOk:"Nie działa",
+       wifiStatus:"Czy Wi-Fi działa?", ok:"Działa", notOk:"Nie działa",
        pickSsid:"Wybierz SSID z najsilniejszym sygnałem",
        showMyWifi:"Pokaż moje hasło",
        aRooms:"🛏️ Pokoje", aKitchen:"🍳 Kuchnia", aBathroom:"🛁 Łazienka", aService:"🧰 Pralnia, bagaż, śmieci" }
@@ -414,7 +426,7 @@ export default function App(){
   const [wifiSsidSheet, setWifiSsidSheet] = useState({ open:false, ssid:null });
 
   // CTA tlačítka pod bublinou
-  const [showKeysCta, setShowKeysCta] = useState(false); // ❗ hidden flow – we keep state but never show entry point
+  const [showKeysCta, setShowKeysCta] = useState(false); // hidden flow – we keep state but never show entry point
   const [wifiCtas, setWifiCtas] = useState({ showPassword:false, showNotOk:false });
 
   const scrollerRef = useRef(null);
@@ -429,6 +441,11 @@ export default function App(){
 
   /** ====== FLOWS ====== */
   function makeFlows(dict){
+    // Hlavní, okamžité tlačítko na 3D tour (bez podmenu)
+    const TOUR = [
+      { label: dict.tourLabel, action: "tour" }
+    ];
+
     const FOOD = [
       { label: dict.diningLabel,   control:{ intent:"local", sub:"dining" } },
       { label: dict.bakeryLabel,   control:{ intent:"local", sub:"bakery" } },
@@ -452,7 +469,7 @@ export default function App(){
       { label: dict.fireAlarmLabel,       control:{ intent:"tech", sub:"fire_alarm" } },
       { label: dict.elevatorPhoneLabel,   control:{ intent:"tech", sub:"elevator_phone" } },
       { label: dict.safeLabel,            control:{ intent:"tech", sub:"safe" } },
-      // 🔑 Spare key flow is kept on backend but **not listed** in UI
+      // Spare key flow is kept in backend but not listed in UI
       // { label: dict.spareKeyLabel,    control:{ intent:"tech", sub:"keys", needsRoom:true } },
     ];
 
@@ -479,7 +496,9 @@ export default function App(){
       { label: dict.linenLabel,       control:{ intent:"tech", sub:"linen_towels" } },
     ];
 
+    // "Hlavní sekce": na úplný začátek dáme TOUR jako jedno primární tlačítko
     return [
+      { label: dict.tourLabel, action:"tour" },           // primární tlačítko Tour
       { label:dict.catFood,      children:FOOD },
       { label:dict.catTech,      children:TECH },
       { label:dict.catTransport, children:TRANSPORT },
@@ -537,10 +556,18 @@ export default function App(){
   const onChipClick = (n) => {
     if (n.children) return openNode(n);
 
-    // Wi‑Fi: instrukce → CTA „Zobrazit moje heslo“
+    // 3D Tour – otevřít odkaz + přidat bublinu s linkem (i18n)
+    if (n.action === "tour") {
+      try { window.open(MATTERPORT_URL, "_blank", "noopener,noreferrer"); } catch {}
+      setShortcutsOpen(false);
+      setChat(c => [...c, { role:"assistant", content: tr[lang || "cs"].tourOpenMsg }]);
+      return;
+    }
+
+    // Wi-Fi: instrukce → CTA „Zobrazit moje heslo“
     if (n.control?.kind === "wifi") {
       setShortcutsOpen(false);
-      sendControl("Wi‑Fi", { intent:"tech", sub:"wifi" });
+      sendControl("Wi-Fi", { intent:"tech", sub:"wifi" });
       setWifiCtas({ showPassword:true, showNotOk:false });
       return;
     }
@@ -569,14 +596,14 @@ export default function App(){
     return sendControl(`Náhradní klíč ${room}`, { intent:"tech", sub:"keys", room });
   };
 
-  // -------- Wi‑Fi: potvrzení výběru pokoje → heslo + „Nefunguje“ --------
+  // -------- Wi-Fi: potvrzení výběru pokoje → heslo + „Nefunguje“ --------
   const confirmWifiRoom = () => {
     const { floor, last } = wifiRoomSheet;
     if (floor === null || last === null) return;
     const room = `${floor}${last}`.padStart(3, "0");
     setWifiRoomSheet({ open:false, floor:null, last:null });
     setWifiCtas({ showPassword:false, showNotOk:true });
-    return sendText(room); // backend vrátí heslo k dané Wi‑Fi
+    return sendText(room); // backend vrátí heslo k dané Wi-Fi
   };
 
   const confirmWifiSsid = () => {
@@ -653,7 +680,7 @@ export default function App(){
                     style={{ ["--btn"]: btnColorForIndex(idx) }}
                     onClick={() => onChipClick(n)}
                     disabled={loading}
-                    title={n.control?.sub || ""}
+                    title={n.control?.sub || n.action || ""}
                   >
                     {n.label}
                   </button>
@@ -699,8 +726,8 @@ export default function App(){
       {roomSheet.open && (
         <div className="overlay" onClick={()=>setRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{dict.pickRoom}</h4>
-            <div className="tips" style={{marginBottom:6}}>{dict.floor}</div>
+            <h4>{tr[lang||"cs"].pickRoom}</h4>
+            <div className="tips" style={{marginBottom:6}}>{tr[lang||"cs"].floor}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${roomSheet.floor===f?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, floor:f}))}>
@@ -708,7 +735,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{dict.room}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{tr[lang||"cs"].room}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${roomSheet.last===l?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, last:l}))}>
@@ -731,12 +758,12 @@ export default function App(){
         </div>
       )}
 
-      {/* OVERLAY: Wi‑Fi – výběr pokoje */}
+      {/* OVERLAY: Wi-Fi – výběr pokoje */}
       {wifiRoomSheet.open && (
         <div className="overlay" onClick={()=>setWifiRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{dict.pickRoom}</h4>
-            <div className="tips" style={{marginBottom:6}}>{dict.floor}</div>
+            <h4>{tr[lang||"cs"].pickRoom}</h4>
+            <div className="tips" style={{marginBottom:6}}>{tr[lang||"cs"].floor}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${wifiRoomSheet.floor===f?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, floor:f}))}>
@@ -744,7 +771,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{dict.room}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{tr[lang||"cs"].room}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${wifiRoomSheet.last===l?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, last:l}))}>
@@ -767,7 +794,7 @@ export default function App(){
         </div>
       )}
 
-      {/* OVERLAY: Wi‑Fi – výběr SSID (pro „Nefunguje“) */}
+      {/* OVERLAY: Wi-Fi – výběr SSID (pro „Nefunguje“) */}
       {wifiSsidSheet.open && (
         <div className="overlay" onClick={()=>setWifiSsidSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>

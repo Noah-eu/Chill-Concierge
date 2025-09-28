@@ -35,7 +35,7 @@ const WIFI = [
   { room: "305", ssid: "D5F6", pass: "45445804" },
 ];
 
-const LUGGAGE_ROOM_CODE = "3142#";
+const LUGGAGE_ROOM_CODE = "3142#"; // ponecháno v kódu, ale nevypisuje se u „Náhradní klíč“
 const KEYBOX = {
   "001": "3301","101": "3302","102": "3303","103": "3304","104": "3305","105": "3306",
   "201": "3307","202": "3308","203": "3309","204": "3310","205": "3311",
@@ -192,27 +192,18 @@ function buildLuggageInfo() {
     "Nejprve prosím **vhoďte klíče do check-out boxu**.",
     IMG(P.LUGGAGE, "Vstup do úschovny batožiny"),
     `Potom můžete **po 11:00** uložit zavazadla v **úschovně batožiny** – je v průjezdu **vedle schránky na klíče**.`,
-    `**Kód je stejný jako pro bránu: ${LUGGAGE_ROOM_CODE}**. Po uložení prosím **zkontrolujte, že jsou dveře zavřené**.`
+    `**Kód je stejný jako pro bránu.** Po uložení prosím **zkontrolujte, že jsou dveře zavřené**.`
   ].join("\n");
 }
-function buildKeyHelp(room) {
-  if (!room) {
-    return [
-      IMG(P.LUGGAGE, "Vstup do úschovny batožiny"),
-      `Zapomenutý klíč:`,
-      `1) Do **úschovny batožiny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
-      `2) Napište mi prosím **číslo apartmánu** – pošlu kód k příslušnému boxu.`,
-      `3) Po použití klíč **vrátit** a **zamíchat číselník**.`
-    ].join("\n");
-  }
-  const code = KEYBOX[room];
-  if (!code) return "Napište prosím platné číslo apartmánu (např. 001, 101, … 305).";
+
+/* === NOVÉ: Bezpečná verze pro „Náhradní klíč“ – bez jakýchkoli kódů === */
+function buildKeyHelp() {
   return [
     IMG(P.SPARE_KEY, "Náhradní klíč – box s klíčem"),
-    `Náhradní klíč k **${room}**:`,
-    `1) Do **úschovny batožiny** vstupte kódem **${LUGGAGE_ROOM_CODE}**.`,
-    `2) Otevřete box **${room}** – kód **${code}**.`,
-    `3) Po otevření apartmánu prosíme klíč **vrátit** a **zamíchat**.`
+    "Zapomenutý klíč:",
+    "1) V budově je k dispozici **úschovna s boxy na náhradní klíče**.",
+    "2) Pro vydání kódu se ověřuje host a číslo apartmánu.",
+    "**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**"
   ].join("\n");
 }
 
@@ -226,7 +217,7 @@ const buildGate = () => [
   IMG(P.GATE_SWITCH, "Tlačítko pro otevření brány zevnitř"),
   "🚪 **Otevírání brány**:",
   "– **Zevnitř**: tlačítkem v průchodu **hned vedle key-boxu**.",
-  `– **Z ulice**: kód **${LUGGAGE_ROOM_CODE}** (stejný jako k úschovně).`
+  "– **Z ulice**: kód je stejný jako k úschovně."
 ].join("\n");
 const buildDoorbells = () => [
   IMG(P.DOOR_BELLS, "Domovní zvonky na začátku průchodu"),
@@ -426,10 +417,10 @@ export default async (req) => {
     const { messages = [], uiLang = null, control = null } = body || {};
     const userText = lastUser(messages);
 
-    // 0) Follow-up: číslo pokoje po „Náhradní klíč“
+    // 0) Follow-up: číslo pokoje po „Náhradní klíč“ (ponecháno kvůli kompatibilitě, ale už se kódy neposílají)
     const roomOnly = extractRoom(userText);
     if (roomOnly && historyContainsKeys(messages)) {
-      return ok(await translateToUserLang(buildKeyHelp(roomOnly), userText, uiLang));
+      return ok(await translateToUserLang(buildKeyHelp(), userText, uiLang));
     }
 
     // 1) CONTROL – pevná tlačítka (bez modelu)
@@ -471,7 +462,7 @@ export default async (req) => {
           fire_alarm: buildFireAlarm,
           elevator_phone: buildElevatorPhone,
           luggage: buildLuggageInfo,
-          keys: () => buildKeyHelp(control.room || null),
+          keys: () => buildKeyHelp(),
           gate: buildGate,
           doorbells: buildDoorbells,
           trash: buildTrash,
@@ -533,10 +524,7 @@ export default async (req) => {
     if (intent === "pets")             return ok(await translateToUserLang(buildPets(), userText, uiLang));
     if (intent === "laundry")          return ok(await translateToUserLang(buildLaundry(), userText, uiLang));
     if (intent === "luggage")          return ok(await translateToUserLang(buildLuggageInfo(), userText, uiLang));
-    if (intent === "keys") {
-      const room = extractRoom(userText);
-      return ok(await translateToUserLang(buildKeyHelp(room), userText, uiLang));
-    }
+    if (intent === "keys")             return ok(await translateToUserLang(buildKeyHelp(), userText, uiLang));
     if (intent === "trash")            return ok(await translateToUserLang(buildTrash(), userText, uiLang));
     if (intent === "gate")             return ok(await translateToUserLang(buildGate(), userText, uiLang));
     if (intent === "doorbells")        return ok(await translateToUserLang(buildDoorbells(), userText, uiLang));
