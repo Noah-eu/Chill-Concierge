@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -152,8 +150,10 @@ const LANGS = {
   ru:"Русский", uk:"Українська", nl:"Nederlands", it:"Italiano", da:"Dansk", pl:"Polski"
 };
 
+/* Přidán klíč instructionsLabel do všech jazyků */
 const tr = {
   cs:{ chooseLang:"Zvolte jazyk", mainTitle:"Vyberte téma", subTitle:"Podtéma / Subtopic", back:"← Zpět",
+       instructionsLabel:"📄 Instrukce k ubytování",
        catFood:"Jídlo a okolí", catTech:"Technické potíže", catOther:"Ostatní", catTransport:"Doprava", catAmenities:"Vybavení hotelu",
        tourLabel:"🧭 3D prohlídka hotelu", tourOpenMsg:"[Otevřít 3D prohlídku]("+MATTERPORT_URL+")",
        stillAsk:"Vyberte jednu z možností níže.",
@@ -180,6 +180,7 @@ const tr = {
        aRooms:"🛏️ Pokoje", aKitchen:"🍳 Kuchyň", aBathroom:"🛁 Koupelna", aService:"🧰 Prádelna, úschovna, odpadky" },
 
   en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
+       instructionsLabel:"📄 Check-in instructions",
        catFood:"Food & Nearby", catTech:"Technical issues", catOther:"Other", catTransport:"Transport", catAmenities:"Hotel amenities",
        tourLabel:"🧭 3D virtual tour", tourOpenMsg:"[Open the 3D tour]("+MATTERPORT_URL+")",
        stillAsk:"Pick one of the options below.",
@@ -206,6 +207,7 @@ const tr = {
        aRooms:"🛏️ Rooms", aKitchen:"🍳 Kitchen", aBathroom:"🛁 Bathroom", aService:"🧰 Laundry, luggage, trash" },
 
   de:{ chooseLang:"Sprache wählen", mainTitle:"Thema wählen", subTitle:"Unterthema", back:"← Zurück",
+       instructionsLabel:"📄 Check-in-Anleitung",
        catFood:"Essen & Umgebung", catTech:"Technische Probleme", catOther:"Sonstiges", catTransport:"Verkehr", catAmenities:"Hotelausstattung",
        tourLabel:"🧭 3D-Rundgang", tourOpenMsg:"[3D-Rundgang öffnen]("+MATTERPORT_URL+")",
        stillAsk:"Wählen Sie unten eine Option.",
@@ -232,6 +234,7 @@ const tr = {
        aRooms:"🛏️ Zimmer", aKitchen:"🍳 Küche", aBathroom:"🛁 Bad", aService:"🧰 Wäscherei, Gepäck, Müll" },
 
   fr:{ chooseLang:"Choisir la langue", mainTitle:"Choisir un sujet", subTitle:"Sous-thème", back:"← Retour",
+       instructionsLabel:"📄 Instructions d’hébergement",
        catFood:"Restauration & alentours", catTech:"Problèmes techniques", catOther:"Autre", catTransport:"Transports", catAmenities:"Équipements de l’hôtel",
        tourLabel:"🧭 Visite 3D", tourOpenMsg:"[Ouvrir la visite 3D]("+MATTERPORT_URL+")",
        stillAsk:"Choisissez une option ci-dessous.",
@@ -258,6 +261,7 @@ const tr = {
        aRooms:"🛏️ Chambres", aKitchen:"🍳 Cuisine", aBathroom:"🛁 Salle de bain", aService:"🧰 Laverie, consigne, déchets" },
 
   es:{ chooseLang:"Elige idioma", mainTitle:"Elige un tema", subTitle:"Subtema", back:"← Atrás",
+       instructionsLabel:"📄 Instrucciones del alojamiento",
        catFood:"Comida y alrededores", catTech:"Problemas técnicos", catOther:"Otros", catTransport:"Transporte", catAmenities:"Servicios del hotel",
        tourLabel:"🧭 Recorrido 3D", tourOpenMsg:"[Abrir el recorrido 3D]("+MATTERPORT_URL+")",
        stillAsk:"Elige una opción abajo.",
@@ -284,6 +288,7 @@ const tr = {
        aRooms:"🛏️ Habitaciones", aKitchen:"🍳 Cocina", aBathroom:"🛁 Baño", aService:"🧰 Lavandería, consigna, basura" },
 
   ru:{ chooseLang:"Выберите язык", mainTitle:"Выберите тему", subTitle:"Подтема", back:"← Назад",
+       instructionsLabel:"📄 Инструкции по размещению",
        catFood:"Еда и рядом", catTech:"Технические проблемы", catOther:"Другое", catTransport:"Транспорт", catAmenities:"Удобства отеля",
        tourLabel:"🧭 3D-тур", tourOpenMsg:"[Открыть 3D-тур]("+MATTERPORT_URL+")",
        stillAsk:"Выберите один из вариантов ниже.",
@@ -310,6 +315,7 @@ const tr = {
        aRooms:"🛏️ Номера", aKitchen:"🍳 Кухня", aBathroom:"🛁 Ванная", aService:"🧰 Прачечная, багаж, мусор" },
 
   uk:{ chooseLang:"Оберіть мову", mainTitle:"Виберіть тему", subTitle:"Підтема", back:"← Назад",
+       instructionsLabel:"📄 Інструкції з поселення",
        catFood:"Їжа та поруч", catTech:"Технічні питання", catOther:"Інше", catTransport:"Транспорт", catAmenities:"Зручності готелю",
        tourLabel:"🧭 3D-тур", tourOpenMsg:"[Відкрити 3D-тур]("+MATTERPORT_URL+")",
        stillAsk:"Оберіть один із варіантів нижче.",
@@ -336,6 +342,7 @@ const tr = {
        aRooms:"🛏️ Кімнати", aKitchen:"🍳 Кухня", aBathroom:"🛁 Ванна", aService:"🧰 Пральня, багаж, сміття" },
 
   nl:{ chooseLang:"Kies een taal", mainTitle:"Kies een onderwerp", subTitle:"Subonderwerp", back:"← Terug",
+       instructionsLabel:"📄 Instructies voor inchecken",
        catFood:"Eten & in de buurt", catTech:"Technische problemen", catOther:"Overig", catTransport:"Vervoer", catAmenities:"Hotelvoorzieningen",
        tourLabel:"🧭 3D-rondleiding", tourOpenMsg:"[Open de 3D-rondleiding]("+MATTERPORT_URL+")",
        stillAsk:"Kies hieronder een optie.",
@@ -362,6 +369,7 @@ const tr = {
        aRooms:"🛏️ Kamers", aKitchen:"🍳 Keuken", aBathroom:"🛁 Badkamer", aService:"🧰 Wasruimte, bagage, afval" },
 
   it:{ chooseLang:"Scegli una lingua", mainTitle:"Scegli un argomento", subTitle:"Sottoargomento", back:"← Indietro",
+       instructionsLabel:"📄 Istruzioni per il check-in",
        catFood:"Cibo e dintorni", catTech:"Problemi tecnici", catOther:"Altro", catTransport:"Trasporti", catAmenities:"Servizi dell’hotel",
        tourLabel:"🧭 Tour 3D", tourOpenMsg:"[Apri il tour 3D]("+MATTERPORT_URL+")",
        stillAsk:"Scegli una delle opzioni sotto.",
@@ -388,6 +396,7 @@ const tr = {
        aRooms:"🛏️ Camere", aKitchen:"🍳 Cucina", aBathroom:"🛁 Bagno", aService:"🧰 Lavanderia, bagagli, rifiuti" },
 
   da:{ chooseLang:"Vælg sprog", mainTitle:"Vælg et emne", subTitle:"Undertema", back:"← Tilbage",
+       instructionsLabel:"📄 Tjek-ind instruktioner",
        catFood:"Mad og i nærheden", catTech:"Tekniske problemer", catOther:"Andet", catTransport:"Transport", catAmenities:"Hoteludstyr",
        tourLabel:"🧭 3D-rundvisning", tourOpenMsg:"[Åbn 3D-rundvisningen]("+MATTERPORT_URL+")",
        stillAsk:"Vælg en mulighed herunder.",
@@ -414,6 +423,7 @@ const tr = {
        aRooms:"🛏️ Værelser", aKitchen:"🍳 Køkken", aBathroom:"🛁 Badeværelse", aService:"🧰 Vaskeri, bagage, affald" },
 
   pl:{ chooseLang:"Wybierz język", mainTitle:"Wybierz temat", subTitle:"Podtemat", back:"← Wstecz",
+       instructionsLabel:"📄 Instrukcje zameldowania",
        catFood:"Jedzenie i okolica", catTech:"Problemy techniczne", catOther:"Inne", catTransport:"Transport", catAmenities:"Udogodnienia hotelowe",
        tourLabel:"🧭 Wirtualny spacer 3D", tourOpenMsg:"[Otwórz spacer 3D]("+MATTERPORT_URL+")",
        stillAsk:"Wybierz jedną z opcji poniżej.",
@@ -468,10 +478,10 @@ export default function App(){
     if (lang) document.body.classList.add("lang-selected"); else document.body.classList.remove("lang-selected");
   }, [lang]);
 
-  // Autoscroll jen při nové zprávě (ne při togglování UI)
+  // Autoscroll už jen při nové zprávě
   useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat]);
 
-  // Po otevření zkratek posuň pohled na ně (aby nebyly mimo obrazovku)
+  // Po otevření zkratek skoč na ně
   useEffect(() => {
     if (shortcutsOpen) {
       shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -532,13 +542,15 @@ export default function App(){
       { label: dict.linenLabel,       control:{ intent:"tech", sub:"linen_towels" } },
     ];
 
+    /* Hlavní nabídka — nejdřív samostatné tlačítko pro Instrukce k ubytování */
     return [
+      { label: dict.instructionsLabel, control:{ intent:"tech", sub:"stay_instructions" } },
       { label: dict.tourLabel, action:"tour" },
-      { label:dict.catFood,      children:FOOD },
-      { label:dict.catTech,      children:TECH },
-      { label:dict.catTransport, children:TRANSPORT },
-      { label:dict.catAmenities, children:AMENITIES },
-      { label:dict.catOther,     children:OTHER },
+      { label: dict.catFood,      children:FOOD },
+      { label: dict.catTech,      children:TECH },
+      { label: dict.catTransport, children:TRANSPORT },
+      { label: dict.catAmenities, children:AMENITIES },
+      { label: dict.catOther,     children:OTHER },
     ];
   }
   const FLOWS = useMemo(() => makeFlows(dict), [dict]);
