@@ -148,7 +148,7 @@ const P = {
 
   // Dodané nové fotky ze screenshotu
   ENTRANCE: "/help/6.Entrance.jpg",
-  DIALER: "/help/9.Dialer.jpg",
+  DIALER: "/help/9. Dialer.jpg",
 };
 
 /** ====== WIFI ====== */
