@@ -1,4 +1,4 @@
-// /.netlify/functions/concierge.js
+// netlify/functions/concierge.js
 
 import OpenAI from "openai";
 import { PLACES, buildCuratedList } from "./data/places.js";
@@ -37,7 +37,9 @@ const WIFI = [
   { room: "305", ssid: "D5F6", pass: "45445804" },
 ];
 
-const LUGGAGE_ROOM_CODE = "3142#"; // ponecháno v kódu, ale UI ho nikdy neukazuje
+// Nezobrazujeme nikde v UI – jen interní poznámka
+const LUGGAGE_ROOM_CODE = "3142#";
+
 const KEYBOX = {
   "001": "3301","101": "3302","102": "3303","103": "3304","104": "3305","105": "3306",
   "201": "3307","202": "3308","203": "3309","204": "3310","205": "3311",
@@ -101,7 +103,7 @@ function guessLang(userText = "") {
   if (/\b(hello|please|thanks|where|wifi|password|help)\b/.test(t)) return "en";
   if (/[а-яё]/i.test(t)) return "ru";
   if (/[іїєґ]/i.test(t)) return "uk";
-  if (/\b(hoi|alsjeblieft|alstublieft|dank je|dank u|waar)\b/i.test(t)) return "nl";
+  if (/\b(hallo|hoi|alsjeblieft|alstublieft|dank je|dank u|waar)\b/i.test(t)) return "nl";
   if (/[àèéìòù]/.test(t) || /\b(ciao|per favore|grazie|dove|aiuto)\b/i.test(t)) return "it";
   if (/[æøå]/i.test(t) || /\b(hej|venligst|tak|hvor)\b/i.test(t)) return "da";
   if (/[ąćęłńóśźż]/i.test(t) || /\b(cześć|dzień dobry|proszę|dziękuję|gdzie)\b/i.test(t)) return "pl";
@@ -122,8 +124,10 @@ async function translateToUserLang(text, userText, uiLang) {
 }
 
 /** ====== IMG PATHS ====== */
-const IMG = (src, alt) => `![${alt}](${src})`;
+const IMG = (src) => src;
+// Stávající + nové fotky, které nahraješ do /public/help/
 const P = {
+  // existující v projektu
   AC: "/help/AC.jpg",
   BALCONY: "/help/balcony.jpg",
   FUSE_APT: "/help/fuse-box-apartment.jpg",
@@ -135,6 +139,13 @@ const P = {
   GARBAGE: "/help/garbage.jpg",
   GATE_SWITCH: "/help/inside-gate-switch.jpg",
   DOOR_BELLS: "/help/door-bells.jpg",
+
+  // NOVÉ pro „Instrukce k ubytování“ — pojmenuj přesně takto v /public/help/
+  ENTRY_DIAL: "/help/entry-dialer.jpg",            // klávesnice/kód u brány (zeleně na screenu)
+  KEYBOX_WALL: "/help/key-box-wall.jpg",           // stěna s boxy
+  ELEVATOR: "/help/elevator.jpg",                  // výtah/interiér
+  FLOOR_HALL: "/help/floor-hall.jpg",              // chodba/patro
+  ROOM_DOOR: "/help/room-door.jpg"                 // dveře do pokoje
 };
 
 /** ====== WIFI ====== */
@@ -153,9 +164,9 @@ const buildWifiCreds = (entry) => entry ? `**Wi-Fi:** SSID **${entry.ssid}**, he
 /** ====== QUICK-HELP ====== */
 function buildACHelp() {
   return [
-    IMG(P.AC, "Režimy AC"),
+    `![](${IMG(P.AC)})`,
     "U klimatizace zkontrolujte režim: ☀️ = topení, ❄️ = chlazení.",
-    IMG(P.BALCONY, "AC vypínače – 2. patro / balkon"),
+    `![](${IMG(P.BALCONY)})`,
     "Pokud **zelená kontrolka bliká**, je potřeba restart: na **2. patře** na balkoně jsou **AC vypínače**. Vypněte svůj na ~30 s a pak zapněte.",
     "To obvykle problém vyřeší."
   ].join("\n");
@@ -163,9 +174,9 @@ function buildACHelp() {
 function buildPowerHelp() {
   return [
     "Pokud vypadne elektřina v apartmánu:",
-    IMG(P.FUSE_IN_APT, "Jističe v apartmánu – malá bílá dvířka ve zdi"),
+    `![](${IMG(P.FUSE_IN_APT)})`,
     "Nejdříve **zkontrolujte jističe v apartmánu** (malá bílá dvířka ve zdi).",
-    IMG(P.FUSE_APT, "Hlavní jistič u balkonu – větší troj-jističe"),
+    `![](${IMG(P.FUSE_APT)})`,
     "Může to být **hlavní jistič apartmánu** u balkonu – pokud je **dole**, zvedněte ho nahoru."
   ].join("\n");
 }
@@ -175,14 +186,14 @@ const buildAccessibility = () => [
   "Ve sprchách je cca **30 cm** vysoký okraj vaničky."
 ].join("\n");
 const buildSmoking = () => [
-  IMG(P.BALCONY, "Společný balkon pro kouření"),
+  `![](${IMG(P.BALCONY)})`,
   "Pro kouření využijte prosím **společné balkony** na každém patře naproti výtahu.",
   "⚠️ **Neodklepávejte a nevyhazujte** nedopalky z balkonu – používejte popelník."
 ].join("\n");
 const buildPets = () =>
   "Domácí mazlíčci / psi jsou **vítáni a zdarma**. Prosíme, aby **nelezli na postele a gauče**.";
 const buildLaundry = () => [
-  IMG(P.LAUNDRY, "Prádelna v suterénu"),
+  `![](${IMG(P.LAUNDRY)})`,
   "Prádelna je v **suterénu**, otevřena **non-stop** a **zdarma**. K dispozici jsou prostředky i **žehlička** (lze vzít na pokoj)."
 ].join("\n");
 
@@ -190,9 +201,9 @@ const buildLaundry = () => [
 function buildLuggageInfo() {
   return [
     "**Check-out je do 11:00** (přijíždějí noví hosté).",
-    IMG(P.CHECKOUT_BOX, "Check-out box na klíče"),
+    `![](${IMG(P.CHECKOUT_BOX)})`,
     "Nejprve prosím **vhoďte klíče do check-out boxu**.",
-    IMG(P.LUGGAGE, "Vstup do úschovny batožiny"),
+    `![](${IMG(P.LUGGAGE)})`,
     `Potom můžete **po 11:00** uložit zavazadla v **úschovně batožiny** – je v průjezdu **vedle schránky na klíče**.`,
     `**Kód je stejný jako pro bránu.** Po uložení prosím **zkontrolujte, že jsou dveře zavřené**.`
   ].join("\n");
@@ -201,29 +212,29 @@ function buildLuggageInfo() {
 /* === Bezpečná verze pro „Náhradní klíč“ – bez jakýchkoli kódů, ale s fotkou boxů === */
 function buildKeyHelp() {
   return [
-    IMG(P.SPARE_KEY, "Náhradní klíč – box s klíčem"),
+    `![](${IMG(P.SPARE_KEY)})`,
     "Zapomenutý klíč:",
     "1) V budově je k dispozici **úschovna s boxy na náhradní klíče**.",
     "2) Pro vydání kódu se ověřuje host a číslo apartmánu.",
     "**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**",
-    "David vám **pošle kód k boxu, číslo apartmánu a patra**."
+    "_David poslal kód k boxu, číslo apartmánu a patra._"
   ].join("\n");
 }
 
 /** ====== DALŠÍ INTERNÍ INFO ====== */
 const buildTrash = () => [
-  IMG(P.GARBAGE, "Popelnice na dvoře"),
+  `![](${IMG(P.GARBAGE)})`,
   "🗑️ **Popelnice** jsou **venku na dvoře**.",
   "Až vyndáte **plný pytel** z vašeho odpadkového koše, **nový pytel** najdete **pod ním**."
 ].join("\n");
 const buildGate = () => [
-  IMG(P.GATE_SWITCH, "Tlačítko pro otevření brány zevnitř"),
+  `![](${IMG(P.GATE_SWITCH)})`,
   "🚪 **Otevírání brány**:",
   "– **Zevnitř**: tlačítkem v průchodu **hned vedle key-boxu**.",
   "– **Z ulice**: kód je stejný jako k úschovně."
 ].join("\n");
 const buildDoorbells = () => [
-  IMG(P.DOOR_BELLS, "Domovní zvonky na začátku průchodu"),
+  `![](${IMG(P.DOOR_BELLS)})`,
   "🔔 **Zvonky na apartmány**: můžete zazvonit vašim blízkým domovními zvonky.",
   "Jsou **na začátku průchodu z ulice**."
 ].join("\n");
@@ -260,6 +271,28 @@ const buildSafe = () => [
   "– Je-li zamčený a nevíte kód, kontaktujte prosím **Davida** (WhatsApp +420 733 439 733).",
   "– Pro nastavení: uvnitř dveří stiskněte **červené tlačítko**, zadejte kód (≥3 číslice), stiskněte **tlačítko zámku**, zavřete dveře.",
 ].join("\n");
+
+/** ====== NOVÁ SEKCE – „Instrukce k ubytování“ ====== */
+function buildStayInstructions() {
+  // Bezpečné: žádné konkrétní vstupní kódy. Obrázky jsou informativní.
+  return [
+    "## Instrukce k ubytování (self check-in)",
+    `1) **Vstup/brána** – u dveří je klávesnice. Postupujte dle pokynů v potvrzení rezervace.\n![](${IMG(P.ENTRY_DIAL)})`,
+    `2) **Key-box (vydání klíče/karty)** – u stěny s boxy najdete schránku pro váš apartmán.\n![](${IMG(P.KEYBOX_WALL)})`,
+    `3) **Výtah do patra** – je prostorný a jede do všech pater.\n![](${IMG(P.ELEVATOR)})`,
+    `4) **Chodba / patro** – orientační směrovky vás navedou k vašemu pokoji.\n![](${IMG(P.FLOOR_HALL)})`,
+    `5) **Dveře apartmánu** – odemkněte klíčem/kartou a vstupte.\n![](${IMG(P.ROOM_DOOR)})`,
+    "",
+    "### Důležité",
+    "- **Příjezd/odjezd a kódy** neřeší tento chat – pokud cokoli s check-inem/parkováním, napište do **hlavního chatu pro ubytování**.",
+    "- **Náhradní klíč** je k dispozici v key-boxech (viz níže), po ověření hosta.",
+    "",
+    "### Úschovna zavazadel",
+    `![](${IMG(P.LUGGAGE)})`,
+    "- Po **11:00** je možné uložit zavazadla do **úschovny** v průjezdu vedle key-boxů.",
+    "- Po uložení prosím **zkontrolujte dovření dveří**.",
+  ].join("\n");
+}
 
 /** ====== NOVÉ SEKCÍ – DOPRAVA & JÍDLO DOMŮ ====== */
 const buildTransport = () => [
@@ -379,6 +412,8 @@ function detectIntent(text) {
     return "local";
   }
 
+  if (/(instrukc|instruction|check[- ]?in|ubytov)/i.test(t)) return "stay_instructions";
+
   return "general";
 }
 
@@ -415,7 +450,7 @@ export default async (req) => {
     const { messages = [], uiLang = null, control = null } = body || {};
     const userText = lastUser(messages);
 
-    // 0) Follow-up: číslo pokoje po „Náhradní klíč“ – už nevrací kódy, jen bezpečný návod s fotkou
+    // 0) Follow-up: číslo pokoje po „Náhradní klíč“ – vrací bezpečný návod (bez kódů)
     const roomOnly = extractRoom(userText);
     if (roomOnly && historyContainsKeys(messages)) {
       return ok(await translateToUserLang(buildKeyHelp(), userText, uiLang));
@@ -492,6 +527,12 @@ export default async (req) => {
         const text = fn ? fn() : HANDOFF_MSG;
         return ok(await translateToUserLang(text, userText || sub, uiLang));
       }
+
+      // d) NOVÉ: Instrukce k ubytování
+      if (control.intent === "stay" && String(control.sub || "").toLowerCase() === "instructions") {
+        const text = buildStayInstructions();
+        return ok(await translateToUserLang(text, userText, uiLang));
+      }
     }
 
     // 2) Handoff (parkování apod.)
@@ -515,6 +556,7 @@ export default async (req) => {
       return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
+    if (intent === "stay_instructions")  return ok(await translateToUserLang(buildStayInstructions(), userText, uiLang));
     if (intent === "ac")               return ok(await translateToUserLang(buildACHelp(), userText, uiLang));
     if (intent === "power")            return ok(await translateToUserLang(buildPowerHelp(), userText, uiLang));
     if (intent === "access")           return ok(await translateToUserLang(buildAccessibility(), userText, uiLang));
