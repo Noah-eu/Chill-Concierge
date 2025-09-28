@@ -282,6 +282,59 @@ const buildFoodDelivery = () => [
   "- [Foodora](https://www.foodora.cz/)\n- [Wolt](https://wolt.com/)"
 ].join("\n");
 
+/** ====== NOVÉ: VYBAVENÍ HOTELU ====== */
+function buildAmenitiesRooms(){
+  return [
+    "## Vybavení hotelu — Pokoje",
+    "- Postele jsou **povlečené**",
+    "- **Různé velikosti polštářů**",
+    "- **Televize**",
+    "- **Gauč**",
+    "- **Klimatizace**",
+    "- **Vyhřívání klimatizací**",
+    "- **Skříně**",
+    "- **Ztmavovací závěsy**",
+  ].join("\n");
+}
+function buildAmenitiesKitchen(){
+  return [
+    "## Vybavení hotelu — Kuchyň",
+    "- **Nádobí**",
+    "- **Kávovar**",
+    "- **Káva**",
+    "- **Příbory**",
+    "- **Mikrovlnka**",
+    "- **Lednice**",
+    "- **Indukční deska**",
+    "- **Trouba**",
+    "- **Tablety do myčky**",
+    "- **Myčka**",
+  ].join("\n");
+}
+function buildAmenitiesBathroom(){
+  return [
+    "## Vybavení hotelu — Koupelna",
+    "- **Koupelna**",
+    "- **Záchod**",
+    "- **Toaletní papír**",
+    "- **Mýdlo**",
+    "- **Pleťový krém**",
+    "- **Sprchový gel**",
+    "- **Šampon**",
+    "- **Ručníky**",
+    "- **Osušky**",
+  ].join("\n");
+}
+function buildAmenitiesService(){
+  return [
+    "## Vybavení hotelu — Prádelna, úschovna zavazadel, odpadky",
+    buildLaundry(),
+    buildLuggageInfo(),
+    buildTrash(),
+    "- **Náhradní odpadkové pytle**: po vyjmutí plného pytle je **nový pytel pod ním**.",
+  ].join("\n\n");
+}
+
 /** ====== INTENTY ====== */
 function detectLocalSubtype(t) {
   const s = (t || "").toLowerCase();
@@ -436,6 +489,20 @@ export default async (req) => {
         const text = fn ? fn() : HANDOFF_MSG;
         return ok(await translateToUserLang(text, userText || sub, uiLang));
       }
+
+      // c) NOVÉ: Vybavení hotelu (amenities)
+      if (control.intent === "amenities") {
+        const sub = String(control.sub || "").toLowerCase();
+        const map = {
+          rooms: buildAmenitiesRooms,
+          kitchen: buildAmenitiesKitchen,
+          bathroom: buildAmenitiesBathroom,
+          service: buildAmenitiesService,
+        };
+        const fn = map[sub];
+        const text = fn ? fn() : HANDOFF_MSG;
+        return ok(await translateToUserLang(text, userText || sub, uiLang));
+      }
     }
 
     // 2) Handoff (parkování apod.)
@@ -518,4 +585,3 @@ export default async (req) => {
     });
   }
 };
-
