@@ -48,9 +48,8 @@ const KEYBOX = {
 
 /** ====== HLÁŠKY ====== */
 const HANDOFF_MSG =
-  "Tyto informace zde nevyřizuji. Napište prosím do hlavního chatu pro ubytování/parkování. " +
-  "Rád pomohu s ostatním (restaurace, doprava, doporučení v okolí, technické potíže mimo kódy, " +
-  "faktury, potvrzení o pobytu, ztráty a nálezy, hluční sousedé).";
+  "Tyto informace zde nevyřizuji. Napište prosím přímo Davidovi. " +
+  "Rád pomohu s ostatním (restaurace, doprava, doporučení v okolí, technické potíže mimo kódy. ";
 
 /** ====== PROMPT ====== */
 const SYSTEM_PROMPT = `You are a helpful hotel concierge for CHILL Apartments.
@@ -138,15 +137,9 @@ const P = {
   SPARE_KEY: "/help/spare-key.jpg",
   GARBAGE: "/help/garbage.jpg",
   GATE_SWITCH: "/help/inside-gate-switch.jpg",
-  DOOR_BELLS: "/help/door-bells.jpg",
+    DOOR_BELLS: "/help/door-bells.jpg",
+  };
 
-  // NOVÉ pro „Instrukce k ubytování“ — pojmenuj přesně takto v /public/help/
-  ENTRY_DIAL: "/help/entry-dialer.jpg",            // klávesnice/kód u brány (zeleně na screenu)
-  KEYBOX_WALL: "/help/key-box-wall.jpg",           // stěna s boxy
-  ELEVATOR: "/help/elevator.jpg",                  // výtah/interiér
-  FLOOR_HALL: "/help/floor-hall.jpg",              // chodba/patro
-  ROOM_DOOR: "/help/room-door.jpg"                 // dveře do pokoje
-};
 
 /** ====== WIFI ====== */
 const wifiByRoom = (room)=> WIFI.find(w=>w.room===room)||null;
@@ -274,23 +267,31 @@ const buildSafe = () => [
 
 /** ====== NOVÁ SEKCE – „Instrukce k ubytování“ ====== */
 function buildStayInstructions() {
-  // Bezpečné: žádné konkrétní vstupní kódy. Obrázky jsou informativní.
+  // Podrobné instrukce k self check-inu doplněné relevantními fotkami.
   return [
-    "## Instrukce k ubytování (self check-in)",
-    `1) **Vstup/brána** – u dveří je klávesnice. Postupujte dle pokynů v potvrzení rezervace.\n![](${IMG(P.ENTRY_DIAL)})`,
-    `2) **Key-box (vydání klíče/karty)** – u stěny s boxy najdete schránku pro váš apartmán.\n![](${IMG(P.KEYBOX_WALL)})`,
-    `3) **Výtah do patra** – je prostorný a jede do všech pater.\n![](${IMG(P.ELEVATOR)})`,
-    `4) **Chodba / patro** – orientační směrovky vás navedou k vašemu pokoji.\n![](${IMG(P.FLOOR_HALL)})`,
-    `5) **Dveře apartmánu** – odemkněte klíčem/kartou a vstupte.\n![](${IMG(P.ROOM_DOOR)})`,
-    "",
-    "### Důležité",
-    "- **Příjezd/odjezd a kódy** neřeší tento chat – pokud cokoli s check-inem/parkováním, napište do **hlavního chatu pro ubytování**.",
-    "- **Náhradní klíč** je k dispozici v key-boxech (viz níže), po ověření hosta.",
-    "",
-    "### Úschovna zavazadel",
+    "## Instrukce k ubytování",
+    "Klíč od apartmánu nechám v bílé schránce na klíče v průchodu do dvora, hned za bránou.",
+    `![](${IMG(P.ENTRY_DIAL)})`,
+    "Pro otevření brány vytočte kód **3142#** na levé stěně (viz obrázek).",
     `![](${IMG(P.LUGGAGE)})`,
-    "- Po **11:00** je možné uložit zavazadla do **úschovny** v průjezdu vedle key-boxů.",
-    "- Po uložení prosím **zkontrolujte dovření dveří**.",
+    "Pokud přijedete před časem check-inu, uložte si prosím zavazadla v úschovně zavazadel vedle schránky na klíče. Kód je stejný jako pro bránu – **3142#**. Po uložení se ujistěte, že jsou dveře zavřené.",
+    `![](${IMG(P.KEYBOX_WALL)})`,
+    "Hned vedle je schránka na klíče. Vaše číslo boxu a kód vám poslal David. Po převzetí klíčů schránku zavřete.",
+    "Najdete tam jeden klíč a jeden čip. Čip slouží k hlavním dveřím na pravé straně parkoviště a k otevření brány během pobytu pomocí senzoru.",
+    `![](${IMG(P.GATE_SWITCH)})`,
+    "Pro otevření brány zevnitř použijte bílý spínač vedle schránky na klíče. Brána se automaticky zavře přibližně za 2,5 minuty.",
+    "Klíč je od vašeho apartmánu a patro vám poslal David. Prosím, nepoužívejte schránku na klíče jako úložiště během pobytu – je určena pouze pro příjezdy.",
+    "",
+    "### Důležité informace",
+    "- Název a heslo k Wi-Fi najdete na spodní straně routeru.",
+    "- Televizor nemá naladěné kanály, ale je to Smart TV.",
+    "- Klimatizace: režim **Sun** topí, **Snowflake** chladí.",
+    `![](${IMG(P.CHECKOUT_BOX)})`,
+    "- Check-out prosím dokončete před 11:00 – klíč vhoďte do bílé poštovní schránky v přízemí naproti výtahu (viz obrázek).",
+    "- Po odhlášení můžete znovu využít úschovnu zavazadel.",
+    `![](${IMG(P.BALCONY)})`,
+    "- Všechny pokoje jsou nekuřácké (pokuta 2000 Kč). Kouřit lze pouze na balkonech na každém patře nebo na dvoře.",
+    "- Nepoužívejte prosím v apartmánu otevřený oheň.",
   ].join("\n");
 }
 
