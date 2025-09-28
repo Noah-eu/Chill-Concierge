@@ -35,12 +35,21 @@ const GoogleStyle = () => (
     .scroller{max-height:70vh;overflow:auto;padding:8px;border-radius:14px;
       background: linear-gradient(180deg, color-mix(in oklab, var(--t-blue), white 70%) 0%, transparent 85%);} 
 
+    /* Kompaktnější text v bublinách */
     .bubble{
-      border-radius:16px;padding:14px 16px;line-height:1.55;width:fit-content;max-width:100%;white-space:pre-line;
+      border-radius:16px;padding:14px 16px;line-height:1.4;width:fit-content;max-width:100%;white-space:pre-line;
       border:1px solid var(--border);box-shadow:0 6px 16px rgba(0,0,0,.06);background:#fff;
     }
     .me{background:linear-gradient(180deg, color-mix(in oklab, var(--t-blue), white 10%), color-mix(in oklab, var(--t-blue), white 0%));margin-left:auto;}
     .bot{background:linear-gradient(180deg, color-mix(in oklab, var(--t-yellow), white 8%), color-mix(in oklab, var(--t-yellow), white 0%));}
+
+    /* Markdown zhutnění – hlavní viník mezer u <li><p> */
+    .bot p{ margin:6px 0; }
+    .bot ul, .bot ol{ margin:8px 0; padding-left:18px; }
+    .bot li{ margin:4px 0; }
+    .bot li p{ margin:0; }
+    .bot li p + p{ margin-top:4px; }
+
     .bot img{max-width:100%;height:auto;border-radius:14px;display:block;margin:10px 0;box-shadow:0 10px 26px rgba(0,0,0,.10);border:1px solid var(--border);} 
     .bot a{display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid color-mix(in oklab, var(--blue), black 15%);
       background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 8%), color-mix(in oklab, var(--blue), black 6%));
@@ -81,6 +90,7 @@ const GoogleStyle = () => (
         radial-gradient(700px 380px at 100% -40%, color-mix(in oklab, var(--t-blue), white 20%) 0%, transparent 55%),
         linear-gradient(180deg, #fff, color-mix(in oklab, var(--t-yellow), white 6%));
       box-shadow:0 6px 16px rgba(0,0,0,.06);border-radius:16px;padding:12px 14px; 
+      scroll-margin-top:12px;
     }
     .shortcutsHeader{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
     .btnRow{display:flex;gap:8px;flex-wrap:wrap;}
@@ -117,10 +127,19 @@ const GoogleStyle = () => (
       color:#fff;box-shadow:0 10px 24px rgba(66,133,244,.35);cursor:pointer;min-width:220px;text-align:center; 
     }
 
-    .fab{ 
+    /* Červené tlačítko Zpět */
+    .fab{
       position:fixed;right:16px;bottom:90px;z-index:1000;border:none;border-radius:999px;padding:12px 14px;font-weight:800;
-      background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 6%), color-mix(in oklab, var(--blue), black 4%));
-      color:#fff;box-shadow:0 10px 24px rgba(66,133,244,.35);cursor:pointer; 
+      box-shadow:0 10px 24px rgba(0,0,0,.25);cursor:pointer;
+      color:#fff;
+    }
+    .fabBack{
+      background:linear-gradient(180deg, color-mix(in oklab, var(--red), white 6%), color-mix(in oklab, var(--red), black 4%));
+      border:1px solid color-mix(in oklab, var(--red), black 18%);
+    }
+
+    @media (max-width:480px){
+      .row{ padding-bottom:80px; }
     }
   `}</style>
 );
@@ -441,12 +460,21 @@ export default function App(){
   const [wifiCtas, setWifiCtas] = useState({ showPassword:false, showNotOk:false });
 
   const scrollerRef = useRef(null);
+  const shortcutsRef = useRef(null);
 
   useEffect(() => {
     if (lang) document.body.classList.add("lang-selected"); else document.body.classList.remove("lang-selected");
   }, [lang]);
 
-  useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat, shortcutsOpen, showKeysCta, wifiCtas]);
+  // Autoscroll už jen při nové zprávě
+  useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat]);
+
+  // Po otevření zkratek skoč na ně
+  useEffect(() => {
+    if (shortcutsOpen) {
+      shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [shortcutsOpen]);
 
   const dict  = useMemo(() => tr[lang || "cs"], [lang]);
 
@@ -475,7 +503,7 @@ export default function App(){
       { label: dict.fireAlarmLabel,       control:{ intent:"tech", sub:"fire_alarm" } },
       { label: dict.elevatorPhoneLabel,   control:{ intent:"tech", sub:"elevator_phone" } },
       { label: dict.safeLabel,            control:{ intent:"tech", sub:"safe" } },
-      // OPRAVA: „Náhradní klíč“ volá backend ⇒ dorazí text + FOTKY
+      // „Náhradní klíč“ → backend pošle text + fotky (úschovna + key-boxy)
       { label: dict.spareKeyLabel,        control:{ intent:"tech", sub:"keys" } },
     ];
 
@@ -622,7 +650,7 @@ export default function App(){
                     key={code}
                     className="chipPrimary"
                     style={{ ["--btn"]: btnColorForIndex(i) }}
-                    onClick={() => { setLang(code); resetToRoot(); }}
+                    onClick={() => { setLang(code); resetToRoot(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   >
                     {label}
                   </button>
@@ -643,7 +671,7 @@ export default function App(){
 
         {/* ZKRATKY */}
         {lang && currentChildren && shortcutsOpen && (
-          <div className="shortcuts">
+          <div className="shortcuts" ref={shortcutsRef}>
             <div className="shortcutsHeader">
               <strong>{stack.length === 0 ? tr[lang||"cs"].mainTitle : tr[lang||"cs"].subTitle}</strong>
               <div className="btnRow">
@@ -651,7 +679,7 @@ export default function App(){
                   <button className="backBtn" onClick={goBack}>{tr[lang||"cs"].back}</button>
                 )}
                 <button className="backBtn" onClick={() => setShortcutsOpen(false)}>{tr[lang||"cs"].hide}</button>
-                <button className="backBtn" onClick={() => { setLang(null); setStack([]); }}>🌐 {tr[lang||"cs"].chooseLang}</button>
+                <button className="backBtn" onClick={() => { setLang(null); setStack([]); window.scrollTo({ top: 0, behavior: "smooth" }); }}>🌐 {tr[lang||"cs"].chooseLang}</button>
               </div>
             </div>
 
@@ -685,9 +713,10 @@ export default function App(){
           </div>
         )}
 
+        {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ */}
         {!shortcutsOpen && lang && (
-          <button className="fab" onClick={() => setShortcutsOpen(true)} title={tr[lang||"cs"].shortcuts}>
-            {tr[lang||"cs"].show}
+          <button className="fab fabBack" onClick={() => setShortcutsOpen(true)} title={tr[lang||"cs"].back}>
+            {tr[lang||"cs"].back}
           </button>
         )}
 
