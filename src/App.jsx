@@ -147,6 +147,7 @@ const tr = {
        coffeeLabel:"☕ Kávovar Tchibo", fireAlarmLabel:"🔥 Požární hlásič",
        elevatorPhoneLabel:"🛗 Výtah – servis", safeLabel:"🔐 Trezor",
        spareKeyLabel:"🔑 Náhradní klíč",
+       spareKeyContact:"**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Prádelna", accessLabel:"♿️ Bezbariérovost", smokingLabel:"🚭 Kouření",
        luggageLabel:"🎒 Úschovna zavazadel", doorbellsLabel:"🔔 Zvonky",
        gateLabel:"🚪 Brána (zevnitř)", trashLabel:"🗑️ Odpadky / Popelnice",
@@ -172,6 +173,7 @@ const tr = {
        coffeeLabel:"☕ Tchibo coffee machine", fireAlarmLabel:"🔥 Fire alarm",
        elevatorPhoneLabel:"🛗 Elevator – service", safeLabel:"🔐 Safe",
        spareKeyLabel:"🔑 Spare key",
+       spareKeyContact:"**For the spare-key code, please contact David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Laundry", accessLabel:"♿️ Accessibility", smokingLabel:"🚭 Smoking",
        luggageLabel:"🎒 Luggage room", doorbellsLabel:"🔔 Doorbells",
        gateLabel:"🚪 Gate (inside)", trashLabel:"🗑️ Trash / bins",
@@ -197,6 +199,7 @@ const tr = {
        coffeeLabel:"☕ Tchibo-Kaffeemaschine", fireAlarmLabel:"🔥 Rauchmelder",
        elevatorPhoneLabel:"🛗 Aufzug – Service", safeLabel:"🔐 Safe",
        spareKeyLabel:"🔑 Ersatzschlüssel",
+       spareKeyContact:"**Für den Code des Ersatzschlüssels kontaktieren Sie bitte David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Wäscherei", accessLabel:"♿️ Barrierefreiheit", smokingLabel:"🚭 Rauchen",
        luggageLabel:"🎒 Gepäckaufbewahrung", doorbellsLabel:"🔔 Klingeln",
        gateLabel:"🚪 Tor (innen)", trashLabel:"🗑️ Müll / Tonnen",
@@ -222,6 +225,7 @@ const tr = {
        coffeeLabel:"☕ Machine à café Tchibo", fireAlarmLabel:"🔥 Alarme incendie",
        elevatorPhoneLabel:"🛗 Ascenseur – service", safeLabel:"🔐 Coffre-fort",
        spareKeyLabel:"🔑 Clé de rechange",
+       spareKeyContact:"**Pour le code de la clé de rechange, contactez David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Laverie", accessLabel:"♿️ Accessibilité", smokingLabel:"🚭 Fumer",
        luggageLabel:"🎒 Consigne à bagages", doorbellsLabel:"🔔 Sonnette",
        gateLabel:"🚪 Portail (intérieur)", trashLabel:"🗑️ Poubelles",
@@ -247,6 +251,7 @@ const tr = {
        coffeeLabel:"☕ Cafetera Tchibo", fireAlarmLabel:"🔥 Alarma de incendio",
        elevatorPhoneLabel:"🛗 Ascensor – servicio", safeLabel:"🔐 Caja fuerte",
        spareKeyLabel:"🔑 Llave de repuesto",
+       spareKeyContact:"**Para el código de la llave de repuesto, contacte con David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Lavandería", accessLabel:"♿️ Accesibilidad", smokingLabel:"🚭 Fumar",
        luggageLabel:"🎒 Consigna", doorbellsLabel:"🔔 Timbres",
        gateLabel:"🚪 Portón (interior)", trashLabel:"🗑️ Basura / contenedores",
@@ -272,6 +277,7 @@ const tr = {
        coffeeLabel:"☕ Кофемашина Tchibo", fireAlarmLabel:"🔥 Пожарная сигнализация",
        elevatorPhoneLabel:"🛗 Лифт – сервис", safeLabel:"🔐 Сейф",
        spareKeyLabel:"🔑 Запасной ключ",
+       spareKeyContact:"**Для кода запасного ключа свяжитесь с Давидом (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Прачечная", accessLabel:"♿️ Доступность", smokingLabel:"🚭 Курение",
        luggageLabel:"🎒 Камера хранения", doorbellsLabel:"🔔 Домофоны",
        gateLabel:"🚪 Ворота (изнутри)", trashLabel:"🗑️ Мусор / баки",
@@ -297,6 +303,7 @@ const tr = {
        coffeeLabel:"☕ Кавоварка Tchibo", fireAlarmLabel:"🔥 Пожежна сигналізація",
        elevatorPhoneLabel:"🛗 Ліфт – сервіс", safeLabel:"🔐 Сейф",
        spareKeyLabel:"🔑 Запасний ключ",
+       spareKeyContact:"**За код запасного ключа зверніться до Давида (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Пральня", accessLabel:"♿️ Доступність", smokingLabel:"🚭 Куріння",
        luggageLabel:"🎒 Камера схову", doorbellsLabel:"🔔 Дзвінки",
        gateLabel:"🚪 Ворота (зсередини)", trashLabel:"🗑️ Сміття / баки",
@@ -322,6 +329,7 @@ const tr = {
        coffeeLabel:"☕ Tchibo-koffiemachine", fireAlarmLabel:"🔥 Brandalarm",
        elevatorPhoneLabel:"🛗 Lift – service", safeLabel:"🔐 Kluis",
        spareKeyLabel:"🔑 Reservesleutel",
+       spareKeyContact:"**Voor de code van de reservesleutel, neem contact op met David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Wasserette", accessLabel:"♿️ Toegankelijkheid", smokingLabel:"🚭 Roken",
        luggageLabel:"🎒 Bagageruimte", doorbellsLabel:"🔔 Deurbellen",
        gateLabel:"🚪 Poort (binnen)", trashLabel:"🗑️ Afval / containers",
@@ -347,6 +355,7 @@ const tr = {
        coffeeLabel:"☕ Macchina Tchibo", fireAlarmLabel:"🔥 Allarme antincendio",
        elevatorPhoneLabel:"🛗 Ascensore – assistenza", safeLabel:"🔐 Cassaforte",
        spareKeyLabel:"🔑 Chiave di riserva",
+       spareKeyContact:"**Per il codice della chiave di scorta contatta David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Lavanderia", accessLabel:"♿️ Accessibilità", smokingLabel:"🚭 Fumo",
        luggageLabel:"🎒 Deposito bagagli", doorbellsLabel:"🔔 Campanelli",
        gateLabel:"🚪 Cancello (interno)", trashLabel:"🗑️ Spazzatura / bidoni",
@@ -372,6 +381,7 @@ const tr = {
        coffeeLabel:"☕ Tchibo-kaffemaskine", fireAlarmLabel:"🔥 Brandalarm",
        elevatorPhoneLabel:"🛗 Elevator – service", safeLabel:"🔐 Pengeskab",
        spareKeyLabel:"🔑 Ekstranøgle",
+       spareKeyContact:"**For koden til reserve­nøglen kontakt David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Vaskeri", accessLabel:"♿️ Tilgængelighed", smokingLabel:"🚭 Rygning",
        luggageLabel:"🎒 Bagageopbevaring", doorbellsLabel:"🔔 Dørklokker",
        gateLabel:"🚪 Port (indefra)", trashLabel:"🗑️ Affald / containere",
@@ -397,6 +407,7 @@ const tr = {
        coffeeLabel:"☕ Ekspres Tchibo", fireAlarmLabel:"🔥 Czujnik pożaru",
        elevatorPhoneLabel:"🛗 Winda – serwis", safeLabel:"🔐 Sejf",
        spareKeyLabel:"🔑 Zapasowy klucz",
+       spareKeyContact:"**Po kod do klucza zapasowego skontaktuj się z Dawidem (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Pralnia", accessLabel:"♿️ Dostępność", smokingLabel:"🚭 Palenie",
        luggageLabel:"🎒 Przechowalnia bagażu", doorbellsLabel:"🔔 Dzwonki",
        gateLabel:"🚪 Brama (od środka)", trashLabel:"🗑️ Śmieci / kosze",
@@ -426,7 +437,7 @@ export default function App(){
   const [wifiSsidSheet, setWifiSsidSheet] = useState({ open:false, ssid:null });
 
   // CTA tlačítka pod bublinou
-  const [showKeysCta, setShowKeysCta] = useState(false); // hidden flow – we keep state but never show entry point
+  const [showKeysCta, setShowKeysCta] = useState(false); // hidden flow – ponecháno kvůli backendu
   const [wifiCtas, setWifiCtas] = useState({ showPassword:false, showNotOk:false });
 
   const scrollerRef = useRef(null);
@@ -469,8 +480,8 @@ export default function App(){
       { label: dict.fireAlarmLabel,       control:{ intent:"tech", sub:"fire_alarm" } },
       { label: dict.elevatorPhoneLabel,   control:{ intent:"tech", sub:"elevator_phone" } },
       { label: dict.safeLabel,            control:{ intent:"tech", sub:"safe" } },
-      // Spare key flow is kept in backend but not listed in UI
-      // { label: dict.spareKeyLabel,    control:{ intent:"tech", sub:"keys", needsRoom:true } },
+      // Viditelné tlačítko „Náhradní klíč“ (bez kódů; jen kontakt)
+      { label: dict.spareKeyLabel,        action:"spare_key" },
     ];
 
     const TRANSPORT = [
@@ -564,6 +575,13 @@ export default function App(){
       return;
     }
 
+    // Spare key — pouze zobrazit kontaktní větu (bez jakéhokoli kódu)
+    if (n.action === "spare_key") {
+      setShortcutsOpen(false);
+      setChat(c => [...c, { role:"assistant", content: tr[lang || "cs"].spareKeyContact }]);
+      return;
+    }
+
     // Wi-Fi: instrukce → CTA „Zobrazit moje heslo“
     if (n.control?.kind === "wifi") {
       setShortcutsOpen(false);
@@ -572,7 +590,7 @@ export default function App(){
       return;
     }
 
-    // Náhradní klíč: (flow existuje v backendu) – UI vstup NEZOBRAZUJEME
+    // Náhradní klíč (původní hidden flow) — UI vstup neaktivujeme
     if (n.control?.needsRoom) {
       return; // intentionally noop – guarded
     }
@@ -583,7 +601,7 @@ export default function App(){
     }
   };
 
-  // -------- Keys: potvrzení výběru --------
+  // -------- Keys: potvrzení výběru (ponecháno kvůli backendu, ale nevyužívá se v tomto „visible only“ flow) --------
   const floors = [0,1,2,3];
   const lasts  = ["01","02","03","04","05"];
 
@@ -594,6 +612,8 @@ export default function App(){
     setRoomSheet({ open:false, floor:null, last:null });
     setShowKeysCta(false);
     return sendControl(`Náhradní klíč ${room}`, { intent:"tech", sub:"keys", room });
+    // Pozn.: backend stále umí poslat kód, ale do UI jsme žádný kód nenasadili;
+    // tento „guarded“ kanál zůstává pouze pro případ budoucího interního použití.
   };
 
   // -------- Wi-Fi: potvrzení výběru pokoje → heslo + „Nefunguje“ --------
@@ -704,7 +724,7 @@ export default function App(){
 
       {/* ===== CTA STACK ===== */}
       <div className="fabStack" aria-live="polite">
-        {/* Spare key CTA intentionally hidden unless triggered programmatically */}
+        {/* Spare key CTA (interní, aktuálně se nespouští z UI) */}
         {showKeysCta && (
           <button className="fabAction" onClick={() => setRoomSheet({ open:true, floor:null, last:null })}>
             {tr[lang||"cs"].pickRoom}
@@ -722,7 +742,7 @@ export default function App(){
         )}
       </div>
 
-      {/* OVERLAY: Náhradní klíč – výběr pokoje (flow exists, UI entry hidden) */}
+      {/* OVERLAY: Náhradní klíč – výběr pokoje (ponecháno pro budoucí interní použití) */}
       {roomSheet.open && (
         <div className="overlay" onClick={()=>setRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
