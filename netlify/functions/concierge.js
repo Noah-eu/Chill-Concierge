@@ -35,7 +35,7 @@ const WIFI = [
   { room: "305", ssid: "D5F6", pass: "45445804" },
 ];
 
-const LUGGAGE_ROOM_CODE = "3142#"; // ponecháno v kódu, ale nevypisuje se u „Náhradní klíč“
+const LUGGAGE_ROOM_CODE = "3142#"; // ponecháno v kódu, ale UI ho nikdy neukazuje
 const KEYBOX = {
   "001": "3301","101": "3302","102": "3303","103": "3304","104": "3305","105": "3306",
   "201": "3307","202": "3308","203": "3309","204": "3310","205": "3311",
@@ -196,7 +196,7 @@ function buildLuggageInfo() {
   ].join("\n");
 }
 
-/* === NOVÉ: Bezpečná verze pro „Náhradní klíč“ – bez jakýchkoli kódů === */
+/* === Bezpečná verze pro „Náhradní klíč“ – bez jakýchkoli kódů, ale s fotkou boxů === */
 function buildKeyHelp() {
   return [
     IMG(P.SPARE_KEY, "Náhradní klíč – box s klíčem"),
@@ -273,7 +273,7 @@ const buildFoodDelivery = () => [
   "- [Foodora](https://www.foodora.cz/)\n- [Wolt](https://wolt.com/)"
 ].join("\n");
 
-/** ====== NOVÉ: VYBAVENÍ HOTELU ====== */
+/** ====== VYBAVENÍ HOTELU ====== */
 function buildAmenitiesRooms(){
   return [
     "## Vybavení hotelu — Pokoje",
@@ -346,23 +346,19 @@ function detectLocalSubtype(t) {
 function detectIntent(text) {
   const t = (text || "").toLowerCase();
 
-  // tech
   if (/\b(wi[-\s]?fi|wifi|internet|heslo|password|ssid)\b/i.test(t)) return "wifi";
   if (/\b(?:a\.?c\.?|ac)\b|klimatizace|klima|air ?conditioning/i.test(t)) return "ac";
   if (/(elektrin|elektrik|electric|electricity|jistič|jistice|proud|svetl|nesviti|no lights|power|fuse|breaker)/i.test(t)) return "power";
 
-  // house rules / amenities
-  if (/(invalid|wheelchair|bezbar(i|í|í)?er|bez\s?bari|schod|bezbariér|bezbariérov|bezbarierov)/i.test(t)) return "access";
+  if (/(invalid|wheelchair|bezbar(i|í|í)?er|bez\s?bari|schod|bezbariérov)/i.test(t)) return "access";
   if (/(kouř|kour|kouřit|smok)/i.test(t)) return "smoking";
   if (/\b(pes|psi|dog|mazl(í|i)č|pets?)\b/i.test(t)) return "pets";
   if (/(prádeln|pradel|laund)/i.test(t)) return "laundry";
   if (/(úschovn|uschovn|batožin|batozin|zavazadel|luggage)/i.test(t)) return "luggage";
 
-  // keys
   if (/\b(náhradn[íy]|spare\s+key)\b/i.test(t)) return "keys";
   if (/(kl[ií]č|klic|key).{0,30}(apartm|pokoj|room)/i.test(t)) return "keys";
 
-  // utility
   if (/popelnic|odpad|trash|bin/i.test(t)) return "trash";
   if (/(brán|branu|gate|vstup)/i.test(t)) return "gate";
   if (/(zvonk|bell|doorbell)/i.test(t)) return "doorbells";
@@ -376,7 +372,6 @@ function detectIntent(text) {
   if (/(digesto[rř]|odsava[cč]|hood)/i.test(t)) return "hood";
   if (/(trezor|safe)/i.test(t)) return "safe";
 
-  // local → curated only
   if (/(restaurac|snídan|snidan|breakfast|restaurant|grocer|potravin|pharm|lékárn|lekarn|shop|store|\bbar\b|kavárn|kavarn|vegan|vegetari|czech|cesk|bistro|exchange|směn|smen|\batm\b|bankomat)/i.test(t)) {
     return "local";
   }
@@ -417,13 +412,13 @@ export default async (req) => {
     const { messages = [], uiLang = null, control = null } = body || {};
     const userText = lastUser(messages);
 
-    // 0) Follow-up: číslo pokoje po „Náhradní klíč“ (ponecháno kvůli kompatibilitě, ale už se kódy neposílají)
+    // 0) Follow-up: číslo pokoje po „Náhradní klíč“ – už nevrací kódy, jen bezpečný návod s fotkou
     const roomOnly = extractRoom(userText);
     if (roomOnly && historyContainsKeys(messages)) {
       return ok(await translateToUserLang(buildKeyHelp(), userText, uiLang));
     }
 
-    // 1) CONTROL – pevná tlačítka (bez modelu)
+    // 1) CONTROL – pevná tlačítka
     if (control) {
       // a) Lokální curated seznamy
       if (control.intent === "local") {
@@ -448,7 +443,7 @@ export default async (req) => {
         return ok(await translateToUserLang(reply, userText || sub, uiLang));
       }
 
-      // b) Technické / interní – vracíme naše markdowny + fotky
+      // b) Technické / interní – vracíme markdowny + fotky
       if (control.intent === "tech") {
         const sub = String(control.sub || "").toLowerCase();
         const map = {
@@ -481,7 +476,7 @@ export default async (req) => {
         return ok(await translateToUserLang(text, userText || sub, uiLang));
       }
 
-      // c) NOVÉ: Vybavení hotelu (amenities)
+      // c) Vybavení hotelu
       if (control.intent === "amenities") {
         const sub = String(control.sub || "").toLowerCase();
         const map = {
@@ -501,7 +496,7 @@ export default async (req) => {
       return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
     }
 
-    // 3) Intent z volného textu (fallback – když by přeci jen přišel text)
+    // 3) Intent z volného textu
     const intent = detectIntent(userText);
     const wifiContext = historyContainsWifi(messages);
 
@@ -550,7 +545,7 @@ export default async (req) => {
       return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
-    // 4) Obecné → model (nouzový fallback)
+    // 4) Obecné → model (fallback)
     const completion = await client.chat.completions.create({
       model: MODEL, temperature: 0.2,
       messages: [
