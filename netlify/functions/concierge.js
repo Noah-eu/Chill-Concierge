@@ -137,9 +137,19 @@ const P = {
   SPARE_KEY: "/help/spare-key.jpg",
   GARBAGE: "/help/garbage.jpg",
   GATE_SWITCH: "/help/inside-gate-switch.jpg",
-    DOOR_BELLS: "/help/door-bells.jpg",
-  };
+  DOOR_BELLS: "/help/door-bells.jpg",
 
+  // NOVÉ pro „Instrukce k ubytování“ — pojmenuj přesně takto v /public/help/
+  ENTRY_DIAL: "/help/entry-dialer.jpg",            // klávesnice/kód u brány (zeleně na screenu)
+  KEYBOX_WALL: "/help/key-box-wall.jpg",           // stěna s boxy
+  ELEVATOR: "/help/elevator.jpg",                  // výtah/interiér
+  FLOOR_HALL: "/help/floor-hall.jpg",              // chodba/patro
+  ROOM_DOOR: "/help/room-door.jpg",                 // dveře do pokoje
+
+  // Dodané nové fotky ze screenshotu
+  ENTRANCE: "/help/6.Entrance.jpg",
+  DIALER: "/help/9.Dialer.jpg",
+};
 
 /** ====== WIFI ====== */
 const wifiByRoom = (room)=> WIFI.find(w=>w.room===room)||null;
@@ -270,8 +280,9 @@ function buildStayInstructions() {
   // Podrobné instrukce k self check-inu doplněné relevantními fotkami.
   return [
     "## Instrukce k ubytování",
+    `![](${IMG(P.ENTRANCE)})`,
+    `![](${IMG(P.DIALER)})`,
     "Klíč od apartmánu nechám v bílé schránce na klíče v průchodu do dvora, hned za bránou.",
-    `![](${IMG(P.ENTRY_DIAL)})`,
     "Pro otevření brány vytočte kód **3142#** na levé stěně (viz obrázek).",
     `![](${IMG(P.LUGGAGE)})`,
     "Pokud přijedete před časem check-inu, uložte si prosím zavazadla v úschovně zavazadel vedle schránky na klíče. Kód je stejný jako pro bránu – **3142#**. Po uložení se ujistěte, že jsou dveře zavřené.",
