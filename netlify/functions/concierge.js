@@ -485,6 +485,10 @@ export default async (req) => {
       if (control.intent === "tech") {
         const sub = String(control.sub || "").toLowerCase();
         const map = {
+          // ✅ doplněné aliasy pro ubytovací instrukce
+          stay_instructions: buildStayInstructions,
+          instructions:       buildStayInstructions,
+
           wifi: buildWifiTroubleshoot,
           power: buildPowerHelp,
           ac: buildACHelp,
