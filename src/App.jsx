@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -466,10 +468,10 @@ export default function App(){
     if (lang) document.body.classList.add("lang-selected"); else document.body.classList.remove("lang-selected");
   }, [lang]);
 
-  // Autoscroll už jen při nové zprávě
+  // Autoscroll jen při nové zprávě (ne při togglování UI)
   useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat]);
 
-  // Po otevření zkratek skoč na ně
+  // Po otevření zkratek posuň pohled na ně (aby nebyly mimo obrazovku)
   useEffect(() => {
     if (shortcutsOpen) {
       shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });

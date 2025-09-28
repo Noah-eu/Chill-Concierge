@@ -1,3 +1,5 @@
+// /.netlify/functions/concierge.js
+
 import OpenAI from "openai";
 import { PLACES, buildCuratedList } from "./data/places.js";
 
@@ -99,7 +101,7 @@ function guessLang(userText = "") {
   if (/\b(hello|please|thanks|where|wifi|password|help)\b/.test(t)) return "en";
   if (/[а-яё]/i.test(t)) return "ru";
   if (/[іїєґ]/i.test(t)) return "uk";
-  if (/\b(hallo|hoi|alsjeblieft|alstublieft|dank je|dank u|waar)\b/i.test(t)) return "nl";
+  if (/\b(hoi|alsjeblieft|alstublieft|dank je|dank u|waar)\b/i.test(t)) return "nl";
   if (/[àèéìòù]/.test(t) || /\b(ciao|per favore|grazie|dove|aiuto)\b/i.test(t)) return "it";
   if (/[æøå]/i.test(t) || /\b(hej|venligst|tak|hvor)\b/i.test(t)) return "da";
   if (/[ąćęłńóśźż]/i.test(t) || /\b(cześć|dzień dobry|proszę|dziękuję|gdzie)\b/i.test(t)) return "pl";
@@ -203,7 +205,8 @@ function buildKeyHelp() {
     "Zapomenutý klíč:",
     "1) V budově je k dispozici **úschovna s boxy na náhradní klíče**.",
     "2) Pro vydání kódu se ověřuje host a číslo apartmánu.",
-    "**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**"
+    "**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**",
+    "David vám **pošle kód k boxu, číslo apartmánu a patra**."
   ].join("\n");
 }
 
