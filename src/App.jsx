@@ -361,7 +361,7 @@ const tr = {
        gateLabel:"🚪 Cancello (interno)", trashLabel:"🗑️ Spazzatura / bidoni",
        doctorLabel:"👩‍⚕️ Medico 24/7", linenLabel:"🧻 Lenzuola / asciugamani",
        pickRoom:"Scegli il numero dell’appartamento", floor:"Piano", room:"Camera", confirm:"Mostra", cancel:"Chiudi",
-       wifiStatus:"Il Wi-Fi funziona?", ok:"Sì", notOk:"No",
+       wifiStatus:"Il Wi-Fi funciona?", ok:"Sì", notOk:"No",
        pickSsid:"Seleziona l’SSID con il segnale più forte",
        showMyWifi:"Mostra la mia password",
        aRooms:"🛏️ Camere", aKitchen:"🍳 Cucina", aBathroom:"🛁 Bagno", aService:"🧰 Lavanderia, bagagli, rifiuti" },
@@ -432,12 +432,12 @@ export default function App(){
   const [shortcutsOpen, setShortcutsOpen] = useState(true);
 
   // Overlays
-  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null }); // keys
+  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null }); // keys (interní)
   const [wifiRoomSheet, setWifiRoomSheet] = useState({ open:false, floor:null, last:null });
   const [wifiSsidSheet, setWifiSsidSheet] = useState({ open:false, ssid:null });
 
   // CTA tlačítka pod bublinou
-  const [showKeysCta, setShowKeysCta] = useState(false); // hidden flow – ponecháno kvůli backendu
+  const [showKeysCta, setShowKeysCta] = useState(false); // ponecháno kvůli backend kompatibilitě
   const [wifiCtas, setWifiCtas] = useState({ showPassword:false, showNotOk:false });
 
   const scrollerRef = useRef(null);
@@ -452,11 +452,6 @@ export default function App(){
 
   /** ====== FLOWS ====== */
   function makeFlows(dict){
-    // Hlavní, okamžité tlačítko na 3D tour (bez podmenu)
-    const TOUR = [
-      { label: dict.tourLabel, action: "tour" }
-    ];
-
     const FOOD = [
       { label: dict.diningLabel,   control:{ intent:"local", sub:"dining" } },
       { label: dict.bakeryLabel,   control:{ intent:"local", sub:"bakery" } },
@@ -480,8 +475,8 @@ export default function App(){
       { label: dict.fireAlarmLabel,       control:{ intent:"tech", sub:"fire_alarm" } },
       { label: dict.elevatorPhoneLabel,   control:{ intent:"tech", sub:"elevator_phone" } },
       { label: dict.safeLabel,            control:{ intent:"tech", sub:"safe" } },
-      // Viditelné tlačítko „Náhradní klíč“ (bez kódů; jen kontakt)
-      { label: dict.spareKeyLabel,        action:"spare_key" },
+      // OPRAVA: „Náhradní klíč“ volá backend ⇒ dorazí text + FOTKY
+      { label: dict.spareKeyLabel,        control:{ intent:"tech", sub:"keys" } },
     ];
 
     const TRANSPORT = [
@@ -507,9 +502,8 @@ export default function App(){
       { label: dict.linenLabel,       control:{ intent:"tech", sub:"linen_towels" } },
     ];
 
-    // "Hlavní sekce": na úplný začátek dáme TOUR jako jedno primární tlačítko
     return [
-      { label: dict.tourLabel, action:"tour" },           // primární tlačítko Tour
+      { label: dict.tourLabel, action:"tour" },
       { label:dict.catFood,      children:FOOD },
       { label:dict.catTech,      children:TECH },
       { label:dict.catTransport, children:TRANSPORT },
@@ -538,13 +532,11 @@ export default function App(){
     }finally{ setLoading(false); }
   }
 
-  // pevná tlačítka → backend
   function sendControl(promptText, control){
     const next = [...chat, { role:"user", content:promptText }];
     setChat(next);
     return callBackend({ messages: next, uiLang: lang, control });
   }
-  // čistý text (např. číslo pokoje / SSID)
   function sendText(text){
     const next = [...chat, { role:"user", content:text }];
     setChat(next);
@@ -560,14 +552,11 @@ export default function App(){
     stack.length === 0 ? FLOWS :
     stack[stack.length - 1]?.children ?? FLOWS;
 
-  // SSID seznam (pro „Nefunguje“)
   const ALL_SSIDS = ["D384","CDEA","CF2A","93EO","D93A","D9E4","6A04","9B7A","1CF8","D8C4","CD9E","CF20","23F0","B4B4","DA4E","D5F6"];
 
-  // handler kliků
   const onChipClick = (n) => {
     if (n.children) return openNode(n);
 
-    // 3D Tour – otevřít odkaz + přidat bublinu s linkem (i18n)
     if (n.action === "tour") {
       try { window.open(MATTERPORT_URL, "_blank", "noopener,noreferrer"); } catch {}
       setShortcutsOpen(false);
@@ -575,24 +564,11 @@ export default function App(){
       return;
     }
 
-    // Spare key — pouze zobrazit kontaktní větu (bez jakéhokoli kódu)
-    if (n.action === "spare_key") {
-      setShortcutsOpen(false);
-      setChat(c => [...c, { role:"assistant", content: tr[lang || "cs"].spareKeyContact }]);
-      return;
-    }
-
-    // Wi-Fi: instrukce → CTA „Zobrazit moje heslo“
     if (n.control?.kind === "wifi") {
       setShortcutsOpen(false);
       sendControl("Wi-Fi", { intent:"tech", sub:"wifi" });
       setWifiCtas({ showPassword:true, showNotOk:false });
       return;
-    }
-
-    // Náhradní klíč (původní hidden flow) — UI vstup neaktivujeme
-    if (n.control?.needsRoom) {
-      return; // intentionally noop – guarded
     }
 
     if (n.control) {
@@ -601,7 +577,7 @@ export default function App(){
     }
   };
 
-  // -------- Keys: potvrzení výběru (ponecháno kvůli backendu, ale nevyužívá se v tomto „visible only“ flow) --------
+  // interní (ponecháno)
   const floors = [0,1,2,3];
   const lasts  = ["01","02","03","04","05"];
 
@@ -612,18 +588,15 @@ export default function App(){
     setRoomSheet({ open:false, floor:null, last:null });
     setShowKeysCta(false);
     return sendControl(`Náhradní klíč ${room}`, { intent:"tech", sub:"keys", room });
-    // Pozn.: backend stále umí poslat kód, ale do UI jsme žádný kód nenasadili;
-    // tento „guarded“ kanál zůstává pouze pro případ budoucího interního použití.
   };
 
-  // -------- Wi-Fi: potvrzení výběru pokoje → heslo + „Nefunguje“ --------
   const confirmWifiRoom = () => {
     const { floor, last } = wifiRoomSheet;
     if (floor === null || last === null) return;
     const room = `${floor}${last}`.padStart(3, "0");
     setWifiRoomSheet({ open:false, floor:null, last:null });
     setWifiCtas({ showPassword:false, showNotOk:true });
-    return sendText(room); // backend vrátí heslo k dané Wi-Fi
+    return sendText(room);
   };
 
   const confirmWifiSsid = () => {
@@ -631,7 +604,7 @@ export default function App(){
     const ssid = wifiSsidSheet.ssid;
     setWifiSsidSheet({ open:false, ssid:null });
     setWifiCtas({ showPassword:false, showNotOk:false });
-    return sendText(ssid); // backend pošle heslo pro zvolenou SSID
+    return sendText(ssid);
   };
 
   return (
@@ -724,7 +697,6 @@ export default function App(){
 
       {/* ===== CTA STACK ===== */}
       <div className="fabStack" aria-live="polite">
-        {/* Spare key CTA (interní, aktuálně se nespouští z UI) */}
         {showKeysCta && (
           <button className="fabAction" onClick={() => setRoomSheet({ open:true, floor:null, last:null })}>
             {tr[lang||"cs"].pickRoom}
@@ -742,7 +714,7 @@ export default function App(){
         )}
       </div>
 
-      {/* OVERLAY: Náhradní klíč – výběr pokoje (ponecháno pro budoucí interní použití) */}
+      {/* OVERLAY: Náhradní klíč – výběr pokoje (interní, ponecháno) */}
       {roomSheet.open && (
         <div className="overlay" onClick={()=>setRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
@@ -814,13 +786,13 @@ export default function App(){
         </div>
       )}
 
-      {/* OVERLAY: Wi-Fi – výběr SSID (pro „Nefunguje“) */}
+      {/* OVERLAY: Wi-Fi – výběr SSID */}
       {wifiSsidSheet.open && (
         <div className="overlay" onClick={()=>setWifiSsidSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
             <h4>{tr[lang||"cs"].pickSsid}</h4>
             <div className="pillRow" style={{marginBottom:12}}>
-              {["D384","CDEA","CF2A","93EO","D93A","D9E4","6A04","9B7A","1CF8","D8C4","CD9E","CF20","23F0","B4B4","DA4E","D5F6"].map(code=>(
+              {ALL_SSIDS.map(code=>(
                 <button
                   key={code}
                   className={`pill ${wifiSsidSheet.ssid===code?'active':''}`}
