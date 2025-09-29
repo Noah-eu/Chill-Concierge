@@ -730,9 +730,9 @@ export default function App(){
 
       {/* Header: logo vlevo + uprostřed název + logo vpravo */}
       <header className="appHeader">
-        <img className="logo" src="/logo.png" alt="Chill Apartments" />
+        <img className="logo" src="/chill1.jpg" alt="Chill Apartments" />
         <div className="title">Chill concierge</div>
-        <img className="logo" src="/logo.png" alt="Chill Apartments" />
+        <img className="logo" src="/chill1.jpg" alt="Chill Apartments" />
       </header>
 
       <div className="row">
