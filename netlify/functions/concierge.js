@@ -112,6 +112,7 @@ async function translateToUserLang(text, userText, uiLang) {
   const hint = uiLang || guessLang(userText);
   if (hint === "cs" && /[ěščřžýáíéúůňťď]/i.test(text)) return text;
 
+  // Pokud nechceš používat OpenAI překlad, můžeš tu vracet rovnou `text`.
   const completion = await client.chat.completions.create({
     model: MODEL, temperature: 0.0,
     messages: [
@@ -144,7 +145,7 @@ const P = {
   KEYBOX_WALL: "/help/key-box-wall.jpg",           // stěna s boxy
   ELEVATOR: "/help/elevator.jpg",                  // výtah/interiér
   FLOOR_HALL: "/help/floor-hall.jpg",              // chodba/patro
-  ROOM_DOOR: "/help/room-door.jpg",                 // dveře do pokoje
+  ROOM_DOOR: "/help/room-door.jpg",                // dveře do pokoje
 
   // Dodané nové fotky ze screenshotu
   ENTRANCE: "/help/6.Entrance.jpg",
@@ -212,15 +213,15 @@ function buildLuggageInfo() {
   ].join("\n");
 }
 
-/* === Bezpečná verze pro „Náhradní klíč“ – bez jakýchkoli kódů, ale s fotkou boxů === */
+/* === Bezpečná verze pro „Náhradní klíč“ – bez jakýchkoli kódů, ale s fotkami === */
 function buildKeyHelp() {
   return [
+    `![](${IMG(P.LUGGAGE)})`,
     `![](${IMG(P.SPARE_KEY)})`,
     "Zapomenutý klíč:",
     "1) V budově je k dispozici **úschovna s boxy na náhradní klíče**.",
     "2) Pro vydání kódu se ověřuje host a číslo apartmánu.",
-    "**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**",
-    "_David poslal kód k boxu, číslo apartmánu a patra._"
+    "**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**"
   ].join("\n");
 }
 
@@ -429,6 +430,22 @@ function detectIntent(text) {
   return "general";
 }
 
+/** ====== Pomocná logika: je to skutečný follow-up k náhradnímu klíči? ====== */
+function isKeysFollowUp(messages = []) {
+  const la = (lastAssistant(messages) || "");
+  const lu = (lastUser(messages) || "").trim();
+
+  // Poslední odpověď asistenta byla opravdu k tématu "Náhradní klíč"
+  const assistantWasKeys =
+    /Zapomenutý klíč|Náhradní klíč|Spare key/i.test(la) ||
+    (la.includes("/help/spare-key.jpg") || la.includes("/help/key-box-wall.jpg"));
+
+  // Uživatelský vstup je čisté číslo pokoje (001–305)
+  const userIsRoomOnly = /^\s*(00[1]|10[1-5]|20[1-5]|30[1-5])\s*$/.test(lu);
+
+  return assistantWasKeys && userIsRoomOnly;
+}
+
 /** ====== Pomocný sloučený výpis pro „dining“ ====== */
 function buildMergedCuratedList(keys = [], { max = 12, labelOpen = "Otevřít" } = {}) {
   const seen = new Set();
@@ -463,8 +480,7 @@ export default async (req) => {
     const userText = lastUser(messages);
 
     // 0) Follow-up: číslo pokoje po „Náhradní klíč“ – vrací bezpečný návod (bez kódů)
-    const roomOnly = extractRoom(userText);
-    if (roomOnly && historyContainsKeys(messages)) {
+    if (isKeysFollowUp(messages)) {
       return ok(await translateToUserLang(buildKeyHelp(), userText, uiLang));
     }
 
@@ -556,7 +572,7 @@ export default async (req) => {
       return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
     }
 
-    // 3) Intent z volného textu
+    // 3) Intent z volného textu (zůstává kvůli Wi-Fi: číslo pokoje / SSID)
     const intent = detectIntent(userText);
     const wifiContext = historyContainsWifi(messages);
 
@@ -606,17 +622,10 @@ export default async (req) => {
       return ok(await translateToUserLang(reply, userText, uiLang));
     }
 
-    // 4) Obecné → model (fallback)
-    const completion = await client.chat.completions.create({
-      model: MODEL, temperature: 0.2,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "system", content: `Address: ${HOTEL.address}. Keep suggestions within ~${NEARBY_RADIUS}m.` },
-        ...messages
-      ]
-    });
-    const reply = completion.choices?.[0]?.message?.content?.trim() ?? "Rozumím.";
-    return ok(reply);
+    // 4) (ÚKLID) – fallback na model odstraněn, protože UI jede přes tlačítka
+
+    // Když nic neodpovídá, vrať neutrální odpověď
+    return ok(await translateToUserLang("Rozumím.", userText, uiLang));
 
   } catch (e) {
     console.error(e);

@@ -690,7 +690,18 @@ export default function App(){
               <strong>{stack.length === 0 ? tr[lang||"cs"].mainTitle : tr[lang||"cs"].subTitle}</strong>
               <div className="btnRow">
                 {stack.length > 0 && (
-                  <button className="backBtn" onClick={goBack}>{tr[lang||"cs"].back}</button>
+                  <button
+                    className="backBtn"
+                    onClick={() => {
+                      goBack();
+                      // jistota srolování na blok zkratek
+                      requestAnimationFrame(() => {
+                        shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      });
+                    }}
+                  >
+                    {tr[lang||"cs"].back}
+                  </button>
                 )}
                 <button className="backBtn" onClick={() => setShortcutsOpen(false)}>{tr[lang||"cs"].hide}</button>
                 <button className="backBtn" onClick={() => { setLang(null); setStack([]); window.scrollTo({ top: 0, behavior: "smooth" }); }}>🌐 {tr[lang||"cs"].chooseLang}</button>
@@ -729,7 +740,18 @@ export default function App(){
 
         {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ */}
         {!shortcutsOpen && lang && (
-          <button className="fab fabBack" onClick={() => setShortcutsOpen(true)} title={tr[lang||"cs"].back}>
+          <button
+            className="fab fabBack"
+            onClick={() => {
+              setShortcutsOpen(true);
+              resetToRoot(); // návrat na hlavní výběr
+              // jistota srolování na zkratky
+              requestAnimationFrame(() => {
+                shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+              });
+            }}
+            title={tr[lang||"cs"].back}
+          >
             {tr[lang||"cs"].back}
           </button>
         )}
