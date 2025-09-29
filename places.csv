@@ -1,0 +1,36 @@
+category,name,url,tags,address,lat,lon,minutes_walk,notes
+breakfast,V-Café & Bar,www.hotelsevendays.cz/cafe-bar.htm,snídaně,"Žitná 572/46, 12000 Praha 2",,,2,international
+breakfast,Palo Verde Bistro,www.paloverdebistro.cz,snidaně,"Žitná 1656/45, 11000 Praha 1",,,2,veggie
+breakfast,Mechanický Balet,www.mechanickybalet.cz,restaurace,"Žitná 1578/52, 12000 Praha 2",,,3,burgers
+breakfast,Kachi Korean BBQ,kachibbq.cz,restaurace,Anglická 551/6,,,4,Korean
+breakfast,Mala India Restaurant,malaindia.cz,restaurace,"Krakovská 1436/3, 11000 Praha 1",,,3,Indian
+breakfast,Restaurace Husinec,www.husinecrestaurace.cz,restaurace,"Mezibranská 1450/13, 11000 Praha 1",,,3,Czech
+breakfast,ŠENKOVNA,www.senkovnapub.cz,"restaurace, bar","Sokolská 1788/60, 12000 Praha 2",,,1,Wine bar
+breakfast,Bao Bao,www.bistrobaobao.cz,restaurace,"Ječná 1763/43, 12000 Praha 2",,,2,Vietnam bistro
+breakfast,La Mouka wine bistro,lamouka.cz,snídaně,"Ječná 243/39a, 12000 Praha 2",,,2,international
+breakfast,Café Purkyně,cafepurkyne.cz,"snídaně, cafe","Sokolská 490/31, 12000 Praha 2",,,3,international
+breakfast,Pivovarský dům Benedict,www.pivo-dum.cz,restaurace,"Ječná 511/16, 12000 Praha 2",,,6,Czech
+breakfast,Burrito Loco,burritoloco.cz,restaurace,"Jugoslávská 180/15, 12000 Praha 2",,,5,Mexican bistro
+breakfast,Šef Grill,www.chefgrill.cz,restaurace,"Anglická 41/9, 12000 Praha 2",,,6,Turkish
+breakfast,Pizzeria Da Pietro,www.dapietropraha.cz,restaurace,"Bělehradská 573/61, 12000 Praha 2",,,10,Pizza
+breakfast,Beas Vegetarian Dhaba,dhababeas.cz,restaurace,"Bělehradská 569/90, 12000 Praha 2",,,10,Veggie
+cafe,Kavárna Pražírna,www.kavarnaprazirna.cz,cafe,"Lublaňská 676/50, 12000 Praha 2",,,5,Cafe
+cafe,CukrCafé Blackulus,www.cukrcafe.cz,cafe,"Sokolská 486/33, 12000 Praha 2",,,3,alá Harry Potter
+cafe,KOLACHERIE Na rybníčku,www.kolacherie.cz,cafe,"Na Rybníčku 1329/5, 12000 Praha 2",,,3,Sweets
+cafe,Bistro Cafē Laskavá,,cafe,"Anglická 390/19, 12000 Praha 2",,,6,Very cute
+bar,Lavish Lounge,lavish-lounge.cz/,bar,"Anglická 42/7, 12000 Praha 2",,,5,
+bakery,MATOKA Georgian,anglicka.matokapraha.cz/,bakery,"Anglická 388/1, 12000 Praha 2",,,4,Georgian
+bakery,PAUL,www.paul-cz.com,"bakery, cafe, snídaně","Jugoslávská 17/6, 12000 Praha 2",,,5,French bakery
+bakery,Zrno zrnko,www.zrnozrnko.cz,"bakery, cafe, snidaně","Rumunská 654/21, 12000 Praha 2",,,7,Czech 
+grocery,Albert Supermarket,,supermarket,"náměstí Míru 1356/8, 12000 Praha 2",,,10,
+grocery,Tesco Expres,www.itesco.cz/prodejny/praha/vocelova-11,supermarket,"Vocelova 474/11, 12000 Praha 2",,,4,
+grocery,Albert Supermarket,,supermarket,"Václavské náměstí 812/59, 11000 Praha 1",,,5,
+grocery,Žabka,izabka.cz,grocery,"Sokolská 490/31, 12000 Praha 2",,,3,
+pharmacy,BENU Lékárna,www.benu.cz/lekarna-benu-praha-2-jugoslavska,pharmacy,"Jugoslávská 1/9, 12000 Praha 2",,,3,
+pharmacy,Dr.Max Lékárna,www.drmax.cz/lekarny/praha-2-vinohrady-belehradska-4,pharmacy,"Bělehradská 479/114, 12000 Praha 2",,,4,
+pharmacy,Lékárna V Rumunské,,pharmacy,"Rumunská 8/16, 12000 Praha 2",,,5,
+exchange,X CHANGE,www.xchangegrossmann.cz,exchange,"Krakovská 1339/18, 11000 Praha 1",,,3,good rates
+exchange,Směnárna AuraAktiv,smenarna-praha-1.cz,exchange,"Politických vězňů 1531/9, 11000 Praha 1",,,10,good rates
+atm,KB,www.kb.cz/,ATM,"Bělehradská 222/128, 12000 Praha 2",,,4,
+atm,UniCredit Bank,www.unicreditbank.cz/cs/obcane.html#home,ATM,"Jugoslávská 620/29, 12000 Praha 2",,,8,
+atm,ČSOB,www.csob.cz,ATM,"Bělehradská 478/110, 12000 Praha 2",,,6,
