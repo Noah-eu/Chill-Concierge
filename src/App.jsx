@@ -1,9 +1,12 @@
+// app.jsx
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
 /** ================== Konstanta: 3D Tour ================== */
-const MATTERPORT_URL = "https://my.matterport.com/show/?m=PTEAUeUbMno&ss=53&sr=-1.6%2C1.05&tag=8hiaV2GWWhB&pin-pos=20.12%2C-3.85%2C8.94";
+const MATTERPORT_URL =
+  "https://my.matterport.com/show/?m=PTEAUeUbMno&ss=53&sr=-1.6%2C1.05&tag=8hiaV2GWWhB&pin-pos=20.12%2C-3.85%2C8.94";
 
 /** ================== Google palette + UI (inline CSS) ================== */
 const GoogleStyle = () => (
@@ -31,31 +34,45 @@ const GoogleStyle = () => (
       color:var(--accent);
     }
 
-    .row{display:flex;flex-direction:column;gap:12px;max-width:960px;margin:24px auto;padding:0 16px}
-    .scroller{max-height:70vh;overflow:auto;padding:8px;border-radius:14px;
-      background: linear-gradient(180deg, color-mix(in oklab, var(--t-blue), white 70%) 0%, transparent 85%);} 
+    .appHeader{
+      position: sticky; top: 0; z-index: 1500;
+      display: grid; grid-template-columns: 44px 1fr 44px; align-items:center;
+      gap: 8px; padding: 10px 16px;
+      background: linear-gradient(180deg,#ffffffcc,#fff);
+      backdrop-filter: blur(6px);
+      border-bottom:1px solid var(--border);
+    }
+    .appHeader .title{ text-align:center; font-weight:900; letter-spacing:.2px; }
+    .appHeader img.logo{ height:38px; width:auto; object-fit:contain; }
+
+    .row{display:flex;flex-direction:column;gap:12px;max-width:960px;margin:12px auto 24px;padding:0 16px}
+    .scroller{
+      max-height:70vh;overflow:auto;padding:8px;border-radius:14px;
+      background: linear-gradient(180deg, color-mix(in oklab, var(--t-blue), white 70%) 0%, transparent 85%);
+      scroll-behavior: auto;
+    }
 
     /* Kompaktnější text v bublinách */
     .bubble{
-      border-radius:16px;padding:14px 16px;line-height:1.4;width:fit-content;max-width:100%;white-space:pre-line;
+      border-radius:16px;padding:12px 14px;line-height:1.35;width:fit-content;max-width:100%;white-space:pre-line;
       border:1px solid var(--border);box-shadow:0 6px 16px rgba(0,0,0,.06);background:#fff;
     }
     .me{background:linear-gradient(180deg, color-mix(in oklab, var(--t-blue), white 10%), color-mix(in oklab, var(--t-blue), white 0%));margin-left:auto;}
     .bot{background:linear-gradient(180deg, color-mix(in oklab, var(--t-yellow), white 8%), color-mix(in oklab, var(--t-yellow), white 0%));}
 
     /* Markdown zhutnění – hlavní viník mezer u <li><p> */
-    .bot p{ margin:6px 0; }
-    .bot ul, .bot ol{ margin:8px 0; padding-left:18px; }
-    .bot li{ margin:4px 0; }
+    .bot p{ margin:4px 0; }
+    .bot ul, .bot ol{ margin:6px 0; padding-left:18px; }
+    .bot li{ margin:2px 0; }
     .bot li p{ margin:0; }
-    .bot li p + p{ margin-top:4px; }
+    .bot li p + p{ margin-top:2px; }
 
-    .bot img{max-width:100%;height:auto;border-radius:14px;display:block;margin:10px 0;box-shadow:0 10px 26px rgba(0,0,0,.10);border:1px solid var(--border);} 
+    .bot img{max-width:100%;height:auto;border-radius:14px;display:block;margin:8px 0;box-shadow:0 10px 26px rgba(0,0,0,.10);border:1px solid var(--border);} 
     .bot a{display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid color-mix(in oklab, var(--blue), black 15%);
       background:linear-gradient(180deg, color-mix(in oklab, var(--blue), white 8%), color-mix(in oklab, var(--blue), black 6%));
       color:#fff;text-decoration:none;font-weight:800;box-shadow:0 6px 16px rgba(66,133,244,.25);} 
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:10px;width:100%;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:8px;width:100%;}
     .chipPrimary{
       --btn: var(--blue);
       padding:12px 14px;border-radius:999px;border:1px solid color-mix(in oklab, var(--btn), black 18%);
@@ -81,7 +98,7 @@ const GoogleStyle = () => (
       color:var(--accent);font-weight:700;cursor:pointer;box-shadow:0 6px 12px rgba(0,0,0,.05);
     }
 
-    .tips{color:var(--muted);font-size:13px;margin-top:8px}
+    .tips{color:var(--muted);font-size:13px;margin-top:4px}
 
     .shortcuts{ 
       border:1px solid var(--border);
@@ -92,7 +109,8 @@ const GoogleStyle = () => (
       box-shadow:0 6px 16px rgba(0,0,0,.06);border-radius:16px;padding:12px 14px; 
       scroll-margin-top:12px;
     }
-    .shortcutsHeader{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+    .shortcutsHeader{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+
     .btnRow{display:flex;gap:8px;flex-wrap:wrap;}
 
     .contactBar{ 
@@ -137,6 +155,10 @@ const GoogleStyle = () => (
       background:linear-gradient(180deg, color-mix(in oklab, var(--red), white 6%), color-mix(in oklab, var(--red), black 4%));
       border:1px solid color-mix(in oklab, var(--red), black 18%);
     }
+
+    /* Výběr jazyků – Angličtina nahoře sólo, ostatní v dvojicích */
+    .langSingle{ display:flex; justify-content:center; margin-top:8px; }
+    .langGrid2{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; margin-top:8px; }
 
     @media (max-width:480px){
       .row{ padding-bottom:80px; }
@@ -478,8 +500,19 @@ export default function App(){
     if (lang) document.body.classList.add("lang-selected"); else document.body.classList.remove("lang-selected");
   }, [lang]);
 
-  // Autoscroll už jen při nové zprávě
-  useEffect(() => { scrollerRef.current?.scrollTo(0, 9_999_999); }, [chat]);
+  // Autoscroll: po nové odpovědi bota skoč na ZAČÁTEK jeho bubliny (ne na úplný spodek)
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const bots = scroller.querySelectorAll(".bubble.bot");
+    const lastBot = bots[bots.length - 1];
+    if (lastBot) {
+      const top = lastBot.offsetTop - 8; // malý offset
+      scroller.scrollTo({ top, behavior: "auto" });
+    } else {
+      scroller.scrollTo({ top: scroller.scrollHeight, behavior: "auto" });
+    }
+  }, [chat]);
 
   // Po otevření zkratek skoč na ně
   useEffect(() => {
@@ -649,32 +682,63 @@ export default function App(){
     return sendText(ssid);
   };
 
+  // Pomocné: render jazyků – EN první, ostatní ve dvojicích
+  const renderLangChooser = () => {
+    const entries = Object.entries(LANGS);
+    const first = entries.find(([code]) => code === "en");
+    const rest = entries.filter(([code]) => code !== "en");
+
+    return (
+      <div className="bubble bot" style={{ display:"inline-block", maxWidth:"100%" }}>
+        <strong>{tr.cs.chooseLang}</strong>
+
+        {/* Angličtina samostatně */}
+        <div className="langSingle">
+          <button
+            className="chipPrimary"
+            style={{ ["--btn"]: "var(--blue)" }}
+            onClick={() => { setLang("en"); resetToRoot(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          >
+            {first?.[1] || "English"}
+          </button>
+        </div>
+
+        {/* Ostatní ve dvou sloupcích */}
+        <div className="langGrid2">
+          {rest.map(([code,label], i) => (
+            <button
+              key={code}
+              className="chipPrimary"
+              style={{ ["--btn"]: btnColorForIndex(i+1) }}
+              onClick={() => { setLang(code); resetToRoot(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="tips">
+          {Object.keys(LANGS).map(k => k.toUpperCase()).join(" / ")}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <GoogleStyle />
+
+      {/* Header: logo vlevo + uprostřed název + logo vpravo */}
+      <header className="appHeader">
+        <img className="logo" src="/logo.png" alt="Chill Apartments" />
+        <div className="title">Chill concierge</div>
+        <img className="logo" src="/logo.png" alt="Chill Apartments" />
+      </header>
+
       <div className="row">
         {/* CHAT SCROLLER */}
         <div className="scroller" ref={scrollerRef}>
-          {!lang && (
-            <div className="bubble bot" style={{ display:"inline-block", maxWidth:"100%" }}>
-              <strong>{tr.cs.chooseLang}</strong>
-              <div className="grid" style={{ marginTop:8 }}>
-                {Object.entries(LANGS).map(([code,label], i) => (
-                  <button
-                    key={code}
-                    className="chipPrimary"
-                    style={{ ["--btn"]: btnColorForIndex(i) }}
-                    onClick={() => { setLang(code); resetToRoot(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <div className="tips">
-                {Object.keys(LANGS).map(k => k.toUpperCase()).join(" / ")}
-              </div>
-            </div>
-          )}
+          {!lang && renderLangChooser()}
 
           {chat.map((m,i) =>
             m.role === "assistant"
@@ -682,6 +746,7 @@ export default function App(){
               : <div key={i} className="bubble me">{m.content}</div>
           )}
         </div>
+
 
         {/* ZKRATKY */}
         {lang && currentChildren && shortcutsOpen && (
