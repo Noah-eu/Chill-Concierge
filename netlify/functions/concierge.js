@@ -1,7 +1,7 @@
 // netlify/functions/concierge.js
 
 import OpenAI from "openai";
-import { PLACES, buildCuratedList } from "./data/places.js";
+import { PLACES } from "./data/places.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const MODEL  = process.env.OPENAI_MODEL || "gpt-4o-mini";
@@ -446,8 +446,25 @@ function isKeysFollowUp(messages = []) {
   return assistantWasKeys && userIsRoomOnly;
 }
 
+/** ====== MAPS URL BUILDER ====== */
+function buildGoogleMapsUrlFromPlace(p = {}) {
+  const lat = Number(p.lat);
+  const lon = Number(p.lon);
+  const hasCoords = Number.isFinite(lat) && Number.isFinite(lon);
+
+  if (hasCoords) {
+    return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+  }
+  const query = encodeURIComponent(p.address || p.name || "");
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
+}
+
 /** ====== Pomocný sloučený výpis pro „dining“ ====== */
-function buildMergedCuratedList(keys = [], { max = 12, labelOpen = "Otevřít" } = {}) {
+function buildMergedCuratedList(keys = [], {
+  max = 12,
+  labelOpen = "Otevřít",
+  labelMap = "Otevřít mapu"
+} = {}) {
   const seen = new Set();
   const items = [];
   keys.forEach(k => {
@@ -458,11 +475,38 @@ function buildMergedCuratedList(keys = [], { max = 12, labelOpen = "Otevřít" }
       }
     });
   });
+
   const list = items.slice(0, max);
   if (!list.length) return null;
-  return list.map(p =>
-    `- **${p.name}**${p.tags?.length ? ` — *${p.tags.join(", ")}*` : ""}\n  - [${labelOpen}](${p.url})`
-  ).join("\n\n");
+
+  return list.map(p => {
+    const mapsUrl = buildGoogleMapsUrlFromPlace(p);
+    const tags = p.tags?.length ? ` — *${p.tags.join(", ")}*` : "";
+    return [
+      `- **${p.name}**${tags}`,
+      `  - [${labelOpen}](${p.url}) · [${labelMap}](${mapsUrl})`
+    ].join("\n");
+  }).join("\n\n");
+}
+
+/** ====== Lokální výpis s odkazem na mapu pro jednu kategorii ====== */
+function buildCuratedListWithMaps(sub, {
+  max = 12,
+  labelOpen = "Otevřít",
+  labelMap = "Otevřít mapu"
+} = {}) {
+  const src = PLACES[sub] || [];
+  const list = src.slice(0, max);
+  if (!list.length) return null;
+
+  return list.map(p => {
+    const mapsUrl = buildGoogleMapsUrlFromPlace(p);
+    const tags = p.tags?.length ? ` — *${p.tags.join(", ")}*` : "";
+    return [
+      `- **${p.name}**${tags}`,
+      `  - [${labelOpen}](${p.url}) · [${labelMap}](${mapsUrl})`
+    ].join("\n");
+  }).join("\n\n");
 }
 
 /** ====== MAIN ====== */
@@ -500,9 +544,29 @@ export default async (req) => {
 
         let curated;
         if (sub === "dining") {
-          curated = buildMergedCuratedList(["breakfast","czech"], { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
+          curated = buildMergedCuratedList(["breakfast","czech"], {
+            max: 12,
+            labelOpen: labelMap[uiLang || "cs"] || "Open",
+            labelMap: (uiLang === "cs" ? "Otevřít mapu" :
+                       uiLang === "de" ? "Karte öffnen" :
+                       uiLang === "fr" ? "Ouvrir la carte" :
+                       uiLang === "es" ? "Abrir mapa" :
+                       uiLang === "it" ? "Apri mappa" :
+                       uiLang === "pl" ? "Otwórz mapę" :
+                       "Open map")
+          });
         } else {
-          curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
+          curated = buildCuratedListWithMaps(sub, {
+            max: 12,
+            labelOpen: labelMap[uiLang || "cs"] || "Open",
+            labelMap: (uiLang === "cs" ? "Otevřít mapu" :
+                       uiLang === "de" ? "Karte öffnen" :
+                       uiLang === "fr" ? "Ouvrir la carte" :
+                       uiLang === "es" ? "Abrir mapa" :
+                       uiLang === "it" ? "Apri mappa" :
+                       uiLang === "pl" ? "Otwórz mapę" :
+                       "Open map")
+          });
         }
 
         const reply = curated || HANDOFF_MSG;
@@ -617,7 +681,17 @@ export default async (req) => {
         cs:"Otevřít", en:"Open", de:"Öffnen", fr:"Ouvrir", es:"Abrir",
         ru:"Открыть", uk:"Відкрити", nl:"Openen", it:"Apri", da:"Åbn", pl:"Otwórz"
       };
-      const curated = buildCuratedList(sub, { max: 12, labelOpen: labelMap[uiLang || "cs"] || "Open" });
+      const curated = buildCuratedListWithMaps(sub, {
+        max: 12,
+        labelOpen: labelMap[uiLang || "cs"] || "Open",
+        labelMap: (uiLang === "cs" ? "Otevřít mapu" :
+                   uiLang === "de" ? "Karte öffnen" :
+                   uiLang === "fr" ? "Ouvrir la carte" :
+                   uiLang === "es" ? "Abrir mapa" :
+                   uiLang === "it" ? "Apri mappa" :
+                   uiLang === "pl" ? "Otwórz mapę" :
+                   "Open map")
+      });
       const reply = curated || HANDOFF_MSG;
       return ok(await translateToUserLang(reply, userText, uiLang));
     }

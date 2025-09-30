@@ -507,6 +507,13 @@ export default function App(){
   const scrollerRef = useRef(null);
   const shortcutsRef = useRef(null);
 
+  const scrollToShortcuts = () => {
+    // Počkej 1 frame, ať React vykreslí nové UI a ref existuje
+    requestAnimationFrame(() => {
+      shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   useEffect(() => {
     if (lang) document.body.classList.add("lang-selected"); else document.body.classList.remove("lang-selected");
   }, [lang]);
@@ -527,10 +534,8 @@ export default function App(){
 
   // Po otevření zkratek skoč na ně
   useEffect(() => {
-    if (shortcutsOpen) {
-      shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [shortcutsOpen]);
+    if (lang && shortcutsOpen) scrollToShortcuts();
+  }, [lang, shortcutsOpen]);
 
   const dict  = useMemo(() => tr[lang || "cs"], [lang]);
 
@@ -712,7 +717,12 @@ export default function App(){
           <button
             className="chipPrimary"
             style={{ ["--btn"]: "var(--blue)" }}
-            onClick={() => { setLang("en"); resetToRoot(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            onClick={() => {
+              setLang("en");
+              resetToRoot();
+              setShortcutsOpen(true);
+              scrollToShortcuts();
+            }}
           >
             {first?.[1] || "English"}
           </button>
@@ -725,7 +735,12 @@ export default function App(){
               key={code}
               className="chipPrimary"
               style={{ ["--btn"]: btnColorForIndex(i+1) }}
-              onClick={() => { setLang(code); resetToRoot(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              onClick={() => {
+                setLang(code);
+                resetToRoot();
+                setShortcutsOpen(true);
+                scrollToShortcuts();
+              }}
             >
               {label}
             </button>
@@ -774,10 +789,7 @@ export default function App(){
                     className="backBtn"
                     onClick={() => {
                       goBack();
-                      // jistota srolování na blok zkratek
-                      requestAnimationFrame(() => {
-                        shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                      });
+                      scrollToShortcuts();
                     }}
                   >
                     {tr[lang||"cs"].back}
@@ -825,10 +837,7 @@ export default function App(){
             onClick={() => {
               setShortcutsOpen(true);
               resetToRoot(); // návrat na hlavní výběr
-              // jistota srolování na zkratky
-              requestAnimationFrame(() => {
-                shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-              });
+              scrollToShortcuts();
             }}
             title={tr[lang||"cs"].back}
           >
