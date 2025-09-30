@@ -446,17 +446,32 @@ function isKeysFollowUp(messages = []) {
   return assistantWasKeys && userIsRoomOnly;
 }
 
-/** ====== MAPS URL BUILDER ====== */
+/** ====== MAPS URL BUILDER (preferuje adresu) ====== */
 function buildGoogleMapsUrlFromPlace(p = {}) {
-  const lat = Number(p.lat);
-  const lon = Number(p.lon);
-  const hasCoords = Number.isFinite(lat) && Number.isFinite(lon);
-
-  if (hasCoords) {
-    return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+  // 1) Preferuj adresu (nebo aspoň název) – přesně to chceš
+  const addr = (p.address || "").trim();
+  if (addr) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
   }
-  const query = encodeURIComponent(p.address || p.name || "");
-  return `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+  // 2) Fallback: použij souřadnice jen když jsou skutečně vyplněné a ne prázdné/0
+  const latRaw = p.lat;
+  const lonRaw = p.lon;
+  const hasLat = latRaw !== null && latRaw !== undefined && String(latRaw).trim() !== "";
+  const hasLon = lonRaw !== null && lonRaw !== undefined && String(lonRaw).trim() !== "";
+
+  if (hasLat && hasLon) {
+    const lat = parseFloat(latRaw);
+    const lon = parseFloat(lonRaw);
+    // vyhneme se (0,0); to pro Prahu určitě není správně
+    if (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {
+      return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+    }
+  }
+
+  // 3) Poslední záchrana – aspoň podle názvu
+  const name = (p.name || "").trim();
+  return name ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}` : "https://www.google.com/maps";
 }
 
 /** ====== Pomocný sloučený výpis pro „dining“ ====== */

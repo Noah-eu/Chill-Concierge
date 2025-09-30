@@ -796,7 +796,19 @@ export default function App(){
                   </button>
                 )}
                 <button className="backBtn" onClick={() => setShortcutsOpen(false)}>{tr[lang||"cs"].hide}</button>
-                <button className="backBtn" onClick={() => { setLang(null); setStack([]); window.scrollTo({ top: 0, behavior: "smooth" }); }}>🌐 {tr[lang||"cs"].chooseLang}</button>
+                <button
+                  className="backBtn"
+                  onClick={() => {
+                    setLang(null);
+                    setStack([]);
+                    setShortcutsOpen(false); // pro jistotu, aby nezůstaly otevřené zkratky
+                    requestAnimationFrame(() => {
+                      scrollerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                    });
+                  }}
+                >
+                  🌐 {tr[lang||"cs"].chooseLang}
+                </button>
               </div>
             </div>
 
