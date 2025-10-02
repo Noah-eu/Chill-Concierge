@@ -842,24 +842,22 @@ export default function App(){
           </div>
         )}
 
-       {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ (o jeden krok) */}
-       {!shortcutsOpen && lang && (
-        <button
-          className="fab fabBack"
-          onClick={() => {
-            setShortcutsOpen(true);
-            // místo resetToRoot() vrať jen o JEDEN krok zpět ve stromu
-            setStack(s => (s.length > 0 ? s.slice(0, -1) : s));
-            // zarovnej na blok se zkratkami
-            requestAnimationFrame(() => {
-              shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-            });
-          }}
-          title={tr[lang||"cs"].back}
-        >
-          {tr[lang||"cs"].back}
-        </button>
-       )}
+       {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ (z leafu na rodiče) */}
+{!shortcutsOpen && lang && (
+  <button
+    className="fab fabBack"
+    onClick={() => {
+      setShortcutsOpen(true);      // jen znovu otevři menu
+      // NEŠAHEJ na setStack – rodič už je v stacku
+      requestAnimationFrame(() => {
+        shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }}
+    title={tr[lang||"cs"].back}
+  >
+    {tr[lang||"cs"].back}
+  </button>
+)}
 
         {/* Kontaktní lišta */}
         <div className="contactBar">{tr[lang||"cs"].contact}</div>
