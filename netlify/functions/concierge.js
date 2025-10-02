@@ -108,11 +108,23 @@ function guessLang(userText = "") {
   if (/[ąćęłńóśźż]/i.test(t) || /\b(cześć|dzień dobry|proszę|dziękuję|gdzie)\b/i.test(t)) return "pl";
   return null;
 }
+
+/** ====== TRANSLATION CACHE (LRU-ish) ====== */
+const _tCache = new Map();
+function _hash(s=""){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h) ^ s.charCodeAt(i); return (h>>>0).toString(36); }
+function _cacheGet(lang, text){ const k=lang+":"+_hash(text); return _tCache.get(k); }
+function _cacheSet(lang, text, out){
+  const k=lang+":"+_hash(text);
+  _tCache.set(k, out);
+  if (_tCache.size > 200) _tCache.delete(_tCache.keys().next().value); // malý LRU
+}
 async function translateToUserLang(text, userText, uiLang) {
   const hint = uiLang || guessLang(userText);
   if (hint === "cs" && /[ěščřžýáíéúůňťď]/i.test(text)) return text;
 
-  // Pokud nechceš používat OpenAI překlad, můžeš tu vracet rovnou `text`.
+  const cached = _cacheGet(hint || "cs", text || "");
+  if (cached) return cached;
+
   const completion = await client.chat.completions.create({
     model: MODEL, temperature: 0.0,
     messages: [
@@ -120,14 +132,14 @@ async function translateToUserLang(text, userText, uiLang) {
       { role: "user", content: "ASSISTANT_MESSAGE:\n" + (text || "") }
     ]
   });
-  return completion.choices?.[0]?.message?.content?.trim() || text;
+  const out = completion.choices?.[0]?.message?.content?.trim() || text;
+  _cacheSet(hint || "cs", text || "", out);
+  return out;
 }
 
 /** ====== IMG PATHS ====== */
 const IMG = (src) => src;
-// Stávající + nové fotky, které nahraješ do /public/help/
 const P = {
-  // existující v projektu
   AC: "/help/AC.jpg",
   BALCONY: "/help/balcony.jpg",
   FUSE_APT: "/help/fuse-box-apartment.jpg",
@@ -139,15 +151,11 @@ const P = {
   GARBAGE: "/help/garbage.jpg",
   GATE_SWITCH: "/help/inside-gate-switch.jpg",
   DOOR_BELLS: "/help/door-bells.jpg",
-
-  // NOVÉ pro „Instrukce k ubytování“ — pojmenuj přesně takto v /public/help/
-  ENTRY_DIAL: "/help/entry-dialer.jpg",            // klávesnice/kód u brány (zeleně na screenu)
-  KEYBOX_WALL: "/help/key-box-wall.jpg",           // stěna s boxy
-  ELEVATOR: "/help/elevator.jpg",                  // výtah/interiér
-  FLOOR_HALL: "/help/floor-hall.jpg",              // chodba/patro
-  ROOM_DOOR: "/help/room-door.jpg",                // dveře do pokoje
-
-  // Dodané nové fotky ze screenshotu
+  ENTRY_DIAL: "/help/entry-dialer.jpg",
+  KEYBOX_WALL: "/help/key-box-wall.jpg",
+  ELEVATOR: "/help/elevator.jpg",
+  FLOOR_HALL: "/help/floor-hall.jpg",
+  ROOM_DOOR: "/help/room-door.jpg",
   ENTRANCE: "/help/6.Entrance.jpg",
   DIALER: "/help/dialer.jpg",
 };
@@ -278,7 +286,6 @@ const buildSafe = () => [
 
 /** ====== NOVÁ SEKCE – „Instrukce k ubytování“ ====== */
 function buildStayInstructions() {
-  // Podrobné instrukce k self check-inu doplněné relevantními fotkami.
   return [
     "## Instrukce k ubytování",
     `![](${IMG(P.ENTRANCE)})`,
@@ -435,12 +442,10 @@ function isKeysFollowUp(messages = []) {
   const la = (lastAssistant(messages) || "");
   const lu = (lastUser(messages) || "").trim();
 
-  // Poslední odpověď asistenta byla opravdu k tématu "Náhradní klíč"
   const assistantWasKeys =
     /Zapomenutý klíč|Náhradní klíč|Spare key/i.test(la) ||
     (la.includes("/help/spare-key.jpg") || la.includes("/help/key-box-wall.jpg"));
 
-  // Uživatelský vstup je čisté číslo pokoje (001–305)
   const userIsRoomOnly = /^\s*(00[1]|10[1-5]|20[1-5]|30[1-5])\s*$/.test(lu);
 
   return assistantWasKeys && userIsRoomOnly;
@@ -448,13 +453,11 @@ function isKeysFollowUp(messages = []) {
 
 /** ====== MAPS URL BUILDER (preferuje adresu) ====== */
 function buildGoogleMapsUrlFromPlace(p = {}) {
-  // 1) Preferuj adresu (nebo aspoň název) – přesně to chceš
   const addr = (p.address || "").trim();
   if (addr) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
   }
 
-  // 2) Fallback: použij souřadnice jen když jsou skutečně vyplněné a ne prázdné/0
   const latRaw = p.lat;
   const lonRaw = p.lon;
   const hasLat = latRaw !== null && latRaw !== undefined && String(latRaw).trim() !== "";
@@ -463,13 +466,11 @@ function buildGoogleMapsUrlFromPlace(p = {}) {
   if (hasLat && hasLon) {
     const lat = parseFloat(latRaw);
     const lon = parseFloat(lonRaw);
-    // vyhneme se (0,0); to pro Prahu určitě není správně
     if (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {
       return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
     }
   }
 
-  // 3) Poslední záchrana – aspoň podle názvu
   const name = (p.name || "").trim();
   return name ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}` : "https://www.google.com/maps";
 }
@@ -584,15 +585,15 @@ export default async (req) => {
           });
         }
 
-        const reply = curated || HANDOFF_MSG;
-        return ok(await translateToUserLang(reply, userText || sub, uiLang));
+        // ⏩ list vrať rovnou (bez překladu); fallback přelož
+        if (curated) return ok(curated);
+        return ok(await translateToUserLang(HANDOFF_MSG, userText || sub, uiLang));
       }
 
       // b) Technické / interní – vracíme markdowny + fotky
       if (control.intent === "tech") {
         const sub = String(control.sub || "").toLowerCase();
         const map = {
-          // ✅ doplněné aliasy pro ubytovací instrukce
           stay_instructions: buildStayInstructions,
           instructions:       buildStayInstructions,
 
@@ -651,7 +652,7 @@ export default async (req) => {
       return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
     }
 
-    // 3) Intent z volného textu (zůstává kvůli Wi-Fi: číslo pokoje / SSID)
+    // 3) Intent z volného textu
     const intent = detectIntent(userText);
     const wifiContext = historyContainsWifi(messages);
 
@@ -707,13 +708,13 @@ export default async (req) => {
                    uiLang === "pl" ? "Otwórz mapę" :
                    "Open map")
       });
-      const reply = curated || HANDOFF_MSG;
-      return ok(await translateToUserLang(reply, userText, uiLang));
+
+      // ⏩ list vrať rovnou; fallback přelož
+      if (curated) return ok(curated);
+      return ok(await translateToUserLang(HANDOFF_MSG, userText, uiLang));
     }
 
-    // 4) (ÚKLID) – fallback na model odstraněn, protože UI jede přes tlačítka
-
-    // Když nic neodpovídá, vrať neutrální odpověď
+    // 4) fallback
     return ok(await translateToUserLang("Rozumím.", userText, uiLang));
 
   } catch (e) {
