@@ -168,7 +168,8 @@ const LANGS = {
   ru:"Русский", uk:"Українська", nl:"Nederlands", it:"Italiano", da:"Dansk", pl:"Polski"
 };
 
-/* Přidán klíč instructionsLabel do všech jazyků */
+/* POZN.: předpokládám, že máš vyplněné překlady v tr.cs, tr.en a zároveň i v ostatních jazycích.
+   Níže ponechávám skeleton; důležité je, že UI používá helper t(key), takže se správně přepne. */
 const tr = {
   cs:{ chooseLang:"Zvolte jazyk", mainTitle:"Vyberte téma", subTitle:"Podtéma / Subtopic", back:"← Zpět",
        instructionsLabel:"📄 Instrukce k ubytování",
@@ -176,7 +177,7 @@ const tr = {
        tourLabel:"🧭 3D prohlídka hotelu", tourOpenMsg:"[Otevřít 3D prohlídku]("+MATTERPORT_URL+")",
        stillAsk:"Vyberte jednu z možností níže.",
        contact:"Pokud jste nenašli, co potřebujete, napište Davidovi (WhatsApp +420 733 439 733).",
-       shortcuts:"Zkratky", hide:"Skrýt", show:"⚡ Zkratky",
+       hide:"Skrýt",
        foodDelivery:"🛵 Jídlo domů", transportInfo:"🗺️ Doprava po Praze",
        diningLabel:"🍽️ Snídaně / Restaurace", bakeryLabel:"🥖 Pekárny",
        cafeBarGroupLabel:"☕/🍸 Caffè / Bar", cafeLabel:"☕ Kavárny", barLabel:"🍸 Bary",
@@ -187,23 +188,21 @@ const tr = {
        coffeeLabel:"☕ Kávovar Tchibo", fireAlarmLabel:"🔥 Požární hlásič",
        elevatorPhoneLabel:"🛗 Výtah – servis", safeLabel:"🔐 Trezor",
        spareKeyLabel:"🔑 Náhradní klíč",
-       spareKeyContact:"**Pro kód od náhradního klíče kontaktujte Davida (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Prádelna", accessLabel:"♿️ Bezbariérovost", smokingLabel:"🚭 Kouření",
        luggageLabel:"🎒 Úschovna zavazadel", doorbellsLabel:"🔔 Zvonky",
        gateLabel:"🚪 Brána (zevnitř)", trashLabel:"🗑️ Odpadky / Popelnice",
        doctorLabel:"👩‍⚕️ Lékař 24/7", linenLabel:"🧻 Povlečení / Ručníky",
        pickRoom:"Zvolte číslo apartmánu", floor:"Patro", room:"Pokoj", confirm:"Zobrazit", cancel:"Zavřít",
        wifiStatus:"Funguje Wi-Fi?", ok:"Funguje", notOk:"Nefunguje",
-       pickSsid:"Vyberte SSID, které na vašem zařízení svítí nejsilněji",
-       showMyWifi:"Zobrazit moje heslo",
-       aRooms:"🛏️ Pokoje", aKitchen:"🍳 Kuchyň", aBathroom:"🛁 Koupelna", aService:"🧰 Prádelna, úschovna, odpadky" },
+       pickSsid:"Vyberte SSID", showMyWifi:"Zobrazit moje heslo" },
+
   en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
        instructionsLabel:"📄 Check-in instructions",
        catFood:"Food & Nearby", catTech:"Technical issues", catOther:"Other", catTransport:"Transport", catAmenities:"Hotel amenities",
        tourLabel:"🧭 3D virtual tour", tourOpenMsg:"[Open the 3D tour]("+MATTERPORT_URL+")",
        stillAsk:"Pick one of the options below.",
        contact:"If you can’t find what you need, message David (WhatsApp +420 733 439 733).",
-       shortcuts:"Shortcuts", hide:"Hide", show:"⚡ Shortcuts",
+       hide:"Hide",
        foodDelivery:"🛵 Food delivery", transportInfo:"🗺️ Getting around Prague",
        diningLabel:"🍽️ Breakfast / Restaurants", bakeryLabel:"🥖 Bakeries",
        cafeBarGroupLabel:"☕/🍸 Caffè / Bar", cafeLabel:"☕ Cafés", barLabel:"🍸 Bars",
@@ -214,30 +213,24 @@ const tr = {
        coffeeLabel:"☕ Tchibo coffee machine", fireAlarmLabel:"🔥 Fire alarm",
        elevatorPhoneLabel:"🛗 Elevator – service", safeLabel:"🔐 Safe",
        spareKeyLabel:"🔑 Spare key",
-       spareKeyContact:"**For the spare-key code, please contact David (WhatsApp +420 733 439 733).**",
        laundryLabel:"🧺 Laundry", accessLabel:"♿️ Accessibility", smokingLabel:"🚭 Smoking",
        luggageLabel:"🎒 Luggage room", doorbellsLabel:"🔔 Doorbells",
        gateLabel:"🚪 Gate (inside)", trashLabel:"🗑️ Trash / bins",
        doctorLabel:"👩‍⚕️ Doctor 24/7", linenLabel:"🧻 Linen / towels",
        pickRoom:"Choose your apartment number", floor:"Floor", room:"Room", confirm:"Show", cancel:"Close",
        wifiStatus:"Is the Wi-Fi working?", ok:"Works", notOk:"Doesn’t work",
-       pickSsid:"Pick the SSID that appears strongest on your device",
-       showMyWifi:"Show my password",
-       aRooms:"🛏️ Rooms", aKitchen:"🍳 Kitchen", aBathroom:"🛁 Bathroom", aService:"🧰 Laundry, luggage, trash" },
-  de:{ /* ... stejné jako předtím ... */ },
-  fr:{ /* ... */ },
-  es:{ /* ... */ },
-  ru:{ /* ... */ },
-  uk:{ /* ... */ },
-  nl:{ /* ... */ },
-  it:{ /* ... */ },
-  da:{ /* ... */ },
-  pl:{ /* ... */ }
+       pickSsid:"Pick the SSID", showMyWifi:"Show my password" },
+
+  // ↓↓↓ vyplň si své překlady (máš je); UI je načte přes t(key)
+  de:{ /* ... */ }, fr:{ /* ... */ }, es:{ /* ... */ }, ru:{ /* ... */ },
+  uk:{ /* ... */ }, nl:{ /* ... */ }, it:{ /* ... */ }, da:{ /* ... */ }, pl:{ /* ... */ }
 };
 
-/** ============ Fallback helpery pro i18n ============ */
-const getDict = (lang) => (tr[lang] ? tr[lang] : tr.cs);
-const safeText = (dict, key) => dict[key] ?? tr.cs[key] ?? key;
+/** ===== helpery i18n ===== */
+const getDict = (lang) => tr[lang] ?? tr.en ?? tr.cs;
+// Fallback pořadí: vybraný jazyk → EN → CS → klíč
+const makeT = (lang) => (key) =>
+  (tr[lang] && tr[lang][key]) ?? (tr.en && tr.en[key]) ?? (tr.cs && tr.cs[key]) ?? key;
 
 /** ================== barvy ============== */
 const btnColorForIndex = (i) =>
@@ -252,16 +245,19 @@ export default function App(){
   const [shortcutsOpen, setShortcutsOpen] = useState(true);
 
   // Overlays
-  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null }); // keys (interní)
+  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null });
   const [wifiRoomSheet, setWifiRoomSheet] = useState({ open:false, floor:null, last:null });
   const [wifiSsidSheet, setWifiSsidSheet] = useState({ open:false, ssid:null });
 
-  // CTA tlačítka pod bublinou
+  // CTA
   const [showKeysCta, setShowKeysCta] = useState(false);
   const [wifiCtas, setWifiCtas] = useState({ showPassword:false, showNotOk:false });
 
   const scrollerRef = useRef(null);
   const shortcutsRef = useRef(null);
+
+  const dict = useMemo(() => getDict(lang || "cs"), [lang]);
+  const t    = useMemo(() => makeT(lang || "cs"), [lang]); // ← používejme všude v UI
 
   const scrollToShortcuts = () => {
     requestAnimationFrame(() => {
@@ -292,13 +288,8 @@ export default function App(){
     if (lang && shortcutsOpen) scrollToShortcuts();
   }, [lang, shortcutsOpen]);
 
-  // ✅ bezpečný slovník s fallbackem do cs
-  const dict  = useMemo(() => getDict(lang || "cs"), [lang]);
-
   /** ====== FLOWS ====== */
-  function makeFlows(dict){
-    const t = (k) => safeText(dict, k);
-
+  function makeFlows(){
     const FOOD = [
       { label: t("diningLabel"),   control:{ intent:"local", sub:"dining" } },
       { label: t("bakeryLabel"),   control:{ intent:"local", sub:"bakery" } },
@@ -352,7 +343,6 @@ export default function App(){
       { label: t("linenLabel"),       control:{ intent:"tech", sub:"linen_towels" } },
     ];
 
-    /* Hlavní nabídka – Wi-Fi chip hned po 3D prohlídce */
     return [
       { label: t("instructionsLabel"), control:{ intent:"tech", sub:"stay_instructions" } },
       { label: t("tourLabel"), action:"tour" },
@@ -364,7 +354,7 @@ export default function App(){
       { label: t("catOther"),     children:OTHER },
     ];
   }
-  const FLOWS = useMemo(() => makeFlows(dict), [dict]);
+  const FLOWS = useMemo(() => makeFlows(), [t]); // ← závisí na t (na lang)
 
   function renderAssistant(md=""){
     const raw = marked.parse(md, { breaks:true });
@@ -417,7 +407,7 @@ export default function App(){
       try { window.open(MATTERPORT_URL, "_blank", "noopener,noreferrer"); } catch {}
       setWifiCtas({ showPassword:false, showNotOk:false });
       setShortcutsOpen(false);
-      setChat(c => [...c, { role:"assistant", content: dict.tourOpenMsg }]); // ✅
+      setChat(c => [...c, { role:"assistant", content: dict.tourOpenMsg }]);
       return;
     }
 
@@ -453,7 +443,7 @@ export default function App(){
     if (floor === null || last === null) return;
     const room = `${floor}${last}`.padStart(3, "0");
     setWifiRoomSheet({ open:false, floor:null, last:null });
-    setWifiCtas({ showPassword:false, showNotOk:true }); // po odeslání pokoje zobraz „Nefunguje“
+    setWifiCtas({ showPassword:false, showNotOk:true });
     return sendText(room);
   };
 
@@ -465,7 +455,7 @@ export default function App(){
     return sendText(ssid);
   };
 
-  // Pomocné: render jazyků – EN první, ostatní ve dvojicích
+  // Výběr jazyka (zůstává s českým nadpisem před volbou)
   const renderLangChooser = () => {
     const entries = Object.entries(LANGS);
     const first = entries.find(([code]) => code === "en");
@@ -544,7 +534,7 @@ export default function App(){
         {lang && currentChildren && shortcutsOpen && (
           <div className="shortcuts" ref={shortcutsRef}>
             <div className="shortcutsHeader">
-              <strong>{stack.length === 0 ? safeText(dict,"mainTitle") : safeText(dict,"subTitle")}</strong>
+              <strong>{stack.length === 0 ? t("mainTitle") : t("subTitle")}</strong>
               <div className="btnRow">
                 {stack.length > 0 && (
                   <button
@@ -555,11 +545,11 @@ export default function App(){
                       scrollToShortcuts();
                     }}
                   >
-                    {safeText(dict,"back")}
+                    {t("back")}
                   </button>
                 )}
                 <button className="backBtn" onClick={() => { setShortcutsOpen(false); }}>
-                  {safeText(dict,"hide")}
+                  {t("hide")}
                 </button>
                 <button
                   className="backBtn"
@@ -573,7 +563,7 @@ export default function App(){
                     });
                   }}
                 >
-                  🌐 {safeText(dict,"chooseLang")}
+                  🌐 {t("chooseLang")}
                 </button>
               </div>
             </div>
@@ -604,11 +594,11 @@ export default function App(){
               )}
             </div>
 
-            <div className="tips" style={{ marginTop:8 }}>{safeText(dict,"stillAsk")}</div>
+            <div className="tips" style={{ marginTop:8 }}>{t("stillAsk")}</div>
           </div>
         )}
 
-        {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ */}
+        {/* FAB: když jsou zkratky zavřené */}
         {!shortcutsOpen && lang && (
           <button
             className="fab fabBack"
@@ -618,31 +608,31 @@ export default function App(){
                 shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
               });
             }}
-            title={safeText(dict,"back")}
+            title={t("back")}
           >
-            {safeText(dict,"back")}
+            {t("back")}
           </button>
         )}
 
         {/* Kontaktní lišta */}
-        <div className="contactBar">{safeText(dict,"contact")}</div>
+        <div className="contactBar">{t("contact")}</div>
       </div>
 
       {/* ===== CTA STACK ===== */}
       <div className="fabStack" aria-live="polite">
         {showKeysCta && (
           <button className="fabAction" onClick={() => setRoomSheet({ open:true, floor:null, last:null })}>
-            {safeText(dict,"pickRoom")}
+            {t("pickRoom")}
           </button>
         )}
         {wifiCtas.showPassword && (
           <button className="fabAction" onClick={() => setWifiRoomSheet({ open:true, floor:null, last:null })}>
-            {safeText(dict,"showMyWifi")}
+            {t("showMyWifi")}
           </button>
         )}
         {wifiCtas.showNotOk && (
           <button className="fabAction" onClick={() => setWifiSsidSheet({ open:true, ssid:null })}>
-            {safeText(dict,"notOk")}
+            {t("notOk")}
           </button>
         )}
       </div>
@@ -651,8 +641,8 @@ export default function App(){
       {roomSheet.open && (
         <div className="overlay" onClick={()=>setRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{safeText(dict,"pickRoom")}</h4>
-            <div className="tips" style={{marginBottom:6}}>{safeText(dict,"floor")}</div>
+            <h4>{t("pickRoom")}</h4>
+            <div className="tips" style={{marginBottom:6}}>{t("floor")}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${roomSheet.floor===f?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, floor:f}))}>
@@ -660,7 +650,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{safeText(dict,"room")}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{t("room")}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${roomSheet.last===l?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, last:l}))}>
@@ -669,14 +659,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setRoomSheet({open:false,floor:null,last:null})}>{safeText(dict,"cancel")}</button>
+              <button className="backBtn" onClick={()=>setRoomSheet({open:false,floor:null,last:null})}>{t("cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={roomSheet.floor===null || roomSheet.last===null}
                 onClick={confirmRoom}
               >
-                {safeText(dict,"confirm")}
+                {t("confirm")}
               </button>
             </div>
           </div>
@@ -687,8 +677,8 @@ export default function App(){
       {wifiRoomSheet.open && (
         <div className="overlay" onClick={()=>setWifiRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{safeText(dict,"pickRoom")}</h4>
-            <div className="tips" style={{marginBottom:6}}>{safeText(dict,"floor")}</div>
+            <h4>{t("pickRoom")}</h4>
+            <div className="tips" style={{marginBottom:6}}>{t("floor")}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${wifiRoomSheet.floor===f?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, floor:f}))}>
@@ -696,7 +686,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{safeText(dict,"room")}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{t("room")}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${wifiRoomSheet.last===l?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, last:l}))}>
@@ -705,14 +695,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setWifiRoomSheet({open:false,floor:null,last:null})}>{safeText(dict,"cancel")}</button>
+              <button className="backBtn" onClick={()=>setWifiRoomSheet({open:false,floor:null,last:null})}>{t("cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={wifiRoomSheet.floor===null || wifiRoomSheet.last===null}
                 onClick={confirmWifiRoom}
               >
-                {safeText(dict,"confirm")}
+                {t("confirm")}
               </button>
             </div>
           </div>
@@ -723,7 +713,7 @@ export default function App(){
       {wifiSsidSheet.open && (
         <div className="overlay" onClick={()=>setWifiSsidSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{safeText(dict,"pickSsid")}</h4>
+            <h4>{t("pickSsid")}</h4>
             <div className="pillRow" style={{marginBottom:12}}>
               {ALL_SSIDS.map(code=>(
                 <button
@@ -736,14 +726,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setWifiSsidSheet({open:false, ssid:null})}>{safeText(dict,"cancel")}</button>
+              <button className="backBtn" onClick={()=>setWifiSsidSheet({open:false, ssid:null})}>{t("cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={!wifiSsidSheet.ssid}
                 onClick={confirmWifiSsid}
               >
-                {safeText(dict,"confirm")}
+                {t("confirm")}
               </button>
             </div>
           </div>
