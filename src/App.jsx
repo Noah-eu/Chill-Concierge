@@ -168,8 +168,6 @@ const LANGS = {
   ru:"Русский", uk:"Українська", nl:"Nederlands", it:"Italiano", da:"Dansk", pl:"Polski"
 };
 
-/* POZN.: předpokládám, že máš vyplněné překlady v tr.cs, tr.en a zároveň i v ostatních jazycích.
-   Níže ponechávám skeleton; důležité je, že UI používá helper t(key), takže se správně přepne. */
 const tr = {
   cs:{ chooseLang:"Zvolte jazyk", mainTitle:"Vyberte téma", subTitle:"Podtéma / Subtopic", back:"← Zpět",
        instructionsLabel:"📄 Instrukce k ubytování",
@@ -194,7 +192,8 @@ const tr = {
        doctorLabel:"👩‍⚕️ Lékař 24/7", linenLabel:"🧻 Povlečení / Ručníky",
        pickRoom:"Zvolte číslo apartmánu", floor:"Patro", room:"Pokoj", confirm:"Zobrazit", cancel:"Zavřít",
        wifiStatus:"Funguje Wi-Fi?", ok:"Funguje", notOk:"Nefunguje",
-       pickSsid:"Vyberte SSID", showMyWifi:"Zobrazit moje heslo" },
+       pickSsid:"Vyberte SSID", showMyWifi:"Zobrazit moje heslo",
+       aRooms:"🛏️ Pokoje", aKitchen:"🍳 Kuchyň", aBathroom:"🛁 Koupelna", aService:"🧰 Prádelna, úschovna, odpadky" },
 
   en:{ chooseLang:"Choose a language", mainTitle:"Pick a topic", subTitle:"Subtopic", back:"← Back",
        instructionsLabel:"📄 Check-in instructions",
@@ -219,18 +218,24 @@ const tr = {
        doctorLabel:"👩‍⚕️ Doctor 24/7", linenLabel:"🧻 Linen / towels",
        pickRoom:"Choose your apartment number", floor:"Floor", room:"Room", confirm:"Show", cancel:"Close",
        wifiStatus:"Is the Wi-Fi working?", ok:"Works", notOk:"Doesn’t work",
-       pickSsid:"Pick the SSID", showMyWifi:"Show my password" },
+       pickSsid:"Pick the SSID", showMyWifi:"Show my password",
+       aRooms:"🛏️ Rooms", aKitchen:"🍳 Kitchen", aBathroom:"🛁 Bathroom", aService:"🧰 Laundry, luggage, trash" },
 
-  // ↓↓↓ vyplň si své překlady (máš je); UI je načte přes t(key)
-  de:{ /* ... */ }, fr:{ /* ... */ }, es:{ /* ... */ }, ru:{ /* ... */ },
-  uk:{ /* ... */ }, nl:{ /* ... */ }, it:{ /* ... */ }, da:{ /* ... */ }, pl:{ /* ... */ }
+  // Další jazyky – máš své překlady; UI teď NEpoužívá fallback, takže se přesně zobrazí zvolený jazyk:
+  de:{ /* tvoje přeložené klíče */ },
+  fr:{ /* tvoje přeložené klíče */ },
+  es:{ /* tvoje přeložené klíče */ },
+  ru:{ /* tvoje přeložené klíče */ },
+  uk:{ /* tvoje přeložené klíče */ },
+  nl:{ /* tvoje přeložené klíče */ },
+  it:{ /* tvoje přeložené klíče */ },
+  da:{ /* tvoje přeložené klíče */ },
+  pl:{ /* tvoje přeložené klíče */ }
 };
 
-/** ===== helpery i18n ===== */
-const getDict = (lang) => tr[lang] ?? tr.en ?? tr.cs;
-// Fallback pořadí: vybraný jazyk → EN → CS → klíč
-const makeT = (lang) => (key) =>
-  (tr[lang] && tr[lang][key]) ?? (tr.en && tr.en[key]) ?? (tr.cs && tr.cs[key]) ?? key;
+/** ===== helper bez fallbacku ===== */
+// Použij vždy JEN aktivní jazyk; pokud klíč chybí, vrať název klíče (aby se chyba odhalila).
+const t = (lang, key) => (tr[lang] && tr[lang][key]) ?? key;
 
 /** ================== barvy ============== */
 const btnColorForIndex = (i) =>
@@ -245,19 +250,16 @@ export default function App(){
   const [shortcutsOpen, setShortcutsOpen] = useState(true);
 
   // Overlays
-  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null });
+  const [roomSheet, setRoomSheet] = useState({ open:false, floor:null, last:null }); // keys (interní)
   const [wifiRoomSheet, setWifiRoomSheet] = useState({ open:false, floor:null, last:null });
   const [wifiSsidSheet, setWifiSsidSheet] = useState({ open:false, ssid:null });
 
-  // CTA
+  // CTA tlačítka pod bublinou
   const [showKeysCta, setShowKeysCta] = useState(false);
   const [wifiCtas, setWifiCtas] = useState({ showPassword:false, showNotOk:false });
 
   const scrollerRef = useRef(null);
   const shortcutsRef = useRef(null);
-
-  const dict = useMemo(() => getDict(lang || "cs"), [lang]);
-  const t    = useMemo(() => makeT(lang || "cs"), [lang]); // ← používejme všude v UI
 
   const scrollToShortcuts = () => {
     requestAnimationFrame(() => {
@@ -289,72 +291,72 @@ export default function App(){
   }, [lang, shortcutsOpen]);
 
   /** ====== FLOWS ====== */
-  function makeFlows(){
+  function makeFlows(activeLang){
     const FOOD = [
-      { label: t("diningLabel"),   control:{ intent:"local", sub:"dining" } },
-      { label: t("bakeryLabel"),   control:{ intent:"local", sub:"bakery" } },
-      { label: t("cafeBarGroupLabel"), children:[
-        { label: t("cafeLabel"), control:{ intent:"local", sub:"cafe" } },
-        { label: t("barLabel"),  control:{ intent:"local", sub:"bar"  } },
+      { label: t(activeLang,"diningLabel"),   control:{ intent:"local", sub:"dining" } },
+      { label: t(activeLang,"bakeryLabel"),   control:{ intent:"local", sub:"bakery" } },
+      { label: t(activeLang,"cafeBarGroupLabel"), children:[
+        { label: t(activeLang,"cafeLabel"), control:{ intent:"local", sub:"cafe" } },
+        { label: t(activeLang,"barLabel"),  control:{ intent:"local", sub:"bar"  } },
       ]},
-      { label: t("groceryLabel"),  control:{ intent:"local", sub:"grocery" } },
-      { label: t("pharmacyLabel"), control:{ intent:"local", sub:"pharmacy" } },
-      { label: t("foodDelivery"),  control:{ intent:"tech",  sub:"food_delivery" } },
-      { label: t("moneyGroupLabel"), children:[
-        { label: t("exchangeLabel"), control:{ intent:"local", sub:"exchange" } },
-        { label: t("atmLabel"),      control:{ intent:"local", sub:"atm" } },
+      { label: t(activeLang,"groceryLabel"),  control:{ intent:"local", sub:"grocery" } },
+      { label: t(activeLang,"pharmacyLabel"), control:{ intent:"local", sub:"pharmacy" } },
+      { label: t(activeLang,"foodDelivery"),  control:{ intent:"tech",  sub:"food_delivery" } },
+      { label: t(activeLang,"moneyGroupLabel"), children:[
+        { label: t(activeLang,"exchangeLabel"), control:{ intent:"local", sub:"exchange" } },
+        { label: t(activeLang,"atmLabel"),      control:{ intent:"local", sub:"atm" } },
       ]},
     ];
 
     const TECH = [
-      { label: t("wifiLabel"),            control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
-      { label: t("powerLabel"),           control:{ intent:"tech", sub:"power" } },
-      { label: t("hotWaterLabel"),        control:{ intent:"tech", sub:"hot_water" } },
-      { label: t("acLabel"),              control:{ intent:"tech", sub:"ac" } },
-      { label: t("inductionLabel"),       control:{ intent:"tech", sub:"induction" } },
-      { label: t("hoodLabel"),            control:{ intent:"tech", sub:"hood" } },
-      { label: t("coffeeLabel"),          control:{ intent:"tech", sub:"coffee" } },
-      { label: t("fireAlarmLabel"),       control:{ intent:"tech", sub:"fire_alarm" } },
-      { label: t("elevatorPhoneLabel"),   control:{ intent:"tech", sub:"elevator_phone" } },
-      { label: t("safeLabel"),            control:{ intent:"tech", sub:"safe" } },
-      { label: t("spareKeyLabel"),        control:{ intent:"tech", sub:"keys" } },
+      { label: t(activeLang,"wifiLabel"),            control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
+      { label: t(activeLang,"powerLabel"),           control:{ intent:"tech", sub:"power" } },
+      { label: t(activeLang,"hotWaterLabel"),        control:{ intent:"tech", sub:"hot_water" } },
+      { label: t(activeLang,"acLabel"),              control:{ intent:"tech", sub:"ac" } },
+      { label: t(activeLang,"inductionLabel"),       control:{ intent:"tech", sub:"induction" } },
+      { label: t(activeLang,"hoodLabel"),            control:{ intent:"tech", sub:"hood" } },
+      { label: t(activeLang,"coffeeLabel"),          control:{ intent:"tech", sub:"coffee" } },
+      { label: t(activeLang,"fireAlarmLabel"),       control:{ intent:"tech", sub:"fire_alarm" } },
+      { label: t(activeLang,"elevatorPhoneLabel"),   control:{ intent:"tech", sub:"elevator_phone" } },
+      { label: t(activeLang,"safeLabel"),            control:{ intent:"tech", sub:"safe" } },
+      { label: t(activeLang,"spareKeyLabel"),        control:{ intent:"tech", sub:"keys" } },
     ];
 
     const TRANSPORT = [
-      { label: t("transportInfo"), control:{ intent:"tech", sub:"transport" } },
+      { label: t(activeLang,"transportInfo"), control:{ intent:"tech", sub:"transport" } },
     ];
 
     const AMENITIES = [
-      { label: t("aRooms"),   control:{ intent:"amenities", sub:"rooms" } },
-      { label: t("aKitchen"), control:{ intent:"amenities", sub:"kitchen" } },
-      { label: t("aBathroom"),control:{ intent:"amenities", sub:"bathroom" } },
-      { label: t("aService"), control:{ intent:"amenities", sub:"service" } },
+      { label: t(activeLang,"aRooms"),   control:{ intent:"amenities", sub:"rooms" } },
+      { label: t(activeLang,"aKitchen"), control:{ intent:"amenities", sub:"kitchen" } },
+      { label: t(activeLang,"aBathroom"),control:{ intent:"amenities", sub:"bathroom" } },
+      { label: t(activeLang,"aService"), control:{ intent:"amenities", sub:"service" } },
     ];
 
     const OTHER = [
-      { label: t("laundryLabel"),     control:{ intent:"tech", sub:"laundry" } },
-      { label: t("accessLabel"),      control:{ intent:"tech", sub:"access" } },
-      { label: t("smokingLabel"),     control:{ intent:"tech", sub:"smoking" } },
-      { label: t("luggageLabel"),     control:{ intent:"tech", sub:"luggage" } },
-      { label: t("doorbellsLabel"),   control:{ intent:"tech", sub:"doorbells" } },
-      { label: t("gateLabel"),        control:{ intent:"tech", sub:"gate" } },
-      { label: t("trashLabel"),       control:{ intent:"tech", sub:"trash" } },
-      { label: t("doctorLabel"),      control:{ intent:"tech", sub:"doctor" } },
-      { label: t("linenLabel"),       control:{ intent:"tech", sub:"linen_towels" } },
+      { label: t(activeLang,"laundryLabel"),     control:{ intent:"tech", sub:"laundry" } },
+      { label: t(activeLang,"accessLabel"),      control:{ intent:"tech", sub:"access" } },
+      { label: t(activeLang,"smokingLabel"),     control:{ intent:"tech", sub:"smoking" } },
+      { label: t(activeLang,"luggageLabel"),     control:{ intent:"tech", sub:"luggage" } },
+      { label: t(activeLang,"doorbellsLabel"),   control:{ intent:"tech", sub:"doorbells" } },
+      { label: t(activeLang,"gateLabel"),        control:{ intent:"tech", sub:"gate" } },
+      { label: t(activeLang,"trashLabel"),       control:{ intent:"tech", sub:"trash" } },
+      { label: t(activeLang,"doctorLabel"),      control:{ intent:"tech", sub:"doctor" } },
+      { label: t(activeLang,"linenLabel"),       control:{ intent:"tech", sub:"linen_towels" } },
     ];
 
     return [
-      { label: t("instructionsLabel"), control:{ intent:"tech", sub:"stay_instructions" } },
-      { label: t("tourLabel"), action:"tour" },
-      { label: t("wifiLabel"), control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
-      { label: t("catFood"),      children:FOOD },
-      { label: t("catTech"),      children:TECH },
-      { label: t("catTransport"), children:TRANSPORT },
-      { label: t("catAmenities"), children:AMENITIES },
-      { label: t("catOther"),     children:OTHER },
+      { label: t(activeLang,"instructionsLabel"), control:{ intent:"tech", sub:"stay_instructions" } },
+      { label: t(activeLang,"tourLabel"), action:"tour" },
+      { label: t(activeLang,"wifiLabel"), control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
+      { label: t(activeLang,"catFood"),      children:FOOD },
+      { label: t(activeLang,"catTech"),      children:TECH },
+      { label: t(activeLang,"catTransport"), children:TRANSPORT },
+      { label: t(activeLang,"catAmenities"), children:AMENITIES },
+      { label: t(activeLang,"catOther"),     children:OTHER },
     ];
   }
-  const FLOWS = useMemo(() => makeFlows(), [t]); // ← závisí na t (na lang)
+  const FLOWS = useMemo(() => (lang ? makeFlows(lang) : []), [lang]);
 
   function renderAssistant(md=""){
     const raw = marked.parse(md, { breaks:true });
@@ -407,7 +409,8 @@ export default function App(){
       try { window.open(MATTERPORT_URL, "_blank", "noopener,noreferrer"); } catch {}
       setWifiCtas({ showPassword:false, showNotOk:false });
       setShortcutsOpen(false);
-      setChat(c => [...c, { role:"assistant", content: dict.tourOpenMsg }]);
+      // tourOpenMsg ber jen z vybraného jazyka
+      setChat(c => [...c, { role:"assistant", content: tr[lang]?.tourOpenMsg || "Link" }]);
       return;
     }
 
@@ -443,7 +446,7 @@ export default function App(){
     if (floor === null || last === null) return;
     const room = `${floor}${last}`.padStart(3, "0");
     setWifiRoomSheet({ open:false, floor:null, last:null });
-    setWifiCtas({ showPassword:false, showNotOk:true });
+    setWifiCtas({ showPassword:false, showNotOk:true }); // po odeslání pokoje zobraz „Nefunguje“
     return sendText(room);
   };
 
@@ -455,7 +458,7 @@ export default function App(){
     return sendText(ssid);
   };
 
-  // Výběr jazyka (zůstává s českým nadpisem před volbou)
+  // Pomocné: výběr jazyka – EN první, ostatní ve dvojicích
   const renderLangChooser = () => {
     const entries = Object.entries(LANGS);
     const first = entries.find(([code]) => code === "en");
@@ -534,7 +537,7 @@ export default function App(){
         {lang && currentChildren && shortcutsOpen && (
           <div className="shortcuts" ref={shortcutsRef}>
             <div className="shortcutsHeader">
-              <strong>{stack.length === 0 ? t("mainTitle") : t("subTitle")}</strong>
+              <strong>{stack.length === 0 ? t(lang,"mainTitle") : t(lang,"subTitle")}</strong>
               <div className="btnRow">
                 {stack.length > 0 && (
                   <button
@@ -545,11 +548,11 @@ export default function App(){
                       scrollToShortcuts();
                     }}
                   >
-                    {t("back")}
+                    {t(lang,"back")}
                   </button>
                 )}
                 <button className="backBtn" onClick={() => { setShortcutsOpen(false); }}>
-                  {t("hide")}
+                  {t(lang,"hide")}
                 </button>
                 <button
                   className="backBtn"
@@ -563,7 +566,7 @@ export default function App(){
                     });
                   }}
                 >
-                  🌐 {t("chooseLang")}
+                  🌐 {t(lang || "cs","chooseLang")}
                 </button>
               </div>
             </div>
@@ -594,11 +597,11 @@ export default function App(){
               )}
             </div>
 
-            <div className="tips" style={{ marginTop:8 }}>{t("stillAsk")}</div>
+            <div className="tips" style={{ marginTop:8 }}>{t(lang,"stillAsk")}</div>
           </div>
         )}
 
-        {/* FAB: když jsou zkratky zavřené */}
+        {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ (jen znovu otevře menu) */}
         {!shortcutsOpen && lang && (
           <button
             className="fab fabBack"
@@ -608,31 +611,31 @@ export default function App(){
                 shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
               });
             }}
-            title={t("back")}
+            title={t(lang,"back")}
           >
-            {t("back")}
+            {t(lang,"back")}
           </button>
         )}
 
         {/* Kontaktní lišta */}
-        <div className="contactBar">{t("contact")}</div>
+        <div className="contactBar">{t(lang,"contact")}</div>
       </div>
 
       {/* ===== CTA STACK ===== */}
       <div className="fabStack" aria-live="polite">
         {showKeysCta && (
           <button className="fabAction" onClick={() => setRoomSheet({ open:true, floor:null, last:null })}>
-            {t("pickRoom")}
+            {t(lang,"pickRoom")}
           </button>
         )}
         {wifiCtas.showPassword && (
           <button className="fabAction" onClick={() => setWifiRoomSheet({ open:true, floor:null, last:null })}>
-            {t("showMyWifi")}
+            {t(lang,"showMyWifi")}
           </button>
         )}
         {wifiCtas.showNotOk && (
           <button className="fabAction" onClick={() => setWifiSsidSheet({ open:true, ssid:null })}>
-            {t("notOk")}
+            {t(lang,"notOk")}
           </button>
         )}
       </div>
@@ -641,8 +644,8 @@ export default function App(){
       {roomSheet.open && (
         <div className="overlay" onClick={()=>setRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{t("pickRoom")}</h4>
-            <div className="tips" style={{marginBottom:6}}>{t("floor")}</div>
+            <h4>{t(lang,"pickRoom")}</h4>
+            <div className="tips" style={{marginBottom:6}}>{t(lang,"floor")}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${roomSheet.floor===f?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, floor:f}))}>
@@ -650,7 +653,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{t("room")}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{t(lang,"room")}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${roomSheet.last===l?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, last:l}))}>
@@ -659,14 +662,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setRoomSheet({open:false,floor:null,last:null})}>{t("cancel")}</button>
+              <button className="backBtn" onClick={()=>setRoomSheet({open:false,floor:null,last:null})}>{t(lang,"cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={roomSheet.floor===null || roomSheet.last===null}
                 onClick={confirmRoom}
               >
-                {t("confirm")}
+                {t(lang,"confirm")}
               </button>
             </div>
           </div>
@@ -677,8 +680,8 @@ export default function App(){
       {wifiRoomSheet.open && (
         <div className="overlay" onClick={()=>setWifiRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{t("pickRoom")}</h4>
-            <div className="tips" style={{marginBottom:6}}>{t("floor")}</div>
+            <h4>{t(lang,"pickRoom")}</h4>
+            <div className="tips" style={{marginBottom:6}}>{t(lang,"floor")}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${wifiRoomSheet.floor===f?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, floor:f}))}>
@@ -686,7 +689,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{t("room")}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{t(lang,"room")}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${wifiRoomSheet.last===l?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, last:l}))}>
@@ -695,14 +698,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setWifiRoomSheet({open:false,floor:null,last:null})}>{t("cancel")}</button>
+              <button className="backBtn" onClick={()=>setWifiRoomSheet({open:false,floor:null,last:null})}>{t(lang,"cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={wifiRoomSheet.floor===null || wifiRoomSheet.last===null}
                 onClick={confirmWifiRoom}
               >
-                {t("confirm")}
+                {t(lang,"confirm")}
               </button>
             </div>
           </div>
@@ -713,7 +716,7 @@ export default function App(){
       {wifiSsidSheet.open && (
         <div className="overlay" onClick={()=>setWifiSsidSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{t("pickSsid")}</h4>
+            <h4>{t(lang,"pickSsid")}</h4>
             <div className="pillRow" style={{marginBottom:12}}>
               {ALL_SSIDS.map(code=>(
                 <button
@@ -726,14 +729,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setWifiSsidSheet({open:false, ssid:null})}>{t("cancel")}</button>
+              <button className="backBtn" onClick={()=>setWifiSsidSheet({open:false, ssid:null})}>{t(lang,"cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={!wifiSsidSheet.ssid}
                 onClick={confirmWifiSsid}
               >
-                {t("confirm")}
+                {t(lang,"confirm")}
               </button>
             </div>
           </div>
