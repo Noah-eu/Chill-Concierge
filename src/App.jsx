@@ -235,6 +235,10 @@ const tr = {
   pl:{ /* ... */ }
 };
 
+/** ============ Fallback helpery pro i18n ============ */
+const getDict = (lang) => (tr[lang] ? tr[lang] : tr.cs);
+const safeText = (dict, key) => dict[key] ?? tr.cs[key] ?? key;
+
 /** ================== barvy ============== */
 const btnColorForIndex = (i) =>
   [ "var(--blue)", "var(--red)", "var(--yellow)", "var(--green)" ][i % 4];
@@ -288,76 +292,76 @@ export default function App(){
     if (lang && shortcutsOpen) scrollToShortcuts();
   }, [lang, shortcutsOpen]);
 
-  const dict  = useMemo(() => tr[lang || "cs"], [lang]);
+  // ✅ bezpečný slovník s fallbackem do cs
+  const dict  = useMemo(() => getDict(lang || "cs"), [lang]);
 
   /** ====== FLOWS ====== */
   function makeFlows(dict){
+    const t = (k) => safeText(dict, k);
+
     const FOOD = [
-      { label: dict.diningLabel,   control:{ intent:"local", sub:"dining" } },
-      { label: dict.bakeryLabel,   control:{ intent:"local", sub:"bakery" } },
-      { label: dict.cafeBarGroupLabel, children:[
-        { label: dict.cafeLabel, control:{ intent:"local", sub:"cafe" } },
-        { label: dict.barLabel,  control:{ intent:"local", sub:"bar"  } },
+      { label: t("diningLabel"),   control:{ intent:"local", sub:"dining" } },
+      { label: t("bakeryLabel"),   control:{ intent:"local", sub:"bakery" } },
+      { label: t("cafeBarGroupLabel"), children:[
+        { label: t("cafeLabel"), control:{ intent:"local", sub:"cafe" } },
+        { label: t("barLabel"),  control:{ intent:"local", sub:"bar"  } },
       ]},
-      { label: dict.groceryLabel,  control:{ intent:"local", sub:"grocery" } },
-      { label: dict.pharmacyLabel, control:{ intent:"local", sub:"pharmacy" } },
-      { label: dict.foodDelivery,  control:{ intent:"tech",  sub:"food_delivery" } },
-      { label: dict.moneyGroupLabel, children:[
-        { label: dict.exchangeLabel, control:{ intent:"local", sub:"exchange" } },
-        { label: dict.atmLabel,      control:{ intent:"local", sub:"atm" } },
+      { label: t("groceryLabel"),  control:{ intent:"local", sub:"grocery" } },
+      { label: t("pharmacyLabel"), control:{ intent:"local", sub:"pharmacy" } },
+      { label: t("foodDelivery"),  control:{ intent:"tech",  sub:"food_delivery" } },
+      { label: t("moneyGroupLabel"), children:[
+        { label: t("exchangeLabel"), control:{ intent:"local", sub:"exchange" } },
+        { label: t("atmLabel"),      control:{ intent:"local", sub:"atm" } },
       ]},
     ];
 
     const TECH = [
-      { label: dict.wifiLabel,            control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
-      { label: dict.powerLabel,           control:{ intent:"tech", sub:"power" } },
-      { label: dict.hotWaterLabel,        control:{ intent:"tech", sub:"hot_water" } },
-      { label: dict.acLabel,              control:{ intent:"tech", sub:"ac" } },
-      { label: dict.inductionLabel,       control:{ intent:"tech", sub:"induction" } },
-      { label: dict.hoodLabel,            control:{ intent:"tech", sub:"hood" } },
-      { label: dict.coffeeLabel,          control:{ intent:"tech", sub:"coffee" } },
-      { label: dict.fireAlarmLabel,       control:{ intent:"tech", sub:"fire_alarm" } },
-      { label: dict.elevatorPhoneLabel,   control:{ intent:"tech", sub:"elevator_phone" } },
-      { label: dict.safeLabel,            control:{ intent:"tech", sub:"safe" } },
-      { label: dict.spareKeyLabel,        control:{ intent:"tech", sub:"keys" } },
+      { label: t("wifiLabel"),            control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
+      { label: t("powerLabel"),           control:{ intent:"tech", sub:"power" } },
+      { label: t("hotWaterLabel"),        control:{ intent:"tech", sub:"hot_water" } },
+      { label: t("acLabel"),              control:{ intent:"tech", sub:"ac" } },
+      { label: t("inductionLabel"),       control:{ intent:"tech", sub:"induction" } },
+      { label: t("hoodLabel"),            control:{ intent:"tech", sub:"hood" } },
+      { label: t("coffeeLabel"),          control:{ intent:"tech", sub:"coffee" } },
+      { label: t("fireAlarmLabel"),       control:{ intent:"tech", sub:"fire_alarm" } },
+      { label: t("elevatorPhoneLabel"),   control:{ intent:"tech", sub:"elevator_phone" } },
+      { label: t("safeLabel"),            control:{ intent:"tech", sub:"safe" } },
+      { label: t("spareKeyLabel"),        control:{ intent:"tech", sub:"keys" } },
     ];
 
     const TRANSPORT = [
-      { label: dict.transportInfo, control:{ intent:"tech", sub:"transport" } },
+      { label: t("transportInfo"), control:{ intent:"tech", sub:"transport" } },
     ];
 
     const AMENITIES = [
-      { label: dict.aRooms,   control:{ intent:"amenities", sub:"rooms" } },
-      { label: dict.aKitchen, control:{ intent:"amenities", sub:"kitchen" } },
-      { label: dict.aBathroom,control:{ intent:"amenities", sub:"bathroom" } },
-      { label: dict.aService, control:{ intent:"amenities", sub:"service" } },
+      { label: t("aRooms"),   control:{ intent:"amenities", sub:"rooms" } },
+      { label: t("aKitchen"), control:{ intent:"amenities", sub:"kitchen" } },
+      { label: t("aBathroom"),control:{ intent:"amenities", sub:"bathroom" } },
+      { label: t("aService"), control:{ intent:"amenities", sub:"service" } },
     ];
 
     const OTHER = [
-      { label: dict.laundryLabel,     control:{ intent:"tech", sub:"laundry" } },
-      { label: dict.accessLabel,      control:{ intent:"tech", sub:"access" } },
-      { label: dict.smokingLabel,     control:{ intent:"tech", sub:"smoking" } },
-      { label: dict.luggageLabel,     control:{ intent:"tech", sub:"luggage" } },
-      { label: dict.doorbellsLabel,   control:{ intent:"tech", sub:"doorbells" } },
-      { label: dict.gateLabel,        control:{ intent:"tech", sub:"gate" } },
-      { label: dict.trashLabel,       control:{ intent:"tech", sub:"trash" } },
-      { label: dict.doctorLabel,      control:{ intent:"tech", sub:"doctor" } },
-      { label: dict.linenLabel,       control:{ intent:"tech", sub:"linen_towels" } },
+      { label: t("laundryLabel"),     control:{ intent:"tech", sub:"laundry" } },
+      { label: t("accessLabel"),      control:{ intent:"tech", sub:"access" } },
+      { label: t("smokingLabel"),     control:{ intent:"tech", sub:"smoking" } },
+      { label: t("luggageLabel"),     control:{ intent:"tech", sub:"luggage" } },
+      { label: t("doorbellsLabel"),   control:{ intent:"tech", sub:"doorbells" } },
+      { label: t("gateLabel"),        control:{ intent:"tech", sub:"gate" } },
+      { label: t("trashLabel"),       control:{ intent:"tech", sub:"trash" } },
+      { label: t("doctorLabel"),      control:{ intent:"tech", sub:"doctor" } },
+      { label: t("linenLabel"),       control:{ intent:"tech", sub:"linen_towels" } },
     ];
 
-    /* Hlavní nabídka – přidán samostatný Wi-Fi chip hned po 3D prohlídce */
+    /* Hlavní nabídka – Wi-Fi chip hned po 3D prohlídce */
     return [
-      { label: dict.instructionsLabel, control:{ intent:"tech", sub:"stay_instructions" } },
-      { label: dict.tourLabel, action:"tour" },
-
-      // 🆕 Samostatný Wi-Fi chip v hlavním menu
-      { label: dict.wifiLabel, control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
-
-      { label: dict.catFood,      children:FOOD },
-      { label: dict.catTech,      children:TECH },
-      { label: dict.catTransport, children:TRANSPORT },
-      { label: dict.catAmenities, children:AMENITIES },
-      { label: dict.catOther,     children:OTHER },
+      { label: t("instructionsLabel"), control:{ intent:"tech", sub:"stay_instructions" } },
+      { label: t("tourLabel"), action:"tour" },
+      { label: t("wifiLabel"), control:{ intent:"tech", sub:"wifi", kind:"wifi" } },
+      { label: t("catFood"),      children:FOOD },
+      { label: t("catTech"),      children:TECH },
+      { label: t("catTransport"), children:TRANSPORT },
+      { label: t("catAmenities"), children:AMENITIES },
+      { label: t("catOther"),     children:OTHER },
     ];
   }
   const FLOWS = useMemo(() => makeFlows(dict), [dict]);
@@ -405,7 +409,6 @@ export default function App(){
 
   const onChipClick = (n) => {
     if (n.children) {
-      // přesun do kategorie – skryj případné Wi-Fi CTA
       setWifiCtas({ showPassword:false, showNotOk:false });
       return openNode(n);
     }
@@ -414,21 +417,19 @@ export default function App(){
       try { window.open(MATTERPORT_URL, "_blank", "noopener,noreferrer"); } catch {}
       setWifiCtas({ showPassword:false, showNotOk:false });
       setShortcutsOpen(false);
-      setChat(c => [...c, { role:"assistant", content: tr[lang || "cs"].tourOpenMsg }]);
+      setChat(c => [...c, { role:"assistant", content: dict.tourOpenMsg }]); // ✅
       return;
     }
 
     if (n.control?.kind === "wifi") {
       setShortcutsOpen(false);
       sendControl("Wi-Fi", { intent:"tech", sub:"wifi" });
-      // zobraz pouze „Zobrazit moje heslo“ – „Nefunguje“ se ukáže po zadání pokoje/SSID
       setWifiCtas({ showPassword:true, showNotOk:false });
       return;
     }
 
     if (n.control) {
       setShortcutsOpen(false);
-      // jakékoli jiné téma = vypnout Wi-Fi CTA, aby nic „nezůstalo viset“
       setWifiCtas({ showPassword:false, showNotOk:false });
       return sendControl(n.label, n.control);
     }
@@ -543,7 +544,7 @@ export default function App(){
         {lang && currentChildren && shortcutsOpen && (
           <div className="shortcuts" ref={shortcutsRef}>
             <div className="shortcutsHeader">
-              <strong>{stack.length === 0 ? tr[lang||"cs"].mainTitle : tr[lang||"cs"].subTitle}</strong>
+              <strong>{stack.length === 0 ? safeText(dict,"mainTitle") : safeText(dict,"subTitle")}</strong>
               <div className="btnRow">
                 {stack.length > 0 && (
                   <button
@@ -554,11 +555,11 @@ export default function App(){
                       scrollToShortcuts();
                     }}
                   >
-                    {tr[lang||"cs"].back}
+                    {safeText(dict,"back")}
                   </button>
                 )}
                 <button className="backBtn" onClick={() => { setShortcutsOpen(false); }}>
-                  {tr[lang||"cs"].hide}
+                  {safeText(dict,"hide")}
                 </button>
                 <button
                   className="backBtn"
@@ -572,7 +573,7 @@ export default function App(){
                     });
                   }}
                 >
-                  🌐 {tr[lang||"cs"].chooseLang}
+                  🌐 {safeText(dict,"chooseLang")}
                 </button>
               </div>
             </div>
@@ -603,11 +604,11 @@ export default function App(){
               )}
             </div>
 
-            <div className="tips" style={{ marginTop:8 }}>{tr[lang||"cs"].stillAsk}</div>
+            <div className="tips" style={{ marginTop:8 }}>{safeText(dict,"stillAsk")}</div>
           </div>
         )}
 
-        {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ (jen znovu otevře menu) */}
+        {/* FAB: když jsou zkratky zavřené → červené tlačítko „← Zpět“ */}
         {!shortcutsOpen && lang && (
           <button
             className="fab fabBack"
@@ -617,31 +618,31 @@ export default function App(){
                 shortcutsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
               });
             }}
-            title={tr[lang||"cs"].back}
+            title={safeText(dict,"back")}
           >
-            {tr[lang||"cs"].back}
+            {safeText(dict,"back")}
           </button>
         )}
 
         {/* Kontaktní lišta */}
-        <div className="contactBar">{tr[lang||"cs"].contact}</div>
+        <div className="contactBar">{safeText(dict,"contact")}</div>
       </div>
 
       {/* ===== CTA STACK ===== */}
       <div className="fabStack" aria-live="polite">
         {showKeysCta && (
           <button className="fabAction" onClick={() => setRoomSheet({ open:true, floor:null, last:null })}>
-            {tr[lang||"cs"].pickRoom}
+            {safeText(dict,"pickRoom")}
           </button>
         )}
         {wifiCtas.showPassword && (
           <button className="fabAction" onClick={() => setWifiRoomSheet({ open:true, floor:null, last:null })}>
-            {tr[lang||"cs"].showMyWifi}
+            {safeText(dict,"showMyWifi")}
           </button>
         )}
         {wifiCtas.showNotOk && (
           <button className="fabAction" onClick={() => setWifiSsidSheet({ open:true, ssid:null })}>
-            {tr[lang||"cs"].notOk}
+            {safeText(dict,"notOk")}
           </button>
         )}
       </div>
@@ -650,8 +651,8 @@ export default function App(){
       {roomSheet.open && (
         <div className="overlay" onClick={()=>setRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{tr[lang||"cs"].pickRoom}</h4>
-            <div className="tips" style={{marginBottom:6}}>{tr[lang||"cs"].floor}</div>
+            <h4>{safeText(dict,"pickRoom")}</h4>
+            <div className="tips" style={{marginBottom:6}}>{safeText(dict,"floor")}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${roomSheet.floor===f?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, floor:f}))}>
@@ -659,7 +660,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{tr[lang||"cs"].room}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{safeText(dict,"room")}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${roomSheet.last===l?'active':''}`} onClick={()=>setRoomSheet(s=>({...s, last:l}))}>
@@ -668,14 +669,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setRoomSheet({open:false,floor:null,last:null})}>{tr[lang||"cs"].cancel}</button>
+              <button className="backBtn" onClick={()=>setRoomSheet({open:false,floor:null,last:null})}>{safeText(dict,"cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={roomSheet.floor===null || roomSheet.last===null}
                 onClick={confirmRoom}
               >
-                {tr[lang||"cs"].confirm}
+                {safeText(dict,"confirm")}
               </button>
             </div>
           </div>
@@ -686,8 +687,8 @@ export default function App(){
       {wifiRoomSheet.open && (
         <div className="overlay" onClick={()=>setWifiRoomSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{tr[lang||"cs"].pickRoom}</h4>
-            <div className="tips" style={{marginBottom:6}}>{tr[lang||"cs"].floor}</div>
+            <h4>{safeText(dict,"pickRoom")}</h4>
+            <div className="tips" style={{marginBottom:6}}>{safeText(dict,"floor")}</div>
             <div className="pillRow" style={{marginBottom:8}}>
               {[0,1,2,3].map(f=>(
                 <button key={f} className={`pill ${wifiRoomSheet.floor===f?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, floor:f}))}>
@@ -695,7 +696,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <div className="tips" style={{marginTop:6, marginBottom:6}}>{tr[lang||"cs"].room}</div>
+            <div className="tips" style={{marginTop:6, marginBottom:6}}>{safeText(dict,"room")}</div>
             <div className="pillRow" style={{marginBottom:12}}>
               {["01","02","03","04","05"].map(l=>(
                 <button key={l} className={`pill ${wifiRoomSheet.last===l?'active':''}`} onClick={()=>setWifiRoomSheet(s=>({...s, last:l}))}>
@@ -704,14 +705,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setWifiRoomSheet({open:false,floor:null,last:null})}>{tr[lang||"cs"].cancel}</button>
+              <button className="backBtn" onClick={()=>setWifiRoomSheet({open:false,floor:null,last:null})}>{safeText(dict,"cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={wifiRoomSheet.floor===null || wifiRoomSheet.last===null}
                 onClick={confirmWifiRoom}
               >
-                {tr[lang||"cs"].confirm}
+                {safeText(dict,"confirm")}
               </button>
             </div>
           </div>
@@ -722,7 +723,7 @@ export default function App(){
       {wifiSsidSheet.open && (
         <div className="overlay" onClick={()=>setWifiSsidSheet(s=>({ ...s, open:false }))}>
           <div className="sheet" onClick={(e)=>e.stopPropagation()}>
-            <h4>{tr[lang||"cs"].pickSsid}</h4>
+            <h4>{safeText(dict,"pickSsid")}</h4>
             <div className="pillRow" style={{marginBottom:12}}>
               {ALL_SSIDS.map(code=>(
                 <button
@@ -735,14 +736,14 @@ export default function App(){
               ))}
             </div>
             <div className="pillRow">
-              <button className="backBtn" onClick={()=>setWifiSsidSheet({open:false, ssid:null})}>{tr[lang||"cs"].cancel}</button>
+              <button className="backBtn" onClick={()=>setWifiSsidSheet({open:false, ssid:null})}>{safeText(dict,"cancel")}</button>
               <button
                 className="chipPrimary"
                 style={{ ["--btn"]: "var(--blue)" }}
                 disabled={!wifiSsidSheet.ssid}
                 onClick={confirmWifiSsid}
               >
-                {tr[lang||"cs"].confirm}
+                {safeText(dict,"confirm")}
               </button>
             </div>
           </div>
